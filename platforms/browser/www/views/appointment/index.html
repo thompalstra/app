@@ -1,0 +1,22 @@
+<menu class='has-2'>
+    <item action="navigateBack">
+        <i class="material-icons">&#xE5C4;</i>
+    </item>
+    <title>Afspraak</title>
+</menu>
+<content>
+    <h2>Installaties</h2>
+    <h2>Detail</h2>
+</content>
+
+
+<script>
+    $('view title').html( app.appointment.debtor.name );
+
+
+    for(var i in app.appointment.service_points){
+        var sp =  app.appointment.service_points[i];
+
+        console.log(sp);
+    }
+</script>

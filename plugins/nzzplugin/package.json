@@ -1,0 +1,57 @@
+{
+  "_args": [
+    [
+      {
+        "raw": "C:\\Users\\t.palstra\\Documents\\cordova\\at01\\nzzPlugin",
+        "scope": null,
+        "escapedName": null,
+        "name": null,
+        "rawSpec": "C:\\Users\\t.palstra\\Documents\\cordova\\at01\\nzzPlugin",
+        "spec": "C:\\Users\\t.palstra\\Documents\\cordova\\at01\\nzzPlugin",
+        "type": "directory"
+      },
+      "C:\\Users\\t.palstra\\Documents\\cordova\\at01\\node_modules"
+    ]
+  ],
+  "_from": "nzzPlugin",
+  "_id": "nzzPlugin@0.0.1",
+  "_inCache": true,
+  "_location": "/nzzPlugin",
+  "_phantomChildren": {},
+  "_requested": {
+    "raw": "C:\\Users\\t.palstra\\Documents\\cordova\\at01\\nzzPlugin",
+    "scope": null,
+    "escapedName": null,
+    "name": null,
+    "rawSpec": "C:\\Users\\t.palstra\\Documents\\cordova\\at01\\nzzPlugin",
+    "spec": "C:\\Users\\t.palstra\\Documents\\cordova\\at01\\nzzPlugin",
+    "type": "directory"
+  },
+  "_requiredBy": [
+    "#USER",
+    "/"
+  ],
+  "_resolved": "file:nzzPlugin",
+  "_shasum": "10a0f7d8c67e2ef5fea59120a96c4c9acd474714",
+  "_shrinkwrap": null,
+  "_spec": "C:\\Users\\t.palstra\\Documents\\cordova\\at01\\nzzPlugin",
+  "_where": "C:\\Users\\t.palstra\\Documents\\cordova\\at01\\node_modules",
+  "author": "",
+  "cordova": {
+    "id": "nzzplugin",
+    "platforms": [
+      "android"
+    ]
+  },
+  "dependencies": {},
+  "devDependencies": {},
+  "keywords": [
+    "ecosystem:cordova",
+    "cordova-android"
+  ],
+  "license": "ISC",
+  "name": "nzzPlugin",
+  "optionalDependencies": {},
+  "readme": "ERROR: No README data found!",
+  "version": "0.0.1"
+}

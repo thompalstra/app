@@ -1,0 +1,45 @@
+<menu class='has-3'>
+    <item action="toggleSidebar">
+        <i class="material-icons icon">&#xE5D2;</i>
+    </item>
+    <title>Nothing to show</title>
+    <item action="sync">
+        <i class="material-icons icon">&#xE627;</i>
+    </item>
+</menu>
+<content>
+    <h2>Planning</h2>
+    <ul class='planning-list'>
+
+    </ul>
+
+</content>
+
+
+<script>
+    // load
+
+    Day.find().all(function(days){
+        for(var dayIndex in days){
+            var day = days[dayIndex];
+            var str = "<li>";
+            str += app.timestamp.toDate(day.id);
+
+
+            str += "<ul>";
+            for(var appointmentIndex in day.data){
+                var appointment = day.data[appointmentIndex];
+                str += "<li action='viewAppointment' day='"+day.id+"' appointment='"+appointmentIndex+"'>";
+                str += appointment.debtor.name;
+                str == "</ul>";
+            }
+            str += "</ul>";
+
+
+            str += "</li>";
+
+            $('.planning-list').append( $(str) );
+
+        }
+    });
+</script>
