@@ -1,0 +1,37 @@
+<menu class='has-2'>
+    <item action="navigateBack">
+        <i class="material-icons">&#xE5C4;</i>
+    </item>
+    <title>Meetpunten</title>
+</menu>
+<content>
+    <section class='inner'>
+        <form id='form-search-code' class='form form-search-code'>
+            <div class='row'>
+                <input type="text" name="value" class='input'/>
+                <button type='submit' class='btn btn-icon success'><i class="material-icons">&#xE8B6;</i></button>
+            </div>
+        </form>
+    </section>
+    <ul class='checkpoint-list'></ul>
+</content>
+
+
+<script>
+    app.navigate.back = function(){
+        app.navigate.to('views/appointment/index.html', function(e){
+
+        });
+    }
+    app.checkpoint = null;
+    app.checkpointIndex = null;
+    var appointment = app.appointment;
+
+    for(var i in appointment.checkpoints){
+        var sp = appointment.checkpoints[i];
+        var str = "<ul action='viewCheckpoint' checkpoint='"+i+"' data-code='"+sp.code+"'>";
+        str += "<h4>" + sp.name + "</h4>";
+        str += "</ul>";
+        $('.checkpoint-list').append( $(str) );
+    }
+</script>

@@ -2,16 +2,63 @@ body{
     background-color: #ddd;
 }
 app > view > menu > item[action="sync"] .icon.syncing{
-    -webkit-animation:spin 1s linear infinite;
-    -moz-animation:spin 1s linear infinite;
-    animation:spin 1s linear infinite;
+    -webkit-animation:spin 500ms linear infinite;
+    -moz-animation:spin 500ms linear infinite;
+    animation:spin 500ms linear infinite;
 }
 @-moz-keyframes spin { 100% { -moz-transform: rotate(360deg); } }
 @-webkit-keyframes spin { 100% { -webkit-transform: rotate(360deg); } }
 @keyframes spin { 100% { -webkit-transform: rotate(360deg); transform:rotate(360deg); } }
 
 
+.checkpoint-list{
+    width: calc(100% - 20px);
+    padding: 0;
+    margin: 10px;
+    box-sizing: border-box;
+}
 
+.checkpoint-list ul{
+    margin: 0;
+    background-color: white;
+    margin-bottom: 10px;
+    padding: 0;
+    box-sizing: border-box;
+    position: relative;
+}
+
+.checkpoint-list ul h4{
+    margin: 0;
+    padding: 0 60px 0 10px;
+    height: 50px;
+    line-height: 50px;
+}
+
+.checkpoint-list ul:before{
+    content: "\E8B6";
+    position: absolute;
+    right: 0;
+    top: 0;
+    font-family: "Material Icons";
+    height: 50px;
+    width: 50px;
+    text-align: center;
+    font-size: 26px;
+    line-height: 50px;
+    color: #333;
+}
+.checkpoint-list ul:after{
+    content: attr(data-code);
+    width: 100%;
+    display: inline-block;
+    box-sizing: border-box;
+    background-color: #333;
+    color: white;
+    height: 30px;
+    line-height: 30px;
+    padding: 0 10px;
+    font-size: 12px;
+}
 
 .planning-list{
     padding: 0;
@@ -25,7 +72,18 @@ app > view > menu > item[action="sync"] .icon.syncing{
     height: 50px;
     line-height: 30px;
     margin: 0;
-    box-sizing: border-box;    
+    box-sizing: border-box;
+    position: relative;
+}
+
+.planning-list h4 .material-icons{
+    position: absolute;
+    top: 0;
+    right: 0;
+    line-height: 50px;
+    width: 50px;
+    text-align: center;
+
 }
 
 .planning-list .inner{
@@ -90,4 +148,55 @@ app > view > menu > item[action="sync"] .icon.syncing{
 .info-table .email{
     background-color: #71BA51;
     color: white;
+}
+
+#lastsync{
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    margin: 0;
+    padding: 0;
+    color: #aaa;
+    font-size: 11px;
+    line-height: 8px;
+    text-align: right;
+}
+
+#complete-appointment{
+    position: relative;
+    width: calc(100% - 20px);
+    margin: 10px;
+    padding: 0;
+    text-align: center;
+    height: 50px;
+    line-height: 50px;
+    color: white;
+    background-color: #71BA51;
+}
+
+#complete-appointment p{
+    margin: 0;
+    padding: 0;
+    line-height: inherit;    
+}
+
+#complete-appointment:after{
+    content: "\E5CA";
+    font-family: "Material Icons";
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 50px;
+    height: 50px;
+    line-height: 50px;
+    text-align: center;
+}
+
+
+.form-search-code .input{
+    width: calc( 100% - 50px );
+    float: left;
+}
+.form-search-code .btn-icon{
+    float: right;
 }

@@ -12,6 +12,7 @@
     "dependencies": {
         "cordova-android": "^6.2.3",
         "cordova-browser": "^4.1.0",
+        "cordova-plugin-statusbar": "^2.2.3",
         "cordova-plugin-whitelist": "^1.3.2",
         "nzzPlugin": "file:nzzPlugin",
         "nzzplugin": "nzzPlugin"
@@ -19,7 +20,8 @@
     "cordova": {
         "plugins": {
             "cordova-plugin-whitelist": {},
-            "nzzplugin": {}
+            "nzzplugin": {},
+            "cordova-plugin-statusbar": {}
         },
         "platforms": [
             "android",

@@ -1,3 +1,116 @@
 body{
     background-color: #ddd;
 }
+app > view > menu > item[action="sync"] .icon.syncing{
+    -webkit-animation:spin 500ms linear infinite;
+    -moz-animation:spin 500ms linear infinite;
+    animation:spin 500ms linear infinite;
+}
+@-moz-keyframes spin { 100% { -moz-transform: rotate(360deg); } }
+@-webkit-keyframes spin { 100% { -webkit-transform: rotate(360deg); } }
+@keyframes spin { 100% { -webkit-transform: rotate(360deg); transform:rotate(360deg); } }
+
+
+
+
+.planning-list{
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    position: relative;
+}
+
+.planning-list h4{
+    padding: 10px;
+    height: 50px;
+    line-height: 30px;
+    margin: 0;
+    box-sizing: border-box;
+    position: relative;
+}
+
+.planning-list h4 .material-icons{
+    position: absolute;
+    top: 0;
+    right: 0;
+    line-height: 50px;
+    width: 50px;
+    text-align: center;
+
+}
+
+.planning-list .inner{
+    background-color: white;
+    width: calc(100% - 20px);
+    margin: 10px;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.planning-list > section > li{
+    text-align: center;
+    line-height: 50px;
+    /*background-color: #333;*/
+    /*color: white;*/
+}
+
+.planning-list > section > li > ul{
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+.planning-list > section > li > ul > li{
+    text-align: left;
+    padding: 0 10px;
+    position: relative;
+}
+.planning-list > section > li > ul > li:after{
+    content: "\E8B6";
+    position: absolute;
+    right: 0; top: 0;
+    font-family: "Material Icons";
+    height: 50px;
+    width: 50px;
+    text-align: center;
+    font-size: 26px;
+    color: #333;
+}
+
+.info-table{
+    border-collapse: collapse;
+}
+.info-table .icon{
+    width: 50px;
+    height: 50px;
+}
+.info-table .icon .material-icons{
+    width: 50px;
+    height: 50px;
+    line-height: 50px;
+    text-align: center;
+}
+.info-table .icon + .value{
+    width: calc(100% - 50px);
+    height: 50px;
+}
+
+.info-table .phone{
+    background-color: #3D8EB9;
+    color: white;
+}
+.info-table .email{
+    background-color: #71BA51;
+    color: white;
+}
+
+#lastsync{
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    margin: 0;
+    padding: 0;
+    color: #aaa;
+    font-size: 11px;
+    line-height: 8px;
+    text-align: right;
+}

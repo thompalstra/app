@@ -1,0 +1,54 @@
+<menu class='has-2'>
+    <item action="navigateBack">
+        <i class="material-icons">&#xE5C4;</i>
+    </item>
+    <title>Debiteur</title>
+</menu>
+<content>
+    <section class='inner'>
+        <h2 id='invoice'>Factuurgegevens</h2>
+        <p>
+            <span id='invoice_address'></span>
+            <span id='invoice_house_number'></span>
+            <span id='invoice_addition'></span>
+        </p>
+        <p>
+            <span id='invoice_postcode'></span>
+            <span id='invoice_city'></span>
+        </p>
+    </section>
+    <section class='inner'>
+        <h2 id='visit'>Adresgegevens</h2>
+        <p>
+            <span id='visit_address'></span>
+            <span id='visit_house_number'></span>
+            <span id='visit_addition'></span>
+        </p>
+        <p>
+            <span id='visit_postcode'></span>
+            <span id='visit_city'></span>
+        </p>
+    </section>
+</content>
+
+
+<script>
+    $('view title').html( "Contact gegevens: " + app.appointment.debtor.name );
+    $('#invoice_address').html( app.appointment.debtor.invoice_address );
+    $('#invoice_postcode').html( app.appointment.debtor.invoice_postcode );
+    $('#invoice_city').html( app.appointment.debtor.invoice_city );
+    $('#invoice_house_number').html( app.appointment.debtor.invoice_house_number );
+    $('#invoice_addition').html( app.appointment.debtor.invoice_addition );
+
+    $('#visit_address').html( app.appointment.debtor.visit_address );
+    $('#visit_postcode').html( app.appointment.debtor.visit_postcode );
+    $('#visit_city').html( app.appointment.debtor.visit_city );
+    $('#visit_house_number').html( app.appointment.debtor.visit_house_number );
+    $('#visit_addition').html( app.appointment.debtor.visit_addition );
+
+    app.navigate.back = function(){
+        app.navigate.to('views/appointment/index.html', function(e){
+
+        });
+    }
+</script>

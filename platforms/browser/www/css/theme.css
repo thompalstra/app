@@ -64,6 +64,56 @@ h2.title{
 }
 
 
+
+.form{
+
+}
+.form .row{
+    display: inline-block;
+    width: 100%;
+}
+.form .input{
+    border: 0;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    box-sizing: border;
+    height: 50px;
+    line-height: 50px;
+    background-color: #ddd;
+    outline: 0;
+}
+
+
+.success{
+    color: white;
+    background-color: #71BA51;
+}
+
+.btn{
+    border: 0;
+    outline: 0;
+}
+
+.btn-icon{
+    min-width: 50px;
+    height: 50px;
+    line-height: 50px;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+}
+.btn-icon .material-icons{
+    width: 50px;
+    height: 50px;
+    line-height: 50px;
+}
+
+.hidden{
+    display: none !important;
+}
+
+
 menu.has-3 item{
     width: 50px;
     height: 50px;

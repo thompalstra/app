@@ -14,6 +14,7 @@ import com.datalogic.decode.DecodeResult;
 import com.datalogic.decode.ReadListener;
 import com.datalogic.device.ErrorManager;
 
+import android.content.Intent;
 import android.content.Context;
 import android.widget.Toast;
 
@@ -43,6 +44,40 @@ public class nzzPlugin extends CordovaPlugin {
         Context context = cordova.getActivity().getApplicationContext();
         int duration = Toast.LENGTH_LONG;
         Toast toast = Toast.makeText(context, "Double tap the back button to exit", duration);
+        toast.show();
+
+        PluginResult result = new PluginResult(PluginResult.Status.OK, "");
+        result.setKeepCallback(true);
+        callbackContext.sendPluginResult(result);
+    }
+
+    public void minimize(CallbackContext callbackContext) {
+        Intent startMain = new Intent(Intent.ACTION_MAIN);
+        startMain.addCategory(Intent.CATEGORY_HOME);
+        startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        // this.startActivity(startMain);
+        Context context=this.cordova.getActivity().getApplicationContext();
+        //or Context context=cordova.getActivity().getApplicationContext();
+        // Intent intent=new Intent(context,Next_Activity.class);
+
+        context.startActivity(startMain);
+        //or cordova.getActivity().startActivity(intent);
+    }
+
+    public void showStartSyncToast(CallbackContext callbackContext){
+        Context context = cordova.getActivity().getApplicationContext();
+        int duration = Toast.LENGTH_SHORT;
+        Toast toast = Toast.makeText(context, "Synchroniseren...", duration);
+        toast.show();
+
+        PluginResult result = new PluginResult(PluginResult.Status.OK, "");
+        result.setKeepCallback(true);
+        callbackContext.sendPluginResult(result);
+    }
+    public void showEndSyncToast(CallbackContext callbackContext){
+        Context context = cordova.getActivity().getApplicationContext();
+        int duration = Toast.LENGTH_SHORT;
+        Toast toast = Toast.makeText(context, "Synchronisatie voltooid.", duration);
         toast.show();
 
         PluginResult result = new PluginResult(PluginResult.Status.OK, "");
@@ -112,6 +147,15 @@ public class nzzPlugin extends CordovaPlugin {
             return true;
         } else if(action.equals("doubleTapToast")){
             this.doubleTapToast(callbackContext);
+            return true;
+        } else if(action.equals("showStartSyncToast")){
+            this.showStartSyncToast(callbackContext);
+            return true;
+        } else if(action.equals("showEndSyncToast")){
+            this.showEndSyncToast(callbackContext);
+            return true;
+        } else if(action.equals("minimize")){
+            this.minimize(callbackContext);
             return true;
         }
         return false;

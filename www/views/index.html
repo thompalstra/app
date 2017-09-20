@@ -8,8 +8,9 @@
     </item>
 </menu>
 <content>
-    <section class='inner'>
+    <section class='inner' style='position: relative;'>
         <h2 class='title'>Planning</h2>
+        <p id='lastsync'></p>
     </section>
     <ul class='planning-list'>
 
@@ -19,17 +20,20 @@
 
 <script>
     var hasDoubleTapped = false;
-    app.navigate.back = function(e){
 
+
+    $('#lastsync').html( "laatste synchronisatie<br><br>" + localStorage.getItem('lastsync') );
+
+    app.navigate.back = function(e){
         if(!app.navigate.timeout){
-            // alert("DOUBLE TAPPED!");
             doubleTapToast.show();
             app.navigate.timeout = setTimeout(function(e){
                 clearTimeout(app.navigate.timeout);
                 app.navigate.timeout = null;
             }, 1000);
         } else {
-            throw new Error('Exit');
+            clearTimeout(app.navigate.timeout);
+            cordova.exec(function(){}, function(){}, "nzzPlugin", "minimize", []);
         }
 
 
@@ -41,7 +45,7 @@
             var day = days[dayIndex];
             var str = "<section class='inner'>";
             str += "<li>";
-            str += "<h4>" + app.timestamp.toDate(day.id) + "</h4>";
+            str += "<h4>" + app.timestamp.toDate(day.id) + "<i class='material-icons'>&#xE916;</i></h4>";
 
 
             str += "<ul>";

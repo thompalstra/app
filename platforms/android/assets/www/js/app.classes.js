@@ -8,7 +8,19 @@ var data = {
             debtor: {
                 name: 'Albert Heijn',
                 debtor_number: 1000,
-                branch_code: 'AT1000'
+                branch_code: 'AT1000',
+                invoice_address: 'Factuurlaan',
+                invoice_house_number: '1',
+                invoice_addition: 'H',
+                invoice_postcode: '9999AZ',
+                invoice_city: 'Heerhugowaard',
+                visit_address: 'Bezoeklaan',
+                visit_house_number: '1',
+                visit_addition: '-1',
+                visit_postcode: '1337GG',
+                visit_city: 'Rotterdam',
+                phone_number: '0887779500',
+                email: 'info@ah-heerhugowaard.nl'
             },
             // service point models
             service_points: {
@@ -61,7 +73,19 @@ var data = {
             debtor: {
                 name: 'Jumbo',
                 debtor_number: 1000,
-                branch_code: 'AT1000'
+                branch_code: 'AT1000',
+                invoice_address: 'Factuurlaan',
+                invoice_house_number: '1',
+                invoice_addition: 'H',
+                invoice_postcode: '9999AZ',
+                invoice_city: 'Heerhugowaard',
+                visit_address: 'Bezoeklaan',
+                visit_house_number: '1',
+                visit_addition: '-1',
+                visit_postcode: '1337GG',
+                visit_city: 'Rotterdam',
+                phone_number: '0887779500',
+                email: 'info@ah-heerhugowaard.nl'
             },
         },
     },
@@ -72,7 +96,19 @@ var data = {
             debtor: {
                 name: 'Grolsch',
                 debtor_number: 1000,
-                branch_code: 'AT1000'
+                branch_code: 'AT1000',
+                invoice_address: 'Factuurlaan',
+                invoice_house_number: '1',
+                invoice_addition: 'H',
+                invoice_postcode: '9999AZ',
+                invoice_city: 'Heerhugowaard',
+                visit_address: 'Bezoeklaan',
+                visit_house_number: '1',
+                visit_addition: '-1',
+                visit_postcode: '1337GG',
+                visit_city: 'Rotterdam',
+                phone_number: '0887779500',
+                email: 'info@ah-heerhugowaard.nl'
             },
         },
         402 : {
@@ -81,7 +117,19 @@ var data = {
             debtor: {
                 name: 'Heineken',
                 debtor_number: 1000,
-                branch_code: 'AT1000'
+                branch_code: 'AT1000',
+                invoice_address: 'Factuurlaan',
+                invoice_house_number: '1',
+                invoice_addition: 'H',
+                invoice_postcode: '9999AZ',
+                invoice_city: 'Heerhugowaard',
+                visit_address: 'Bezoeklaan',
+                visit_house_number: '1',
+                visit_addition: '-1',
+                visit_postcode: '1337GG',
+                visit_city: 'Rotterdam',
+                phone_number: '0887779500',
+                email: 'info@ah-heerhugowaard.nl'
             },
         }
     }
@@ -144,9 +192,6 @@ class DataStoreHelper{
     }
     update(callback){
         var dataStoreHelper = new DataStoreHelper();
-
-
-        console.log(this);
 
         dataStoreHelper.transaction = app.database.db.transaction([this.storeName()], "readwrite");
         dataStoreHelper.objectStore = dataStoreHelper.transaction.objectStore(this.storeName());

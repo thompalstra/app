@@ -1,0 +1,18 @@
+<menu class='has-2'>
+    <item action="navigateBack">
+        <i class="material-icons">&#xE5C4;</i>
+    </item>
+    <title>Meetpunten</title>
+</menu>
+<content>
+
+</content>
+
+<script>
+    app.navigate.back = function(){
+        app.navigate.to('views/checkpoints/index.html', function(e){
+
+        });
+    }
+    $('title').html(app.checkpoint.name);
+</script>

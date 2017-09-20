@@ -6,14 +6,22 @@ var app = {
         this.receivedEvent('deviceready');
     },
     receivedEvent: function(id) {
+
+        if (cordova.platformId == 'android') {
+            StatusBar.backgroundColorByHexString("#002c50");
+        }
+
+
         app.scanner = scanner;
         app.scanner.register();
 
         app.database.prepare();
         app.database.open(function(){
-            app.sync.start(function(){
-                app.procedure.user();
-            });
+            var transaction = app.database.db.transaction(['day'], "readwrite");
+            var objectStore = transaction.objectStore('day');
+
+            // objectStore.clear();
+            app.procedure.user();
         });
     },
     procedure: {
@@ -26,19 +34,53 @@ var app = {
     },
     sync: {
         start: function(callback){
+            var date = new Date();
+            var m = (date.getMonth() < 10) ? "0"+date.getMonth() : date.getMonth();
+            var s = (date.getSeconds() < 10) ? "0"+date.getSeconds() : date.getSeconds();
+            var m = (date.getMinutes() < 10) ? "0"+date.getMinutes() : date.getMinutes();
+            var h = (date.getHours() < 10) ? "0"+date.getHours() : date.getHours();
+            var value = date.getDate()+"-"+m+"-"+date.getFullYear()+" "+h+":"+m+":"+s;
 
+            localStorage.setItem('lastsync', value);
+
+            if(cordova.exec){
+                cordova.exec(function(){
+                    // success
+                    app.sync.perf(callback);
+                }, function(){
+                    // error
+                    app.sync.perf(callback);
+                }, "nzzPlugin", "showStartSyncToast", []);
+            } else {
+                app.sync.perf(callback);
+            }
+
+
+
+        },
+        perf: function(callback){
             var transaction = app.database.db.transaction(['day'], "readwrite");
             var objectStore = transaction.objectStore('day');
 
-            objectStore.clear()
+            objectStore.clear();
 
             for(var i in data){
                 if(i == 'length'){ continue; }
                 Day.put({id: i, data: data[i]});
             }
 
-            callback.call(this, null);
-        },
+            if(cordova.exec){
+                cordova.exec(function(){
+                    // success
+                    callback.call(this, null);
+                }, function(){
+                    // error
+                    callback.call(this, null);
+                }, "nzzPlugin", "showEndSyncToast", []);
+            } else {
+                callback.call(this, null);
+            }
+        }
     },
     database: {
         version: 1,
@@ -140,7 +182,7 @@ $(document).on('click', '[action="viewDebtor"]', function(e){
 });
 $(document).on('click', '[action="sync"]', function(e){
     $('item[action="sync"] > .icon').addClass('syncing');
-    $('content')[0].innerHTML = '';
+    $('.planning-list').html('');
     setTimeout(function(e){
         app.sync.start(function(e){
             app.navigate.to('views/index.html');
@@ -153,11 +195,69 @@ $(document).on('click', '[action="viewAppointment"]', function(e){
     var appointment = $(this).attr('appointment');
     Day.find().findById(day, function(result){
         app.day = result;
+        app.dayIndex = day;
+        app.appointmentIndex = appointment;
         app.appointment = result.data[appointment];
         app.navigate.to('views/appointment/index.html');
     });
 });
 
+$(document).on('click', '[action="viewCheckpoints"]', function(e){
+    app.navigate.to('views/checkpoints/index.html');
+});
+
+$(document).on('click', '[action="viewCheckpoint"]', function(e){
+    var checkpoint = $(this).attr('checkpoint');
+    app.checkpoint = app.appointment.checkpoints[checkpoint];
+    app.checkpointIndex = checkpoint;
+    if(app.checkpoint){
+        app.navigate.to('views/checkpoints/view.html');
+    }
+});
+
 document.addEventListener('backbutton', function (evt) {
     app.navigate.back();
 }, false);
+
+
+$(document).on('click', '[action="completeAppointment"]', function(e){
+    console.log(app.appointment);
+
+    var appointment = app.appointment;
+
+    var join = [];
+    var finished = true;
+
+    for(var i in appointment.checkpoints){
+        var sp = appointment.checkpoints[i];
+        for(var q in sp.questions){
+            var spq = sp.questions[q];
+            console.log( (spq.required === true && spq.answered !== true) )
+            if(spq.required === true && spq.answered !== true){
+                join.push(spq.question);
+                finished = false;
+            }
+        }
+    }
+
+    if(finished){
+        alert('COMPLETD');
+    } else {
+        join = join.join('\n');
+        alert('Er zijn nog openstaande vragen: \n' + join)
+    }
+});
+$(document).on('submit', '#form-search-code', function(e){
+    e.preventDefault();
+    var searchValue = $('#form-search-code [name="value"]').val();
+    $('.checkpoint-list ul').each(function(i){
+        var value = this.getAttribute('data-code');
+        console.log(value);
+        if(value.indexOf(searchValue) !== -1){
+            $(this).removeClass('hidden');
+        } else {
+            $(this).addClass('hidden');
+        }
+    });
+
+})

@@ -2,33 +2,38 @@
     <item action="toggleSidebar">
         <i class="material-icons icon">&#xE5D2;</i>
     </item>
-    <title>Nothing to show</title>
+    <title></title>
     <item action="sync">
         <i class="material-icons icon">&#xE627;</i>
     </item>
 </menu>
 <content>
-    <h2>Planning</h2>
+    <section class='inner' style='position: relative;'>
+        <h2 class='title'>Planning</h2>
+        <p id='lastsync'></p>
+    </section>
     <ul class='planning-list'>
 
     </ul>
-
 </content>
 
 
 <script>
     var hasDoubleTapped = false;
-    app.navigate.back = function(e){
 
+
+    $('#lastsync').html( "laatste synchronisatie<br><br>" + localStorage.getItem('lastsync') );
+
+    app.navigate.back = function(e){
         if(!app.navigate.timeout){
-            // alert("DOUBLE TAPPED!");
             doubleTapToast.show();
             app.navigate.timeout = setTimeout(function(e){
                 clearTimeout(app.navigate.timeout);
                 app.navigate.timeout = null;
             }, 1000);
         } else {
-            throw new Error('Exit');
+            clearTimeout(app.navigate.timeout);
+            cordova.exec(function(){}, function(){}, "nzzPlugin", "minimize", []);
         }
 
 
@@ -38,8 +43,9 @@
     Day.find().all(function(days){
         for(var dayIndex in days){
             var day = days[dayIndex];
-            var str = "<li>";
-            str += app.timestamp.toDate(day.id);
+            var str = "<section class='inner'>";
+            str += "<li>";
+            str += "<h4>" + app.timestamp.toDate(day.id) + "<i class='material-icons'>&#xE916;</i></h4>";
 
 
             str += "<ul>";
@@ -53,6 +59,7 @@
 
 
             str += "</li>";
+            str += "</section>";
 
             $('.planning-list').append( $(str) );
 
