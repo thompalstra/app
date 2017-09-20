@@ -73,44 +73,56 @@ var app = {
         }
     },
     timestamp: {
+
+        months: {
+            0: {'NL': 'January'},
+            1: {'NL': 'Februari'},
+            2: {'NL': 'Februari'},
+            3: {'NL': 'Februari'},
+            4: {'NL': 'Februari'},
+            5: {'NL': 'Februari'},
+            6: {'NL': 'Februari'},
+            7: {'NL': 'Februari'},
+            8: {'NL': 'Februari'},
+            9: {'NL': 'Februari'},
+            10: {'NL': 'Februari'},
+            11: {'NL': 'Februari'}
+        },
+        days: {
+            0: {'NL': 'Zondag'},
+            1: {'NL': 'Maandag'},
+            2: {'NL': 'Dinsdag'},
+            3: {'NL': 'Woensdag'},
+            4: {'NL': 'Donderdag'},
+            5: {'NL': 'Vrijdag'},
+            6: {'NL': 'Zaterdag'},
+        },
+
         toDate: function(timestamp){
             timestamp = timestamp * 1000;
-            var todate=new Date(timestamp).getDate();
-            var tomonth=new Date(timestamp).getMonth()+1;
-            var toyear=new Date(timestamp).getFullYear();
-            return tomonth+' '+todate+' '+toyear;
+
+            // Maandag 25 Februari 2017
+            var date = new Date(timestamp);
+            var dayName = app.timestamp.days[date.getDay()][app.language];
+            var dayNumber = date.getDate();
+            var monthName = app.timestamp.months[date.getMonth()][app.language];
+            var year = date.getFullYear();
+
+            return dayName+' '+dayNumber+' '+monthName+' '+year;
         },
     },
     currentDay: null,
+    language: 'NL',
 
     navigate: {
         history: [],
+        timeout: null,
         to: function(url, callback){
-            if(app.navigate.history.length >= 5){
-                app.navigate.history.splice(1, 1);
-            }
-            app.navigate.history.push(url);
-
-            console.log(app.navigate.history);
-
             $('app view').load(url, function(e){
                 if(typeof callback == 'function'){
                     callback.call(this, null);
                 }
             });
-        },
-        back: function(callback){
-            if(app.navigate.history.length >= 1){
-                app.navigate.history.pop();
-                var length = app.navigate.history.length - 1;
-                lastUrl = app.navigate.history[length];
-                console.log('last url: ' + lastUrl);
-                $('app view').load(lastUrl, function(e){
-                    if(typeof callback == 'function'){
-                        callback.call(this, null);
-                    }
-                });
-            }
         },
     },
 };
@@ -121,7 +133,21 @@ app.initialize();
 $(document).on('click', '[action="navigateBack"]', function(e){
     app.navigate.back();
 });
+$(document).on('click', '[action="viewDebtor"]', function(e){
+    app.navigate.to('views/debtor/view.html', function(e){
 
+    });
+});
+$(document).on('click', '[action="sync"]', function(e){
+    $('item[action="sync"] > .icon').addClass('syncing');
+    $('content')[0].innerHTML = '';
+    setTimeout(function(e){
+        app.sync.start(function(e){
+            app.navigate.to('views/index.html');
+        });
+    }, 500);
+
+});
 $(document).on('click', '[action="viewAppointment"]', function(e){
     var day = $(this).attr('day');
     var appointment = $(this).attr('appointment');
@@ -131,3 +157,7 @@ $(document).on('click', '[action="viewAppointment"]', function(e){
         app.navigate.to('views/appointment/index.html');
     });
 });
+
+document.addEventListener('backbutton', function (evt) {
+    app.navigate.back();
+}, false);

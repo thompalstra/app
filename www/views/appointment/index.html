@@ -5,16 +5,50 @@
     <title>Afspraak</title>
 </menu>
 <content>
-    <h2 action="viewInstallations">Installaties</h2>
-    <h2 action="viewDebtor">Detail</h2>
+    <section class='inner'>
+        <h2 class='title' action="viewInstallations">Installaties</h2>
+    </section>
+    <section class='inner'>
+        <h2 class='title' action="viewDebtor">Detail</h2>
+    </section>
+    <table class='info-table' style='width: calc(100% - 20px); margin: 10px;'>
+        <tr class='phone'>
+            <td class='icon'><i class="material-icons">&#xE0CD;</i></td>
+            <td class='value'>telefoonnummer</td>
+        </tr>
+        <tr class='email'>
+            <td class='icon'><i class="material-icons">&#xE0BE;</i></td>
+            <td class='value'>mail@mail.com</td>
+        </tr>
+    </table>
 </content>
 
 
 <script>
     $('view title').html( app.appointment.debtor.name );
+    if(app.appointment.debtor.phone_number){
+        $('.info-table .phone .value').html( app.appointment.debtor.phone_number );
+    } else {
+        console.log('dsadsa');
+        $('.info-table .phone').remove();
+    }
+
+    if(app.appointment.debtor.email){
+        $('.info-table .email .value').html( app.appointment.debtor.email );
+    } else {
+        $('.info-table .email').remove();
+    }
+
 
 
     for(var i in app.appointment.service_points){
         var sp =  app.appointment.service_points[i];
+    }
+
+    app.navigate.back = function(){
+        app.appointment = null;
+        app.navigate.to('views/index.html', function(e){
+
+        });
     }
 </script>

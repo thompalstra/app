@@ -39,6 +39,17 @@ public class nzzPlugin extends CordovaPlugin {
 
     CallbackContext scanCallbackContext = null;
 
+    public void doubleTapToast(CallbackContext callbackContext){
+        Context context = cordova.getActivity().getApplicationContext();
+        int duration = Toast.LENGTH_LONG;
+        Toast toast = Toast.makeText(context, "Double tap the back button to exit", duration);
+        toast.show();
+
+        PluginResult result = new PluginResult(PluginResult.Status.OK, "");
+        result.setKeepCallback(true);
+        callbackContext.sendPluginResult(result);
+    }
+
 
     public void registerScanner(CallbackContext callbackContext){
 
@@ -98,6 +109,9 @@ public class nzzPlugin extends CordovaPlugin {
             return true;
         } else if(action.equals("registerScanner")){
             this.registerScanner(callbackContext);
+            return true;
+        } else if(action.equals("doubleTapToast")){
+            this.doubleTapToast(callbackContext);
             return true;
         }
         return false;

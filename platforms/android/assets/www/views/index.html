@@ -2,18 +2,17 @@
     <item action="toggleSidebar">
         <i class="material-icons icon">&#xE5D2;</i>
     </item>
-    <title></title>
+    <title>Nothing to show</title>
     <item action="sync">
         <i class="material-icons icon">&#xE627;</i>
     </item>
 </menu>
 <content>
-    <section class='inner'>
-        <h2 class='title'>Planning</h2>
-    </section>
+    <h2>Planning</h2>
     <ul class='planning-list'>
 
     </ul>
+
 </content>
 
 
@@ -39,9 +38,8 @@
     Day.find().all(function(days){
         for(var dayIndex in days){
             var day = days[dayIndex];
-            var str = "<section class='inner'>";
-            str += "<li>";
-            str += "<h4>" + app.timestamp.toDate(day.id) + "</h4>";
+            var str = "<li>";
+            str += app.timestamp.toDate(day.id);
 
 
             str += "<ul>";
@@ -55,7 +53,6 @@
 
 
             str += "</li>";
-            str += "</section>";
 
             $('.planning-list').append( $(str) );
 

@@ -1,0 +1,27 @@
+<menu class='has-2'>
+    <item action="navigateBack">
+        <i class="material-icons">&#xE5C4;</i>
+    </item>
+    <title>Afspraak</title>
+</menu>
+<content>
+    <h2 action="viewInstallations">Installaties</h2>
+    <h2 action="viewDebtor">Detail</h2>
+</content>
+
+
+<script>
+    $('view title').html( app.appointment.debtor.name );
+
+
+    for(var i in app.appointment.service_points){
+        var sp =  app.appointment.service_points[i];
+    }
+
+    app.navigate.back = function(){
+        app.appointment = null;
+        app.navigate.to('views/index.html', function(e){
+
+        });
+    }
+</script>
