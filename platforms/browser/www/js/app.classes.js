@@ -4,7 +4,6 @@ var data = {
         // appointment object
         34: {
             walking_time: '00:45:00',
-            // customer data
             debtor: {
                 name: 'Albert Heijn',
                 debtor_number: 1000,
@@ -22,7 +21,6 @@ var data = {
                 phone_number: '0887779500',
                 email: 'info@ah-heerhugowaard.nl'
             },
-            // service point models
             checkpoints: {
                 37: {
                     name: 'De keuken',
@@ -31,14 +29,14 @@ var data = {
                     questions: {
                         0: {
                             question: 'Dit is een vraag',
-                            answerType: 'TEXT',
+                            answerType: 4,
                             answered: false,
                             required: true,
                             answer: null,
                         },
                         2: {
                             question: 'Dit is nog een vraag',
-                            answerType: 'BOOLEAN',
+                            answerType: 2,
                             answered: false,
                             required: true,
                             answer: null,
@@ -52,7 +50,7 @@ var data = {
                     questions: {
                         3: {
                             question: 'Dit is een vraag',
-                            answerType: 'TEXT',
+                            answerType: 4,
                             answered: false,
                             required: true,
                             products: {},
@@ -60,7 +58,7 @@ var data = {
                         },
                         4: {
                             question: 'Dit is nog een vraag',
-                            answerType: 'BOOLEAN',
+                            answerType: 2,
                             answered: false,
                             required: true,
                             products: {},
@@ -84,7 +82,7 @@ var data = {
                     questions: {
                         3: {
                             question: 'Dit is een extra vraag',
-                            answerType: 'TEXT',
+                            answerType: 4,
                             answered: false,
                             required: true,
                             products: {},
@@ -92,7 +90,7 @@ var data = {
                         },
                         4: {
                             question: 'Dit is nog een extra vraag',
-                            answerType: 'BOOLEAN',
+                            answerType: 2,
                             answered: false,
                             required: true,
                             products: {},
@@ -113,7 +111,6 @@ var data = {
         },
         40: {
             walking_time: '00:30:00',
-
             debtor: {
                 name: 'Jumbo',
                 debtor_number: 1000,
@@ -139,14 +136,14 @@ var data = {
                     questions: {
                         0: {
                             question: 'Dit is een vraag',
-                            answerType: 'TEXT',
+                            answerType: 4,
                             answered: false,
                             required: true,
                             answer: null,
                         },
                         2: {
                             question: 'Dit is nog een vraag',
-                            answerType: 'BOOLEAN',
+                            answerType: 2,
                             answered: false,
                             required: true,
                             answer: null,
@@ -160,29 +157,20 @@ var data = {
                     questions: {
                         3: {
                             question: 'Dit is een vraag',
-                            answerType: 'TEXT',
+                            answerType: 4,
                             answered: false,
                             required: true,
                             answer: null,
                         },
                         4: {
                             question: 'Dit is nog een vraag',
-                            answerType: 'BOOLEAN',
+                            answerType: 2,
                             answered: false,
                             required: true,
                             answer: null,
                         }
                     }
                 }
-            },
-            map: {
-                icons: {
-                    1: {
-                        name: 'Icon A',
-                        y: '38%',
-                        x: '85%',
-                    }
-                },
             },
             service_types:{
                 501: {
@@ -193,12 +181,20 @@ var data = {
                 }
             },
             additional_questions:{},
+            map: {
+                icons: {
+                    1: {
+                        name: 'Icon A',
+                        y: '38%',
+                        x: '85%',
+                    }
+                },
+            },
         },
     },
     1505908800: {
         53: {
             walking_time: '01:30:00',
-
             debtor: {
                 name: 'Grolsch',
                 debtor_number: 1000,
@@ -224,14 +220,14 @@ var data = {
                     questions: {
                         0: {
                             question: 'Dit is een vraag',
-                            answerType: 'TEXT',
+                            answerType: 4,
                             answered: false,
                             required: true,
                             answer: null,
                         },
                         2: {
                             question: 'Dit is nog een vraag',
-                            answerType: 'BOOLEAN',
+                            answerType: 2,
                             answered: false,
                             required: true,
                             answer: null,
@@ -245,29 +241,20 @@ var data = {
                     questions: {
                         3: {
                             question: 'Dit is een vraag',
-                            answerType: 'TEXT',
+                            answerType: 4,
                             answered: false,
                             required: true,
                             answer: null,
                         },
                         4: {
                             question: 'Dit is nog een vraag',
-                            answerType: 'BOOLEAN',
+                            answerType: 2,
                             answered: false,
                             required: true,
                             answer: null,
                         }
                     }
                 }
-            },
-            map: {
-                icons: {
-                    1: {
-                        name: 'Icon A',
-                        y: '38%',
-                        x: '85%',
-                    }
-                },
             },
             service_types:{
                 340:{
@@ -278,10 +265,18 @@ var data = {
                 }
             },
             additional_questions:{},
+            map: {
+                icons: {
+                    1: {
+                        name: 'Icon A',
+                        y: '38%',
+                        x: '85%',
+                    }
+                },
+            },
         },
         402 : {
             walking_time: '00:45:00',
-
             debtor: {
                 name: 'Heineken',
                 debtor_number: 1000,
@@ -307,14 +302,14 @@ var data = {
                     questions: {
                         0: {
                             question: 'Dit is een vraag',
-                            answerType: 'TEXT',
+                            answerType: 4,
                             answered: false,
                             required: true,
                             answer: null,
                         },
                         2: {
                             question: 'Dit is nog een vraag',
-                            answerType: 'BOOLEAN',
+                            answerType: 2,
                             answered: false,
                             required: true,
                             answer: null,
@@ -328,29 +323,20 @@ var data = {
                     questions: {
                         3: {
                             question: 'Dit is een vraag',
-                            answerType: 'TEXT',
+                            answerType: 4,
                             answered: false,
                             required: true,
                             answer: null,
                         },
                         4: {
                             question: 'Dit is nog een vraag',
-                            answerType: 'BOOLEAN',
+                            answerType: 2,
                             answered: false,
                             required: true,
                             answer: null,
                         }
                     }
                 }
-            },
-            map: {
-                icons: {
-                    1: {
-                        name: 'Icon A',
-                        y: '38%',
-                        x: '85%',
-                    }
-                },
             },
             service_types:{
                 98:{
@@ -361,6 +347,15 @@ var data = {
                 }
             },
             additional_questions:{},
+            map: {
+                icons: {
+                    1: {
+                        name: 'Icon A',
+                        y: '38%',
+                        x: '85%',
+                    }
+                },
+            },
         }
     }
 };

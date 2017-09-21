@@ -29,14 +29,14 @@ var data = {
                     questions: {
                         0: {
                             question: 'Dit is een vraag',
-                            answerType: 'TEXT',
+                            answerType: 4,
                             answered: false,
                             required: true,
                             answer: null,
                         },
                         2: {
                             question: 'Dit is nog een vraag',
-                            answerType: 'BOOLEAN',
+                            answerType: 2,
                             answered: false,
                             required: true,
                             answer: null,
@@ -50,7 +50,7 @@ var data = {
                     questions: {
                         3: {
                             question: 'Dit is een vraag',
-                            answerType: 'TEXT',
+                            answerType: 4,
                             answered: false,
                             required: true,
                             products: {},
@@ -58,7 +58,7 @@ var data = {
                         },
                         4: {
                             question: 'Dit is nog een vraag',
-                            answerType: 'BOOLEAN',
+                            answerType: 2,
                             answered: false,
                             required: true,
                             products: {},
@@ -82,7 +82,7 @@ var data = {
                     questions: {
                         3: {
                             question: 'Dit is een extra vraag',
-                            answerType: 'TEXT',
+                            answerType: 4,
                             answered: false,
                             required: true,
                             products: {},
@@ -90,7 +90,7 @@ var data = {
                         },
                         4: {
                             question: 'Dit is nog een extra vraag',
-                            answerType: 'BOOLEAN',
+                            answerType: 2,
                             answered: false,
                             required: true,
                             products: {},
@@ -136,14 +136,14 @@ var data = {
                     questions: {
                         0: {
                             question: 'Dit is een vraag',
-                            answerType: 'TEXT',
+                            answerType: 4,
                             answered: false,
                             required: true,
                             answer: null,
                         },
                         2: {
                             question: 'Dit is nog een vraag',
-                            answerType: 'BOOLEAN',
+                            answerType: 2,
                             answered: false,
                             required: true,
                             answer: null,
@@ -157,14 +157,14 @@ var data = {
                     questions: {
                         3: {
                             question: 'Dit is een vraag',
-                            answerType: 'TEXT',
+                            answerType: 4,
                             answered: false,
                             required: true,
                             answer: null,
                         },
                         4: {
                             question: 'Dit is nog een vraag',
-                            answerType: 'BOOLEAN',
+                            answerType: 2,
                             answered: false,
                             required: true,
                             answer: null,
@@ -220,14 +220,14 @@ var data = {
                     questions: {
                         0: {
                             question: 'Dit is een vraag',
-                            answerType: 'TEXT',
+                            answerType: 4,
                             answered: false,
                             required: true,
                             answer: null,
                         },
                         2: {
                             question: 'Dit is nog een vraag',
-                            answerType: 'BOOLEAN',
+                            answerType: 2,
                             answered: false,
                             required: true,
                             answer: null,
@@ -241,14 +241,14 @@ var data = {
                     questions: {
                         3: {
                             question: 'Dit is een vraag',
-                            answerType: 'TEXT',
+                            answerType: 4,
                             answered: false,
                             required: true,
                             answer: null,
                         },
                         4: {
                             question: 'Dit is nog een vraag',
-                            answerType: 'BOOLEAN',
+                            answerType: 2,
                             answered: false,
                             required: true,
                             answer: null,
@@ -302,14 +302,14 @@ var data = {
                     questions: {
                         0: {
                             question: 'Dit is een vraag',
-                            answerType: 'TEXT',
+                            answerType: 4,
                             answered: false,
                             required: true,
                             answer: null,
                         },
                         2: {
                             question: 'Dit is nog een vraag',
-                            answerType: 'BOOLEAN',
+                            answerType: 2,
                             answered: false,
                             required: true,
                             answer: null,
@@ -323,14 +323,14 @@ var data = {
                     questions: {
                         3: {
                             question: 'Dit is een vraag',
-                            answerType: 'TEXT',
+                            answerType: 4,
                             answered: false,
                             required: true,
                             answer: null,
                         },
                         4: {
                             question: 'Dit is nog een vraag',
-                            answerType: 'BOOLEAN',
+                            answerType: 2,
                             answered: false,
                             required: true,
                             answer: null,

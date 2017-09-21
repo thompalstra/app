@@ -90,11 +90,42 @@ h2.title{
     background-color: #71BA51;
 }
 
+.exception{
+    color: white;
+    background-color: red;
+}
+
+.action{
+    color: white;
+    background-color: #3D8EB9;
+}
+
 .btn{
     border: 0;
     outline: 0;
 }
 
+.wide{
+    width: 100%;
+}
+
+.label{
+
+}
+.label-default{
+    height: 25px;
+    min-width: 25px;
+    line-height: 25px;
+    /* float: left; */
+    display: inline-block;
+    width: 100%;
+    margin: 10px 0;
+    padding: 0 10px;
+    box-sizing: border-box;
+}
+
+
+.btn-default,
 .btn-icon{
     min-width: 50px;
     height: 50px;

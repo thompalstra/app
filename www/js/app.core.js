@@ -11,6 +11,12 @@ var app = {
             StatusBar.backgroundColorByHexString("#002c50");
         }
 
+        app.const.type_choice = 1;
+        app.const.type_yn = 2;
+        app.const.type_number = 3;
+        app.const.type_text = 4;
+        app.const.type_product = 5;
+
 
         app.scanner = scanner;
         app.scanner.register();
@@ -114,8 +120,8 @@ var app = {
             };
         }
     },
+    const: {},
     timestamp: {
-
         months: {
             0: {'NL': 'January'},
             1: {'NL': 'Februari'},
@@ -167,9 +173,106 @@ var app = {
             });
         },
     },
+
+    question: {
+        error: null,
+        answer: function(id, answer){
+            var question = app.day['data'][app.appointmentIndex]['checkpoints'][app.checkpointIndex]['questions'][id];
+            var answerType = question.answerType;
+            if(app.question.validateAnswer(answerType, answer) == true){
+                question.answer = answer;
+                question.answered = true;
+
+                app.day.update(function(){
+                    app.navigate.to('views/checkpoints/view.html');
+                });
+            } else {
+                var form = $('.question-form[question="'+id+'"]');
+
+                console.log(form);
+
+                $(form.parent()).addClass('error');
+                var exp = form.find('.exception');
+                exp.removeClass('hidden');
+                exp.html(app.question.error);
+            }
+        },
+        validateAnswer(answerType, answer){
+            switch(answerType){
+                case app.const.type_text:
+                    if(answer.length > 0){
+                        return true;
+                    } else {
+                        app.question.error = "Antwoord mag niet leeg zijn";
+                        return false;
+                    }
+                break;
+            }
+
+            return true;
+        },
+        createHTML: function(questionIndex, question){
+            var answerType = question.answerType;
+            var id = id;
+
+            app.const.type_choice = 1;
+            app.const.type_yn = 2;
+            app.const.type_number = 3;
+            app.const.type_text = 4;
+            app.const.type_product = 5;
+
+            var str = "<form class='form question-form' question='"+questionIndex+"'>";
+            str += "<div class='form-row question-row'>";
+            str += "<h4>" + question.question + "</h4>";
+
+            switch(answerType){
+                case app.const.type_choice:
+
+                break;
+                case app.const.type_yn:
+
+                str += "<input type='radio' value='1' name=question_" + questionIndex + ">"
+                str += "<label>Ja</label>";
+                str += "<input type='radio' value='0' name=question_" + questionIndex + ">"
+                str += "<label>Nee</label>";
+
+                break;
+                case app.const.type_number:
+
+                break;
+                case app.const.type_text:
+
+                str += "<input class='input' type='text' name='question_" + questionIndex + "' value='"+question.answer+"'>";
+
+                break;
+                case app.const.type_product:
+
+                break;
+            }
+            str += "<button type='submit' class='btn btn-default wide action'>Beantwoorden</button>";
+            str += "<label class='label label-default exception hidden'></label>"
+            str += "</div>";
+            str += "</form>";
+
+            return str;
+        }
+    }
 };
 
 app.initialize();
+
+$(document).on('submit', '.question-form', function(e){
+
+    e.preventDefault();
+
+    var questionIndex = this.getAttribute('question');
+    var fd = new FormData( this );
+    fd.forEach(function(el){
+          var answer = el;
+    });
+
+    app.question.answer(questionIndex, answer);
+});
 
 
 $(document).on('click', '[action="navigateBack"]', function(e){
@@ -221,7 +324,6 @@ document.addEventListener('backbutton', function (evt) {
 
 
 $(document).on('click', '[action="completeAppointment"]', function(e){
-    console.log(app.appointment);
 
     var appointment = app.appointment;
 
@@ -252,12 +354,10 @@ $(document).on('submit', '#form-search-code', function(e){
     var searchValue = $('#form-search-code [name="value"]').val();
     $('.checkpoint-list ul').each(function(i){
         var value = this.getAttribute('data-code');
-        console.log(value);
         if(value.indexOf(searchValue) !== -1){
             $(this).removeClass('hidden');
         } else {
             $(this).addClass('hidden');
         }
     });
-
 })

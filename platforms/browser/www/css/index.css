@@ -18,7 +18,7 @@ app > view > menu > item[action="sync"] .icon.syncing{
     box-sizing: border-box;
 }
 
-.checkpoint-list ul{
+.checkpoint-list li{
     margin: 0;
     background-color: white;
     margin-bottom: 10px;
@@ -27,14 +27,14 @@ app > view > menu > item[action="sync"] .icon.syncing{
     position: relative;
 }
 
-.checkpoint-list ul h4{
+.checkpoint-list li h4{
     margin: 0;
     padding: 0 60px 0 10px;
     height: 50px;
     line-height: 50px;
 }
 
-.checkpoint-list ul:before{
+.checkpoint-list li:before{
     content: "\E8B6";
     position: absolute;
     right: 0;
@@ -47,7 +47,7 @@ app > view > menu > item[action="sync"] .icon.syncing{
     line-height: 50px;
     color: #333;
 }
-.checkpoint-list ul:after{
+.checkpoint-list li:after{
     content: attr(data-code);
     width: 100%;
     display: inline-block;
@@ -123,6 +123,31 @@ app > view > menu > item[action="sync"] .icon.syncing{
     color: #333;
 }
 
+.question-list{
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+.question-list li{
+    width: calc(100% - 20px);
+    padding: 0;
+    margin: 10px;
+    box-sizing: border-box;
+    text-align: left;
+    padding: 0 10px;
+    position: relative;
+    background-color: white;
+    padding: 10px;
+}
+.question-list li.answered{
+    opacity: .3;
+}
+
+.question-list li.error{
+    opacity: 1;
+}
+
+
 .info-table{
     border-collapse: collapse;
 }
@@ -177,7 +202,7 @@ app > view > menu > item[action="sync"] .icon.syncing{
 #complete-appointment p{
     margin: 0;
     padding: 0;
-    line-height: inherit;    
+    line-height: inherit;
 }
 
 #complete-appointment:after{
