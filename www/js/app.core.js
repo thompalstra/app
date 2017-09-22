@@ -25,8 +25,6 @@ var app = {
         app.database.open(function(){
             var transaction = app.database.db.transaction(['day'], "readwrite");
             var objectStore = transaction.objectStore('day');
-
-            // objectStore.clear();
             app.procedure.user();
         });
     },
@@ -173,47 +171,40 @@ var app = {
             });
         },
     },
-
     question: {
         error: null,
-        answer: function(id, answer){
-            var question = app.day['data'][app.appointmentIndex]['checkpoints'][app.checkpointIndex]['questions'][id];
-            var answerType = question.answerType;
-            if(app.question.validateAnswer(answerType, answer) == true){
+        answer: function(id, answer, question, callback){
+            // var question = app.day['data'][app.appointmentIndex]['checkpoints'][app.checkpointIndex]['questions'][id];
+            var type = question.type;
+
+            var answer = (question.type == app.const.type_choice) ? answer : answer[0];
+
+            if(app.question.validateAnswer(type, answer, question) == true){
                 question.answer = answer;
                 question.answered = true;
 
-                app.day.update(function(){
-                    app.navigate.to('views/checkpoints/view.html');
-                });
+                if(typeof callback == 'function'){
+                    callback.call(this, null);
+                }
             } else {
                 var form = $('.question-form[question="'+id+'"]');
-
-                console.log(form);
 
                 $(form.parent()).addClass('error');
                 var exp = form.find('.exception');
                 exp.removeClass('hidden');
-                exp.html(app.question.error);
-            }
-        },
-        validateAnswer(answerType, answer){
-            switch(answerType){
-                case app.const.type_text:
-                    if(answer.length > 0){
-                        return true;
-                    } else {
-                        app.question.error = "Antwoord mag niet leeg zijn";
-                        return false;
-                    }
-                break;
-            }
 
-            return true;
+
+                var exception = question.errors.join("\n");
+
+                exp.html( exception );
+            }
         },
-        createHTML: function(questionIndex, question){
-            var answerType = question.answerType;
-            var id = id;
+        validateAnswer(type, answer, question){
+            question.errors = [];
+
+            if( (answer == null || answer == "" || typeof answer == 'undefined' )  && question.required == true){
+                question.errors.push("Antwoord mag niet leeg zijn!");
+            }
 
             app.const.type_choice = 1;
             app.const.type_yn = 2;
@@ -221,28 +212,95 @@ var app = {
             app.const.type_text = 4;
             app.const.type_product = 5;
 
-            var str = "<form class='form question-form' question='"+questionIndex+"'>";
-            str += "<div class='form-row question-row'>";
-            str += "<h4>" + question.question + "</h4>";
-
-            switch(answerType){
+            switch(type){
                 case app.const.type_choice:
 
                 break;
                 case app.const.type_yn:
+                break;
+                case app.const.type_number:
+                    var min_value = question.hasOwnProperty('min_value') ? question.min_value : undefined;
+                    var max_value = question.hasOwnProperty('max_value') ? question.max_value : undefined;
 
-                str += "<input type='radio' value='1' name=question_" + questionIndex + ">"
-                str += "<label>Ja</label>";
-                str += "<input type='radio' value='0' name=question_" + questionIndex + ">"
-                str += "<label>Nee</label>";
+                    answer = parseInt(answer);
+
+                    if( typeof min_value !== 'undefined' && answer < min_value ){
+                        question.errors.push("Antwoord moet gelijk of meer zijn dan " + min_value);
+                    }
+
+                    if( typeof max_value !== 'undefined' && answer > max_value ){
+                        question.errors.push("Antwoord moet gelijk of minder zijn dan " + max_value);
+                    }
+
+                break;
+                case app.const.type_text:
+                    // validate text
+                    var min_value = question.hasOwnProperty('min_value') ? question.min_value : undefined;
+                    var max_value = question.hasOwnProperty('max_value') ? question.max_value : undefined;
+                    if( typeof min_value !== 'undefined' && answer.length < min_value ){
+                        question.errors.push("Antwoord moet langer zijn dan " + min_value);
+                    }
+
+                    if( typeof max_value !== 'undefined' && answer.length > max_value ){
+                        question.errors.push( "Antwoord moet korter zijn dan " + max_value);
+                    }
+                break;
+                case app.const.type_product:
+
+                break;
+            };
+            return (question.errors.length == 0) ? true : false;
+        },
+        createHTML: function(questionIndex, question){
+            var type = question.type;
+            var id = id;
+
+            var str = "<form class='form question-form' question='"+questionIndex+"'>";
+            str += "<div class='form-row question-row'>";
+            str += "<h4>" + question.question + "</h4>";
+
+            switch(type){
+                case app.const.type_choice:
+
+                    var subId = 0;
+
+                    for(var c in question.choices){
+                        var checked = '';
+                        if(question.answer != undefined){
+                            checked = (question.answer.includes(c) ? 'checked' : '');
+                        }
+
+                        str += "<div>";
+                        str += "<input id='question_"+subId+"' type='checkbox' value='" + c + "' name='question_" + questionIndex + "' "+checked+">";
+                        str += "<label for='question_"+subId+"'>"+question.choices[c]+"</label>";
+                        str += "</div>";
+
+                        subId++;
+                    }
+                break;
+                case app.const.type_yn:
+
+                isTrue = (question.answer == 1 ? 'checked' : '');
+                str += "<div>";
+                str += "<input id='question_"+questionIndex+"_1' type='radio' value='1' name='question_" + questionIndex + "' "+isTrue+" >"
+                str += "<label for='question_"+questionIndex+"_1'>Ja</label>";
+                str += "</div>";
+                isFalse = (question.answer == 0 ? 'checked' : '');
+                str += "<div>";
+                str += "<input id='question_"+questionIndex+"_0' type='radio' value='0' name='question_" + questionIndex + "' "+isFalse+">"
+                str += "<label for='question_"+questionIndex+"_0'>Nee</label>";
+                str += "</div>";
 
                 break;
                 case app.const.type_number:
 
+                str += "<input class='input' type='number' name='question_" + questionIndex + "' value='"+question.answer+"'>";
+
                 break;
                 case app.const.type_text:
 
-                str += "<input class='input' type='text' name='question_" + questionIndex + "' value='"+question.answer+"'>";
+                var val = (question.answer == undefined) ? "" : question.answer;
+                str += "<input class='input' type='text' name='question_" + questionIndex + "' value='"+val+"'>";
 
                 break;
                 case app.const.type_product:
@@ -261,18 +319,53 @@ var app = {
 
 app.initialize();
 
-$(document).on('submit', '.question-form', function(e){
+$(document).on('submit', '.installation-list .question-list .question-form', function(e){
 
     e.preventDefault();
+    e.stopPropagation();
 
     var questionIndex = this.getAttribute('question');
-    var fd = new FormData( this );
-    fd.forEach(function(el){
-          var answer = el;
-    });
 
-    app.question.answer(questionIndex, answer);
+    var p = $($(this.parentNode.parentNode).prev());
+    var on = $(this.parentNode.parentNode).attr('on');
+
+    var serviceTypeIndex = $(this.parentNode.parentNode).attr('servicetype');
+
+    var fd = new FormData( $('.question-list[servicetype="'+serviceTypeIndex+'"] form[question="'+questionIndex+'"]')[0] );
+    var entries = fd.getAll('question_' + questionIndex);
+
+    var question = app.appointment.service_types[serviceTypeIndex].additional_questions.questions[questionIndex];
+    app.question.answer(questionIndex, entries, question, function(){
+        app.day.update(function(){
+            app.navigate.to('views/installations/index.html', function(e){
+                // var q= '.question-list[on="'+on+'"][servicetype="'+serviceTypeIndex+'"]';
+                // console.log(q);
+                //
+                // p = $($('.question-list[on="'+on+'"][servicetype="'+serviceTypeIndex+'"]').prev());
+                // console.log(p);
+                // p.attr('on', on);
+            });
+        });
+    });
 });
+
+$(document).on('submit', 'content > .question-list .question-form', function(e){
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    var questionIndex = this.getAttribute('question');
+
+    var fd = new FormData( $('form[question="'+questionIndex+'"]')[0] );
+    var entries = fd.getAll('question_' + questionIndex);
+    var question = app.day['data'][app.appointmentIndex]['checkpoints'][app.checkpointIndex]['questions'][questionIndex];
+    app.question.answer(questionIndex, entries, question, function(e){
+        app.day.update(function(){
+            app.navigate.to('views/checkpoints/view.html');
+        });
+    });
+});
+
 
 
 $(document).on('click', '[action="navigateBack"]', function(e){
@@ -334,7 +427,6 @@ $(document).on('click', '[action="completeAppointment"]', function(e){
         var sp = appointment.checkpoints[i];
         for(var q in sp.questions){
             var spq = sp.questions[q];
-            console.log( (spq.required === true && spq.answered !== true) )
             if(spq.required === true && spq.answered !== true){
                 join.push(spq.question);
                 finished = false;
@@ -343,7 +435,8 @@ $(document).on('click', '[action="completeAppointment"]', function(e){
     }
 
     if(finished){
-        alert('COMPLETD');
+        // alert('COMPLETD');
+        app.navigate.to('views/installations/index.html');
     } else {
         join = join.join('\n');
         alert('Er zijn nog openstaande vragen: \n' + join)
@@ -352,7 +445,8 @@ $(document).on('click', '[action="completeAppointment"]', function(e){
 $(document).on('submit', '#form-search-code', function(e){
     e.preventDefault();
     var searchValue = $('#form-search-code [name="value"]').val();
-    $('.checkpoint-list ul').each(function(i){
+
+    $('.checkpoint-list li.item').each(function(i){
         var value = this.getAttribute('data-code');
         if(value.indexOf(searchValue) !== -1){
             $(this).removeClass('hidden');
@@ -360,4 +454,69 @@ $(document).on('submit', '#form-search-code', function(e){
             $(this).addClass('hidden');
         }
     });
+
+    if($('.checkpoint-list li.item.hidden').length == $('.checkpoint-list li.item').length){
+        $('.checkpoint-list .no-results').removeClass('hidden');
+    } else {
+        $('.checkpoint-list .no-results').addClass('hidden');
+    }
 })
+
+$(document).on('click', '.installation-list > li > label', function(e){
+    var input = $($(this.parentNode).find('input:checked'));
+    var value = input.val();
+    var servicetype = $(this.parentNode).attr('servicetype');
+
+    app.appointment.service_types[servicetype].state = value;
+    app.day.update(function(e){
+        app.navigate.to('views/installations/index.html', function(e){
+
+        });
+    });
+});
+
+$(document).on('click', '[action="submitAppointment"]', function(e){
+    var appointment = app.appointment;
+
+    var errors = [];
+
+    for(var serviceTypeIndex in appointment.service_types){
+        var st = appointment.service_types[serviceTypeIndex];
+
+        if(st.state == null){
+            error.push("Installatie " + st.name + " heeft geen status!");
+        }
+
+        for(var serviceTypeQuestionIndex in st.additional_questions.questions){
+            var additionalQuestion = st.additional_questions.questions[serviceTypeQuestionIndex];
+            if(additionalQuestion.required == true && additionalQuestion.answered == true){
+
+            } else {
+                errors.push("Openstaande vraag: " + additionalQuestion.question);
+            }
+        }
+    }
+
+    for(var checkpointIndex in appointment.checkpoints){
+        var cp = appointment.checkpoints[checkpointIndex];
+        for(var questionindex in cp.questions){
+            var question = cp.questions[questionindex];
+            if(question.required == true && question.answered == true){
+
+            } else {
+                errors.push("Openstaande vraag: " + question.question);
+            }
+        }
+    }
+
+    if(errors.length == 0){
+        app.appointment.completed = true;
+        app.day.update(function(e){
+            app.navigate.to('views/index.html', function(e){
+
+            });
+        });
+    } else {
+        alert(errors.join("\n"));
+    }
+});

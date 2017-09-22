@@ -18,23 +18,34 @@ app > view > menu > item[action="sync"] .icon.syncing{
     box-sizing: border-box;
 }
 
-.checkpoint-list li{
+.checkpoint-list li.item{
     margin: 0;
     background-color: white;
     margin-bottom: 10px;
     padding: 0;
     box-sizing: border-box;
     position: relative;
+    border-bottom-style: solid;
+    border-bottom-width: 5px;
+    border-bottom-color: gray;
 }
 
-.checkpoint-list li h4{
+.checkpoint-list li.item.finished{
+    border-bottom-color: #71BA51;
+}
+
+.checkpoint-list li.item h4{
     margin: 0;
     padding: 0 60px 0 10px;
     height: 50px;
     line-height: 50px;
 }
 
-.checkpoint-list li:before{
+.no-results{
+    margin-top: 0;
+}
+
+/*.checkpoint-list li.item:before{
     content: "\E8B6";
     position: absolute;
     right: 0;
@@ -46,9 +57,23 @@ app > view > menu > item[action="sync"] .icon.syncing{
     font-size: 26px;
     line-height: 50px;
     color: #333;
+}*/
+
+.checkpoint-list li.item .view{
+    position: absolute;
+    right: 0;
+    top: 0;
+    font-family: "Material Icons";
+    height: 50px;
+    width: 50px;
+    text-align: center;
+    font-size: 26px;
+    line-height: 50px;
+    color: #333;
+    /*border-left: 1px solid #ddd;*/
 }
-.checkpoint-list li:after{
-    content: attr(data-code);
+
+.checkpoint-list li.item .code{
     width: 100%;
     display: inline-block;
     box-sizing: border-box;
@@ -59,6 +84,19 @@ app > view > menu > item[action="sync"] .icon.syncing{
     padding: 0 10px;
     font-size: 12px;
 }
+
+/*.checkpoint-list li.item:after{
+    content: attr(data-code);
+    width: 100%;
+    display: inline-block;
+    box-sizing: border-box;
+    background-color: #333;
+    color: white;
+    height: 30px;
+    line-height: 30px;
+    padding: 0 10px;
+    font-size: 12px;
+}*/
 
 .planning-list{
     padding: 0;
@@ -111,8 +149,20 @@ app > view > menu > item[action="sync"] .icon.syncing{
     padding: 0 10px;
     position: relative;
 }
-.planning-list > section > li > ul > li:after{
+
+.planning-list > section > li > ul > li.done{
+    background-color: #71BA51;
+    color: white;
+}
+.planning-list > section > li > ul > li .view .material-icons:after{
     content: "\E8B6";
+}
+.planning-list > section > li > ul > li.done .view .material-icons:after{
+    content: "\E5CA";
+    color: white;
+}
+
+.planning-list > section > li > ul > li .view{
     position: absolute;
     right: 0; top: 0;
     font-family: "Material Icons";
@@ -127,6 +177,8 @@ app > view > menu > item[action="sync"] .icon.syncing{
     padding: 0;
     margin: 0;
     list-style: none;
+    display: flex;
+    flex-direction: column;
 }
 .question-list li{
     width: calc(100% - 20px);
@@ -138,14 +190,103 @@ app > view > menu > item[action="sync"] .icon.syncing{
     position: relative;
     background-color: white;
     padding: 10px;
+    order: 5;
 }
+
+.question-list li button.btn{
+    margin-top: 10px;
+}
+
 .question-list li.answered{
     opacity: .3;
+    order: 10;
 }
 
 .question-list li.error{
     opacity: 1;
 }
+
+.installation-list{
+    width: calc(100% - 20px);
+    padding: 0;
+    margin: 10px;
+    list-style: none;
+    box-sizing: border-box;
+}
+
+.installation-list li{
+    background-color: white;
+    display: inline-block;
+    float: left;
+    overflow: auto;
+    width: 100%;
+    padding: 10px;
+    box-sizing: border-box;
+    margin-bottom: 10px;
+}
+.installation-list li .service-type{
+    width: 33%;
+    padding-bottom: 33%;
+    float: left;
+}
+.installation-list li input[type="radio"]{
+    display: none;
+}
+.installation-list li form input[type="radio"]{
+    display: inline-block;
+}
+
+.installation-list li .service-type.status-1{
+    background-color: green;
+}
+.installation-list li .service-type.status-2{
+    background-color: orange;
+}
+
+.installation-list li .service-type.status-3{
+    background-color: red;
+}
+
+.installation-list li ul{
+    display: none;
+}
+.installation-list li[on="1"] + ul[on="1"],
+.installation-list li[on="2"] + ul[on="2"],
+.installation-list li[on="3"] + ul[on="3"]{
+    display: flex;
+    width: 100%;
+}
+
+.installation-list .question-list{
+    float: left;
+    margin-bottom: 10px;
+    display: none;
+}
+
+.installation-list .question-list li{
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.installation-list li[on="1"] .status-2,
+.installation-list li[on="1"] .status-3{
+    opacity: .4;
+    -webkit-filter: grayscale(100%); /* Safari 6.0 - 9.0 */
+   filter: grayscale(100%);
+}
+.installation-list li[on="2"] .status-1,
+.installation-list li[on="2"] .status-3{
+    opacity: .4;
+    -webkit-filter: grayscale(100%); /* Safari 6.0 - 9.0 */
+   filter: grayscale(100%);
+}
+.installation-list li[on="3"] .status-1,
+.installation-list li[on="3"] .status-2{
+    opacity: .4;
+    -webkit-filter: grayscale(100%); /* Safari 6.0 - 9.0 */
+   filter: grayscale(100%);
+}
+
 
 
 .info-table{

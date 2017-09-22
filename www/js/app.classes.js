@@ -3,6 +3,7 @@ var data = {
     1505822400 : {
         // appointment object
         34: {
+            completed: false,
             walking_time: '00:45:00',
             debtor: {
                 name: 'Albert Heijn',
@@ -29,17 +30,45 @@ var data = {
                     questions: {
                         0: {
                             question: 'Dit is een vraag',
-                            answerType: 4,
+                            type: 4,
                             answered: false,
                             required: true,
-                            answer: null,
+                            answer: undefined,
+                            errors: [],
                         },
                         2: {
                             question: 'Dit is nog een vraag',
-                            answerType: 2,
+                            type: 2,
                             answered: false,
                             required: true,
-                            answer: null,
+                            answer: undefined,
+                            errors: [],
+                        },
+                        62: {
+                            question: "Dit is een vraag met een getal als antwoord",
+                            type: 3,
+                            min_value: 10,
+                            max_value: 99,
+                            answered: false,
+                            required: true,
+                            answer: undefined,
+                            errors: [],
+                        },
+                        415: {
+                            question: "Hoe zou je dit omschrijven?",
+                            type: 1,
+                            min_value: 0,
+                            max_value: 0,
+                            answered: false,
+                            required: true,
+                            answer: undefined,
+                            choices: {
+                                4331: "Als een antwoord",
+                                4332: "Als een tweede antwoord",
+                                4333: "Als dit het derde antwoord is",
+                                4334: "Wanneer het ID van dit antwoord 4334 is",
+                            },
+                            errors: [],
                         }
                     }
                 },
@@ -50,53 +79,77 @@ var data = {
                     questions: {
                         3: {
                             question: 'Dit is een vraag',
-                            answerType: 4,
+                            type: 4,
                             answered: false,
                             required: true,
-                            products: {},
-                            answer: null,
+                            answer: undefined,
+                            errors: [],
                         },
                         4: {
                             question: 'Dit is nog een vraag',
-                            answerType: 2,
+                            type: 2,
                             answered: false,
                             required: true,
-                            products: {},
-                            answer: null,
+                            answer: undefined,
+                            errors: [],
                         }
                     }
                 }
             },
-            service_types: {
+            service_types:{
                 1: {
+                    name: 'Hygiëne',
+                    remarks: 'Test installatie begane grond',
                     state: null,
+                    additional_questions: {
+                        // status
+                        on: 2,
+                        questions: {
+                            99944: {
+                                question: 'Dit is een extra vraag',
+                                type: 4,
+                                answered: false,
+                                required: true,
+                                answer: undefined,
+                                errors: [],
+                            },
+                            99945: {
+                                question: 'Dit is nog een extra vraag',
+                                type: 2,
+                                answered: false,
+                                required: true,
+                                answer: undefined,
+                                errors: [],
+                            }
+                        },
+                    }
                 },
                 3261: {
+                    name: 'Muizen',
+                    remarks: 'Test installatie begane grond',
                     state: null,
-                }
-            },
-            additional_questions: {
-                0: {
-                    on: 3,
-                    service_type_id: 1,
-                    questions: {
-                        3: {
-                            question: 'Dit is een extra vraag',
-                            answerType: 4,
-                            answered: false,
-                            required: true,
-                            products: {},
-                            answer: null,
+                    additional_questions: {
+                        // status
+                        on: 3,
+                        questions: {
+                            99955: {
+                                question: 'Dit is een extra vraag',
+                                type: 4,
+                                answered: false,
+                                required: true,
+                                answer: undefined,
+                                errors: [],
+                            },
+                            99956: {
+                                question: 'Dit is nog een extra vraag',
+                                type: 2,
+                                answered: false,
+                                required: true,
+                                answer: undefined,
+                                errors: [],
+                            }
                         },
-                        4: {
-                            question: 'Dit is nog een extra vraag',
-                            answerType: 2,
-                            answered: false,
-                            required: true,
-                            products: {},
-                            answer: null,
-                        }
-                    },
+                    }
                 }
             },
             map: {
@@ -111,6 +164,7 @@ var data = {
         },
         40: {
             walking_time: '00:30:00',
+            completed: false,
             debtor: {
                 name: 'Jumbo',
                 debtor_number: 1000,
@@ -136,17 +190,19 @@ var data = {
                     questions: {
                         0: {
                             question: 'Dit is een vraag',
-                            answerType: 4,
+                            type: 4,
                             answered: false,
                             required: true,
-                            answer: null,
+                            answer: undefined,
+                            errors: [],
                         },
                         2: {
                             question: 'Dit is nog een vraag',
-                            answerType: 2,
+                            type: 2,
                             answered: false,
                             required: true,
-                            answer: null,
+                            answer: undefined,
+                            errors: [],
                         }
                     }
                 },
@@ -157,30 +213,38 @@ var data = {
                     questions: {
                         3: {
                             question: 'Dit is een vraag',
-                            answerType: 4,
+                            type: 4,
                             answered: false,
                             required: true,
-                            answer: null,
+                            answer: undefined,
+                            errors: [],
                         },
                         4: {
                             question: 'Dit is nog een vraag',
-                            answerType: 2,
+                            type: 2,
                             answered: false,
                             required: true,
-                            answer: null,
+                            answer: undefined,
+                            errors: [],
                         }
                     }
                 }
             },
             service_types:{
                 501: {
+                    name: 'Hygiëne',
+                    remarks: 'Test installatie begane grond',
                     state: null,
+                    additional_questions:{},
                 },
                 502: {
+                    name: 'Muizen',
+                    remarks: 'Test installatie begane grond',
                     state: null,
+                    additional_questions:{},
                 }
             },
-            additional_questions:{},
+
             map: {
                 icons: {
                     1: {
@@ -195,6 +259,7 @@ var data = {
     1505908800: {
         53: {
             walking_time: '01:30:00',
+            completed: false,
             debtor: {
                 name: 'Grolsch',
                 debtor_number: 1000,
@@ -220,17 +285,19 @@ var data = {
                     questions: {
                         0: {
                             question: 'Dit is een vraag',
-                            answerType: 4,
+                            type: 4,
                             answered: false,
                             required: true,
-                            answer: null,
+                            answer: undefined,
+                            errors: [],
                         },
                         2: {
                             question: 'Dit is nog een vraag',
-                            answerType: 2,
+                            type: 2,
                             answered: false,
                             required: true,
-                            answer: null,
+                            answer: undefined,
+                            errors: [],
                         }
                     }
                 },
@@ -241,30 +308,37 @@ var data = {
                     questions: {
                         3: {
                             question: 'Dit is een vraag',
-                            answerType: 4,
+                            type: 4,
                             answered: false,
                             required: true,
-                            answer: null,
+                            answer: undefined,
+                            errors: [],
                         },
                         4: {
                             question: 'Dit is nog een vraag',
-                            answerType: 2,
+                            type: 2,
                             answered: false,
                             required: true,
-                            answer: null,
+                            answer: undefined,
+                            errors: [],
                         }
                     }
                 }
             },
             service_types:{
                 340:{
+                    name: 'Hygiëne',
+                    remarks: 'Test installatie begane grond',
                     state: null,
+                    additional_questions:{},
                 },
                 350: {
+                    name: 'Ratten',
+                    remarks: 'Test installatie begane grond',
                     state: null,
+                    additional_questions:{},
                 }
             },
-            additional_questions:{},
             map: {
                 icons: {
                     1: {
@@ -277,6 +351,7 @@ var data = {
         },
         402 : {
             walking_time: '00:45:00',
+            completed: false,
             debtor: {
                 name: 'Heineken',
                 debtor_number: 1000,
@@ -302,17 +377,19 @@ var data = {
                     questions: {
                         0: {
                             question: 'Dit is een vraag',
-                            answerType: 4,
+                            type: 4,
                             answered: false,
                             required: true,
-                            answer: null,
+                            answer: undefined,
+                            errors: [],
                         },
                         2: {
                             question: 'Dit is nog een vraag',
-                            answerType: 2,
+                            type: 2,
                             answered: false,
                             required: true,
-                            answer: null,
+                            answer: undefined,
+                            errors: [],
                         }
                     }
                 },
@@ -323,30 +400,37 @@ var data = {
                     questions: {
                         3: {
                             question: 'Dit is een vraag',
-                            answerType: 4,
+                            type: 4,
                             answered: false,
                             required: true,
-                            answer: null,
+                            answer: undefined,
+                            errors: [],
                         },
                         4: {
                             question: 'Dit is nog een vraag',
-                            answerType: 2,
+                            type: 2,
                             answered: false,
                             required: true,
-                            answer: null,
+                            answer: undefined,
+                            errors: [],
                         }
                     }
                 }
             },
             service_types:{
                 98:{
+                    name: 'Hygiëne',
+                    remarks: 'Test installatie begane grond',
                     state: null,
+                    additional_questions:{},
                 },
                 100: {
+                    name: 'Hygiëne',
+                    remarks: 'Test installatie begane grond',
                     state: null,
+                    additional_questions:{},
                 }
             },
-            additional_questions:{},
             map: {
                 icons: {
                     1: {
@@ -360,18 +444,23 @@ var data = {
     }
 };
 
-var products = {
+var availableProducts = {
     1: {
-
+        code: 'Non Tox',
+        name: 'Sorkil Non Tox',
+        description: 'Niet giftig'
     },
-    32: {
-
+    2: {
+        code: 'Non Tox',
+        name: 'Blue Ridge Termite spray',
+        description: 'Non Tox',
     },
-    432432: {
-
+    3: {
+        code: 'Tox',
+        name: "Heel erg giftige gif",
+        description: 'Alles gaat hierdoor dood ofzo :(',
     },
-}
-
+};
 
 class DataStoreHelper{
     constructor(){

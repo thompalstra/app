@@ -32,6 +32,48 @@ app > view > menu > title{
     font-size: 18px;
 }
 
+app > view > menu > search{
+    width: calc(100% - 50px);
+    float: left;
+    height: 50px;
+    padding: 10px 0;
+    display: inline-block;
+    box-sizing: border-box;
+}
+
+app > view > menu > search form.form{
+
+}
+app > view > menu > search form.form input.input::-webkit-input-placeholder { /* WebKit, Blink, Edge */
+    color: white;
+    opacity:  .4;
+}
+
+app > view > menu > search form.form input.input{
+    height: 30px;
+    width: calc(100% - 50px);
+    border-bottom: 1px solid rgba(255,255,255,.4);
+    background-color: transparent;
+    color: white;
+    padding: 0;
+}
+
+app > view > menu > search form.form input.input:focus{
+    border-bottom: 1px solid white;
+}
+
+app > view > menu > search form.form button.btn-icon{
+    width: 30px;
+    height: 30px;
+    background-color: transparent;
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+app > view > menu > search form.form button.btn .btn-icon .material-icons{
+
+}
+
 app > view > menu > item .icon{
     height: 50px;
     width: 50px;
@@ -75,9 +117,9 @@ h2.title{
 .form .input{
     border: 0;
     margin: 0;
-    padding: 0;
+    padding: 0 10px;
+    box-sizing: border-box;
     width: 100%;
-    box-sizing: border;
     height: 50px;
     line-height: 50px;
     background-color: #ddd;
@@ -93,6 +135,11 @@ h2.title{
 .exception{
     color: white;
     background-color: red;
+}
+
+.warning{
+    color: white;
+    background-color: #FEAE37;
 }
 
 .action{
@@ -113,14 +160,12 @@ h2.title{
 
 }
 .label-default{
-    height: 25px;
     min-width: 25px;
     line-height: 25px;
-    /* float: left; */
     display: inline-block;
     width: 100%;
     margin: 10px 0;
-    padding: 0 10px;
+    padding: 10px;
     box-sizing: border-box;
 }
 

@@ -3,8 +3,8 @@ var data = {
     1505822400 : {
         // appointment object
         34: {
+            completed: false,
             walking_time: '00:45:00',
-            // customer data
             debtor: {
                 name: 'Albert Heijn',
                 debtor_number: 1000,
@@ -22,38 +22,139 @@ var data = {
                 phone_number: '0887779500',
                 email: 'info@ah-heerhugowaard.nl'
             },
-            // service point models
-            service_points: {
+            checkpoints: {
                 37: {
                     name: 'De keuken',
                     type: 'Rat',
+                    code: 'CODEA000',
                     questions: {
                         0: {
                             question: 'Dit is een vraag',
-                            answerType: 'TEXT',
-                            answer: null,
+                            type: 4,
+                            answered: false,
+                            required: true,
+                            answer: undefined,
+                            errors: [],
                         },
-                        1: {
+                        2: {
                             question: 'Dit is nog een vraag',
-                            answerType: 'BOOLEAN',
-                            answer: null,
+                            type: 2,
+                            answered: false,
+                            required: true,
+                            answer: undefined,
+                            errors: [],
+                        },
+                        62: {
+                            question: "Dit is een vraag met een getal als antwoord",
+                            type: 3,
+                            min_value: 10,
+                            max_value: 99,
+                            answered: false,
+                            required: true,
+                            answer: undefined,
+                            errors: [],
+                        },
+                        415: {
+                            question: "Hoe zou je dit omschrijven?",
+                            type: 1,
+                            min_value: 0,
+                            max_value: 0,
+                            answered: false,
+                            required: true,
+                            answer: undefined,
+                            choices: {
+                                4331: "Als een antwoord",
+                                4332: "Als een tweede antwoord",
+                                4333: "Als dit het derde antwoord is",
+                                4334: "Wanneer het ID van dit antwoord 4334 is",
+                            },
+                            errors: [],
                         }
                     }
                 },
                 231: {
                     name: 'Kopstelling A',
                     type: 'Mier',
+                    code: 'CODEB001',
                     questions: {
-                        0: {
+                        3: {
                             question: 'Dit is een vraag',
-                            answerType: 'TEXT',
-                            answer: null,
+                            type: 4,
+                            answered: false,
+                            required: true,
+                            products: {},
+                            answer: undefined,
+                            errors: [],
                         },
-                        1: {
+                        4: {
                             question: 'Dit is nog een vraag',
-                            answerType: 'BOOLEAN',
-                            answer: null,
+                            type: 2,
+                            answered: false,
+                            required: true,
+                            products: {},
+                            answer: undefined,
+                            errors: [],
                         }
+                    }
+                }
+            },
+            service_types:{
+                1: {
+                    name: 'Hygiëne',
+                    remarks: 'Test installatie begane grond',
+                    state: null,
+                    additional_questions: {
+                        // status
+                        on: 2,
+                        questions: {
+                            99944: {
+                                question: 'Dit is een extra vraag',
+                                type: 4,
+                                answered: false,
+                                required: true,
+                                products: {},
+                                answer: undefined,
+                                errors: [],
+                            },
+                            99945: {
+                                question: 'Dit is nog een extra vraag',
+                                type: 2,
+                                answered: false,
+                                required: true,
+                                products: {},
+                                answer: undefined,
+                                errors: [],
+                            }
+                        },
+                    }
+                },
+                3261: {
+                    name: 'Muizen',
+                    remarks: 'Test installatie begane grond',
+                    state: null,
+                    additional_questions: {
+                        // status
+                        on: 3,
+                        questions: {
+                            99955: {
+                                question: 'Dit is een extra vraag',
+                                type: 4,
+                                answered: false,
+                                required: true,
+                                products: {},
+                                answer: undefined,
+                                errors: [],
+                            },
+                            99956: {
+                                question: 'Dit is nog een extra vraag',
+                                type: 2,
+                                answered: false,
+                                required: true,
+                                products: {},
+                                answer: undefined,
+                                errors: [],
+                            }
+                        },
                     }
                 }
             },
@@ -69,7 +170,7 @@ var data = {
         },
         40: {
             walking_time: '00:30:00',
-
+            completed: false,
             debtor: {
                 name: 'Jumbo',
                 debtor_number: 1000,
@@ -87,12 +188,84 @@ var data = {
                 phone_number: '0887779500',
                 email: 'info@ah-heerhugowaard.nl'
             },
+            checkpoints: {
+                31: {
+                    name: 'De keuken',
+                    type: 'Rat',
+                    code: 'CODEA000',
+                    questions: {
+                        0: {
+                            question: 'Dit is een vraag',
+                            type: 4,
+                            answered: false,
+                            required: true,
+                            answer: undefined,
+                            errors: [],
+                        },
+                        2: {
+                            question: 'Dit is nog een vraag',
+                            type: 2,
+                            answered: false,
+                            required: true,
+                            answer: undefined,
+                            errors: [],
+                        }
+                    }
+                },
+                83: {
+                    name: 'Kopstelling A',
+                    type: 'Mier',
+                    code: 'CODEB001',
+                    questions: {
+                        3: {
+                            question: 'Dit is een vraag',
+                            type: 4,
+                            answered: false,
+                            required: true,
+                            answer: undefined,
+                            errors: [],
+                        },
+                        4: {
+                            question: 'Dit is nog een vraag',
+                            type: 2,
+                            answered: false,
+                            required: true,
+                            answer: undefined,
+                            errors: [],
+                        }
+                    }
+                }
+            },
+            service_types:{
+                501: {
+                    name: 'Hygiëne',
+                    remarks: 'Test installatie begane grond',
+                    state: null,
+                    additional_questions:{},
+                },
+                502: {
+                    name: 'Muizen',
+                    remarks: 'Test installatie begane grond',
+                    state: null,
+                    additional_questions:{},
+                }
+            },
+
+            map: {
+                icons: {
+                    1: {
+                        name: 'Icon A',
+                        y: '38%',
+                        x: '85%',
+                    }
+                },
+            },
         },
     },
     1505908800: {
         53: {
             walking_time: '01:30:00',
-
+            completed: false,
             debtor: {
                 name: 'Grolsch',
                 debtor_number: 1000,
@@ -110,10 +283,81 @@ var data = {
                 phone_number: '0887779500',
                 email: 'info@ah-heerhugowaard.nl'
             },
+            checkpoints: {
+                85: {
+                    name: 'De keuken',
+                    type: 'Rat',
+                    code: 'CODEA000',
+                    questions: {
+                        0: {
+                            question: 'Dit is een vraag',
+                            type: 4,
+                            answered: false,
+                            required: true,
+                            answer: undefined,
+                            errors: [],
+                        },
+                        2: {
+                            question: 'Dit is nog een vraag',
+                            type: 2,
+                            answered: false,
+                            required: true,
+                            answer: undefined,
+                            errors: [],
+                        }
+                    }
+                },
+                78: {
+                    name: 'Kopstelling A',
+                    type: 'Mier',
+                    code: 'CODEB001',
+                    questions: {
+                        3: {
+                            question: 'Dit is een vraag',
+                            type: 4,
+                            answered: false,
+                            required: true,
+                            answer: undefined,
+                            errors: [],
+                        },
+                        4: {
+                            question: 'Dit is nog een vraag',
+                            type: 2,
+                            answered: false,
+                            required: true,
+                            answer: undefined,
+                            errors: [],
+                        }
+                    }
+                }
+            },
+            service_types:{
+                340:{
+                    name: 'Hygiëne',
+                    remarks: 'Test installatie begane grond',
+                    state: null,
+                    additional_questions:{},
+                },
+                350: {
+                    name: 'Ratten',
+                    remarks: 'Test installatie begane grond',
+                    state: null,
+                    additional_questions:{},
+                }
+            },
+            map: {
+                icons: {
+                    1: {
+                        name: 'Icon A',
+                        y: '38%',
+                        x: '85%',
+                    }
+                },
+            },
         },
         402 : {
             walking_time: '00:45:00',
-
+            completed: false,
             debtor: {
                 name: 'Heineken',
                 debtor_number: 1000,
@@ -131,9 +375,92 @@ var data = {
                 phone_number: '0887779500',
                 email: 'info@ah-heerhugowaard.nl'
             },
+            checkpoints: {
+                85: {
+                    name: 'De keuken',
+                    type: 'Rat',
+                    code: 'CODEA000',
+                    questions: {
+                        0: {
+                            question: 'Dit is een vraag',
+                            type: 4,
+                            answered: false,
+                            required: true,
+                            answer: undefined,
+                            errors: [],
+                        },
+                        2: {
+                            question: 'Dit is nog een vraag',
+                            type: 2,
+                            answered: false,
+                            required: true,
+                            answer: undefined,
+                            errors: [],
+                        }
+                    }
+                },
+                78: {
+                    name: 'Kopstelling A',
+                    type: 'Mier',
+                    code: 'CODEB001',
+                    questions: {
+                        3: {
+                            question: 'Dit is een vraag',
+                            type: 4,
+                            answered: false,
+                            required: true,
+                            answer: undefined,
+                            errors: [],
+                        },
+                        4: {
+                            question: 'Dit is nog een vraag',
+                            type: 2,
+                            answered: false,
+                            required: true,
+                            answer: undefined,
+                            errors: [],
+                        }
+                    }
+                }
+            },
+            service_types:{
+                98:{
+                    name: 'Hygiëne',
+                    remarks: 'Test installatie begane grond',
+                    state: null,
+                    additional_questions:{},
+                },
+                100: {
+                    name: 'Hygiëne',
+                    remarks: 'Test installatie begane grond',
+                    state: null,
+                    additional_questions:{},
+                }
+            },
+            map: {
+                icons: {
+                    1: {
+                        name: 'Icon A',
+                        y: '38%',
+                        x: '85%',
+                    }
+                },
+            },
         }
     }
 };
+
+var products = {
+    1: {
+
+    },
+    32: {
+
+    },
+    432432: {
+
+    },
+}
 
 
 class DataStoreHelper{

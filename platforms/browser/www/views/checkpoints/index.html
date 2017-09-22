@@ -2,18 +2,17 @@
     <item action="navigateBack">
         <i class="material-icons">&#xE5C4;</i>
     </item>
-    <title>Meetpunten</title>
+    <search>
+        <form id='form-search-code' class='form form-search-code'>
+            <input type="text" name="value" class='input' placeholder="Zoek..."/>
+            <button type='submit' class='btn btn-icon success'><i class="material-icons">&#xE8B6;</i></button>
+        </form>
+    </search>
 </menu>
 <content>
-    <section class='inner'>
-        <form id='form-search-code' class='form form-search-code'>
-            <div class='row'>
-                <input type="text" name="value" class='input'/>
-                <button type='submit' class='btn btn-icon success'><i class="material-icons">&#xE8B6;</i></button>
-            </div>
-        </form>
-    </section>
-    <ul class='checkpoint-list'></ul>
+    <ul class='checkpoint-list'>
+        <li class='label label-default no-results warning hidden'>Geen resultaten</li>
+    </ul>
 </content>
 
 
@@ -29,8 +28,21 @@
 
     for(var i in appointment.checkpoints){
         var sp = appointment.checkpoints[i];
-        var str = "<li action='viewCheckpoint' checkpoint='"+i+"' data-code='"+sp.code+"'>";
+
+        var isFinished = "finished";
+
+        for(var qI in sp.questions){
+            var q = sp.questions[qI];
+            if(q.answered == false && q.required == true){
+                isFinished = '';
+                break;
+            }
+        }
+
+        var str = "<li class='item "+isFinished+"' data-code='"+sp.code+"' action='viewCheckpoint' checkpoint='"+i+"'>";
         str += "<h4>" + sp.name + "</h4>";
+        str += "<div class='view'><i class='material-icons'>&#xE8B6;</i></div>";
+        str += "<div class='code'>" + sp.code + "</div>";
         str += "</li>";
         $('.checkpoint-list').append( $(str) );
     }

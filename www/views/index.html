@@ -51,9 +51,13 @@
             str += "<ul>";
             for(var appointmentIndex in day.data){
                 var appointment = day.data[appointmentIndex];
-                str += "<li action='viewAppointment' day='"+day.id+"' appointment='"+appointmentIndex+"'>";
+                console.log(appointment);
+                var completed = (appointment.completed == true) ? 'done' : '';
+                str += "<li class='"+completed+"' action='viewAppointment' day='"+day.id+"' appointment='"+appointmentIndex+"'>";
+                str += "<div class='view'><i class='material-icons'></i></div>";
                 str += appointment.debtor.name;
-                str == "</ul>";
+                str == "</li>";
+
             }
             str += "</ul>";
 

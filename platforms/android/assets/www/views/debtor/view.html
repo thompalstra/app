@@ -5,6 +5,16 @@
     <title>Debiteur</title>
 </menu>
 <content>
+    <table class='info-table' style='width: calc(100% - 20px); margin: 10px;'>
+        <tr class='phone'>
+            <td class='icon'><i class="material-icons">&#xE0CD;</i></td>
+            <td class='value'>telefoonnummer</td>
+        </tr>
+        <tr class='email'>
+            <td class='icon'><i class="material-icons">&#xE0BE;</i></td>
+            <td class='value'>mail@mail.com</td>
+        </tr>
+    </table>
     <section class='inner'>
         <h2 id='invoice'>Factuurgegevens</h2>
         <p>
@@ -34,6 +44,22 @@
 
 <script>
     $('view title').html( "Contact gegevens: " + app.appointment.debtor.name );
+
+
+    if(app.appointment.debtor.phone_number){
+        $('.info-table .phone .value').html( app.appointment.debtor.phone_number );
+    } else {
+        console.log('dsadsa');
+        $('.info-table .phone').remove();
+    }
+
+    if(app.appointment.debtor.email){
+        $('.info-table .email .value').html( app.appointment.debtor.email );
+    } else {
+        $('.info-table .email').remove();
+    }
+
+
     $('#invoice_address').html( app.appointment.debtor.invoice_address );
     $('#invoice_postcode').html( app.appointment.debtor.invoice_postcode );
     $('#invoice_city').html( app.appointment.debtor.invoice_city );

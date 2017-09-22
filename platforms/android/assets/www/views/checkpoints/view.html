@@ -1,0 +1,40 @@
+<menu class='has-2'>
+    <item action="navigateBack">
+        <i class="material-icons">&#xE5C4;</i>
+    </item>
+    <title>Meetpunten</title>
+</menu>
+<content>
+    <ul class='question-list'>
+
+    </ul>
+</content>
+
+<script>
+    app.navigate.back = function(){
+        app.navigate.to('views/checkpoints/index.html', function(e){
+
+        });
+    }
+
+
+    for(var i in app.day['data'][app.appointmentIndex]['checkpoints'][app.checkpointIndex]['questions']){
+        var questionIndex = i;
+        var question = app.day['data'][app.appointmentIndex]['checkpoints'][app.checkpointIndex]['questions'][i];
+        if(question.answered === false){
+            str = '<li>';
+            str += app.question.createHTML(questionIndex, question);
+            str += '</li>';
+            $('.question-list').append( $(str) );
+
+        } else if(question.answered === true){
+            str = '<li class="answered">';
+            str += app.question.createHTML(questionIndex, question);
+            str += '</li>';
+            $('.question-list').append( $(str) );
+
+        }
+    }
+
+    $('title').html(app.checkpoint.name);
+</script>
