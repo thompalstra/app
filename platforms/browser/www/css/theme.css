@@ -113,7 +113,10 @@ h2.title{
 .form .row{
     display: inline-block;
     width: 100%;
+    margin-bottom: 10px;
 }
+.form .select,
+.form .textarea,
 .form .input{
     border: 0;
     margin: 0;
@@ -183,6 +186,59 @@ h2.title{
     width: 50px;
     height: 50px;
     line-height: 50px;
+}
+
+[mdot]{
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+}
+[noselect]{
+    -webkit-user-select: none;  /* Chrome all / Safari all */
+    -moz-user-select: none;     /* Firefox all */
+    -ms-user-select: none;      /* IE 10+ */
+    user-select: none;          /* Likely future */
+}
+
+.mdot{
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    border-radius: 100%;
+    background-color: rgba(0,0,0,.1);
+    z-index: -1;
+    opacity: 0;
+    transform: scale(0);
+    /*transition-property: opacity;
+    transition-timing-function: ease-in-out;
+    transition-duration: 3s;*/
+
+    transition: opacity 3s ease-in-out;
+}
+.mdot.animate{
+    animation: scaleUp 5s forwards;
+}
+.mdot.mousedown{
+    opacity: 1;
+}
+.mdot.mouseup{
+    animation: scaleDown .3s forwards;
+}
+
+@keyframes scaleUp{
+    0% {
+        transform: scale(0);
+    } 60% {
+    } 100% {
+        transform: scale(2);
+    }
+}
+@keyframes scaleDown{
+    0% {
+    } 60% {
+    } 100% {
+        transform: scale(0);
+        opacity: 0;
+    }
 }
 
 .hidden{

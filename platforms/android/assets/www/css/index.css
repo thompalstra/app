@@ -10,12 +10,68 @@ app > view > menu > item[action="sync"] .icon.syncing{
 @-webkit-keyframes spin { 100% { -webkit-transform: rotate(360deg); } }
 @keyframes spin { 100% { -webkit-transform: rotate(360deg); transform:rotate(360deg); } }
 
+.remark-list{
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.remark-list > li{
+    background-color: white;
+    width: calc(100% - 20px);
+    margin: 10px;
+    padding: 10px;
+    box-sizing: border-box;
+    position: relative;
+    order: 5;
+}
+.remark-list > li.completed{
+    order: 10;
+    background-color: #ebebeb;
+    color: #858585;
+}
+
+.remark-list > li [action="moreShow"]{
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 50px;
+    height: 50px;
+    text-align: center;
+    line-height: 50px;
+}
+
+.remark-list > li [action="moreShow"] .material-icons{
+    width: 50px;
+    height: 50px;
+    line-height: 50px;
+    color: black;
+}
+
+#create-remark{
+    position: fixed;
+    width: 50px;
+    height: 50px;
+    right: 10px;
+    bottom: 10px;
+    color: white;
+    background-color: #71BA51;
+    font-size: 50px;
+    line-height: 50px;
+    text-align: center;
+    border-radius: 100%;
+}
 
 .checkpoint-list{
     width: calc(100% - 20px);
     padding: 0;
     margin: 10px;
     box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
 }
 
 .checkpoint-list li.item{
@@ -32,6 +88,11 @@ app > view > menu > item[action="sync"] .icon.syncing{
 
 .checkpoint-list li.item.finished{
     border-bottom-color: #71BA51;
+    order: 5;
+}
+.checkpoint-list li.item.unreachable{
+    opacity: .4;
+    order: 9;
 }
 
 .checkpoint-list li.item h4{
@@ -175,7 +236,7 @@ app > view > menu > item[action="sync"] .icon.syncing{
 
 .question-list{
     padding: 0;
-    margin: 0;
+    margin: 10px 0 0 0;
     list-style: none;
     display: flex;
     flex-direction: column;
@@ -183,7 +244,8 @@ app > view > menu > item[action="sync"] .icon.syncing{
 .question-list li{
     width: calc(100% - 20px);
     padding: 0;
-    margin: 10px;
+    /*margin: 10px;*/
+    margin: 0 10px 10px 10px;
     box-sizing: border-box;
     text-align: left;
     padding: 0 10px;
@@ -212,6 +274,8 @@ app > view > menu > item[action="sync"] .icon.syncing{
     margin: 10px;
     list-style: none;
     box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
 }
 
 .installation-list li{
@@ -222,13 +286,41 @@ app > view > menu > item[action="sync"] .icon.syncing{
     width: 100%;
     padding: 10px;
     box-sizing: border-box;
-    margin-bottom: 10px;
 }
+
+.installation-list li h2{
+    margin: 0;
+    padding: 0;
+}
+.installation-list li p{
+    margin: 0;
+    padding: 0;
+}
+
 .installation-list li .service-type{
     width: 33%;
-    padding-bottom: 33%;
+    padding-bottom: 40px;
     float: left;
+    position: relative;
+    margin-top: 10px;
 }
+.installation-list li .service-type:after{
+    content: attr(content);
+    position: absolute;
+    left: 0; right: 0; bottom: 0; top: 0;
+    mnargin: auto;
+    line-height: 40px;
+    text-align: center;
+    color: white;
+}
+
+.installation-list button[action="signAppointment"]{
+    margin-top: 10px;
+    order: 0;
+    margin: 0 0 10px 0;
+}
+
+
 .installation-list li input[type="radio"]{
     display: none;
 }
@@ -237,19 +329,24 @@ app > view > menu > item[action="sync"] .icon.syncing{
 }
 
 .installation-list li .service-type.status-1{
-    background-color: green;
+    background-color: #CF000F;
 }
 .installation-list li .service-type.status-2{
-    background-color: orange;
+    background-color: #FD5B03;
 }
 
 .installation-list li .service-type.status-3{
-    background-color: red;
+    background-color: #71BA51;
 }
 
 .installation-list li ul{
     display: none;
 }
+
+.installation-list .completed{
+    order: 5;
+}
+
 .installation-list li[on="1"] + ul[on="1"],
 .installation-list li[on="2"] + ul[on="2"],
 .installation-list li[on="3"] + ul[on="3"]{
@@ -259,7 +356,6 @@ app > view > menu > item[action="sync"] .icon.syncing{
 
 .installation-list .question-list{
     float: left;
-    margin-bottom: 10px;
     display: none;
 }
 
@@ -365,4 +461,88 @@ app > view > menu > item[action="sync"] .icon.syncing{
 }
 .form-search-code .btn-icon{
     float: right;
+}
+
+.form.question-form h4{
+    margin: 0; padding: 0;
+}
+
+[action="moreShow"]{
+    position: relative;
+}
+
+[action="moreShow"] .more-list{
+    position: absolute;
+    list-style: none;
+    /*top: calc(100% + 10px);*/
+    top: 50px;
+    right: 10px;
+    background-color: white;
+    color: black;
+    margin: 0;
+    padding: 0;
+    z-index: 1;
+    -webkit-box-shadow: 1px 1px 4px 0px rgba(0,0,0,0.3);
+    -moz-box-shadow: 1px 1px 4px 0px rgba(0,0,0,0.3);
+    box-shadow: 1px 1px 4px 0px rgba(0,0,0,0.3);
+}
+
+[action="moreShow"] .more-list hr{
+    margin: 0 10px;
+    width: calc(100% - 20px);
+    border: 0;
+    border-top: 1px solid #ddd;
+}
+
+menu [action="moreShow"] .more-list{
+    top: calc( 100% + 10px );
+}
+
+[action="moreShow"] .more-list li{
+    width: 180px;
+    text-align: left;
+    padding: 0 10px;
+    box-sizing: border-box;
+    font-size: 14px;
+    line-height: 50px;
+}
+
+.signature-canvas{
+    background-color: white;
+    width: 100%;
+    box-sizing: border-box;
+    height: 50%;
+    border: 1px solid #3D8EB9;
+    float: left;
+    margin-bottom: 10px;
+}
+
+.signature{
+    text-align: center;
+    height: 50px;
+    line-height: 50px;
+    float: left;
+    display: inline-block;
+}
+.inner.inner-signature{
+    height: calc(100% - 20px);
+}
+.signature.return{
+    width: 50%;
+    color: white;
+    background-color: #3D8EB9;
+}
+.signature.reset{
+    color: #3D8EB9;
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    width: 50px;
+    height: 50px;
+    line-height: 50px;
+}
+.signature.sign{
+    width: 50%;
+    color: white;
+    background-color: #71BA51;
 }

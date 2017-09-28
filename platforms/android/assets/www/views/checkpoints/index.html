@@ -39,7 +39,9 @@
             }
         }
 
-        var str = "<li class='item "+isFinished+"' data-code='"+sp.code+"' action='viewCheckpoint' checkpoint='"+i+"'>";
+        var unreachable = (sp.unreachable == true) ? 'unreachable' : '';
+
+        var str = "<li class='item "+isFinished+" "+unreachable+"' data-code='"+sp.code+"' action='viewCheckpoint' checkpoint='"+i+"' mdot noselect>";
         str += "<h4>" + sp.name + "</h4>";
         str += "<div class='view'><i class='material-icons'>&#xE8B6;</i></div>";
         str += "<div class='code'>" + sp.code + "</div>";

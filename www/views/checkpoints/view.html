@@ -1,8 +1,16 @@
-<menu class='has-2'>
+<menu class='has-3'>
     <item action="navigateBack">
         <i class="material-icons">&#xE5C4;</i>
     </item>
     <title>Meetpunten</title>
+    <item action="moreShow">
+        <i class="material-icons">&#xE5D4;</i>
+
+        <ul class='more-list hidden'>
+            <li action='checkpointMarkUnreachable' mdot noselect>Markeer onbereikbaar</li>
+            <li action='checkpointEditName' mdot noselect>Bewerk naam</li>
+        </ul>
+    </item>
 </menu>
 <content>
     <ul class='question-list'>
@@ -15,6 +23,14 @@
         app.navigate.to('views/checkpoints/index.html', function(e){
 
         });
+    }
+    var sp = app.day['data'][app.appointmentIndex]['checkpoints'][app.checkpointIndex];
+    var unreachable = (sp.unreachable == true) ? 'unreachable' : '';
+
+    if(sp.unreachable == true){
+        var action = $('[action="checkpointMarkUnreachable"]');
+        action.attr('action', 'checkpointMarkReachable');
+        action.html("Markeer bereikbaar");
     }
 
 

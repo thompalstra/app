@@ -6,8 +6,9 @@
 </menu>
 <content>
     <ul class='installation-list'>
+        <button action='signAppointment' class='btn btn-default success wide' mdot noselect>Ondertekenen</button>
     </ul>
-    <button action='submitAppointment' style='margin: 0 10px; width: calc(100% - 20px);' class='btn btn-default success wide'>Opslaan</button>
+
 </content>
 <script>
 app.navigate.back = function(){
@@ -20,28 +21,37 @@ app.navigate.back = function(){
 for(var i in app.appointment.service_types){
     var st =  app.appointment.service_types[i];
     if(st.additional_questions.hasOwnProperty('on')){
+        var isAnswered = true;
+        for(var iq in st.additional_questions.questions){
+            var q = st.additional_questions.questions[iq];
+            if(q.required == true && q.answered == false){
+                isAnswered = false;
+                break;
+            }
+        }
+        var isAnswered = (isAnswered == true) ? 'completed' : '';
         var on = (st.state != null) ? st.state : '';
-        str = "<li servicetype='"+i+"' on='"+on+"'>";
+        str = "<li servicetype='"+i+"' on='"+on+"' class='"+isAnswered+"'>";
         str += "<h2>" + st.name + "</h2>";
         str += "<p>" + st.remarks + "</p>";
         str += "<label for='service_type_"+i+"_"+1+"'>";
         str += "<input id='service_type_"+i+"_"+1+"'' type='radio' name='service_type_"+i+"' value='1'>";
-        str += "<div class='service-type status-1'></div>";
+        str += "<div class='service-type status-1' content='Overlast'></div>";
         str += "</label>";
 
         str += "<label for='service_type_"+i+"_"+2+"'>";
         str += "<input id='service_type_"+i+"_"+2+"'' type='radio' name='service_type_"+i+"' value='2'>";
-        str += "<div class='service-type status-2'></div>";
+        str += "<div class='service-type status-2' content='Risico'></div>";
         str += "</label>";
 
         str += "<label for='service_type_"+i+"_"+3+"'>";
         str += "<input id='service_type_"+i+"_"+3+"'' type='radio' name='service_type_"+i+"' value='3'>";
-        str += "<div class='service-type status-3'></div>";
+        str += "<div class='service-type status-3' content='Geen overlast'></div>";
         str += "</label>";
 
         str += "</li>";
 
-        str += "<ul class='question-list' on='"+st.additional_questions.on+"' servicetype='"+i+"'>";
+        str += "<ul class='question-list "+isAnswered+"' on='"+st.additional_questions.on+"' servicetype='"+i+"'>";
 
         for(var questionIndex in st.additional_questions.questions){
             var question = st.additional_questions.questions[questionIndex];

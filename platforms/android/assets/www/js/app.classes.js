@@ -5,6 +5,7 @@ var data = {
         34: {
             completed: false,
             walking_time: '00:45:00',
+            unreachable: false,
             debtor: {
                 name: 'Albert Heijn',
                 debtor_number: 1000,
@@ -23,6 +24,26 @@ var data = {
                 email: 'info@ah-heerhugowaard.nl'
             },
             checkpoints: {
+                32563: {
+                    name: 'Rattenvanger Ultra MK3000Plus V2.0.1',
+                    type: 'Rat',
+                    code: 'CODEX666',
+                    questions: {
+                        0: {
+                            question: 'Hoeveel gif is er op?',
+                            type: 5,
+                            answered: false,
+                            required: true,
+                            answer: undefined,
+                            products: {
+                                12: "Gif 1.5 gr.",
+                                23: "Gif 1.8 gr.",
+                                54: "Gif 2 gr."
+                            },
+                            errors: [],
+                        }
+                    },
+                },
                 37: {
                     name: 'De keuken',
                     type: 'Rat',
@@ -82,7 +103,6 @@ var data = {
                             type: 4,
                             answered: false,
                             required: true,
-                            products: {},
                             answer: undefined,
                             errors: [],
                         },
@@ -91,7 +111,6 @@ var data = {
                             type: 2,
                             answered: false,
                             required: true,
-                            products: {},
                             answer: undefined,
                             errors: [],
                         }
@@ -112,7 +131,6 @@ var data = {
                                 type: 4,
                                 answered: false,
                                 required: true,
-                                products: {},
                                 answer: undefined,
                                 errors: [],
                             },
@@ -121,7 +139,6 @@ var data = {
                                 type: 2,
                                 answered: false,
                                 required: true,
-                                products: {},
                                 answer: undefined,
                                 errors: [],
                             }
@@ -141,7 +158,6 @@ var data = {
                                 type: 4,
                                 answered: false,
                                 required: true,
-                                products: {},
                                 answer: undefined,
                                 errors: [],
                             },
@@ -150,7 +166,6 @@ var data = {
                                 type: 2,
                                 answered: false,
                                 required: true,
-                                products: {},
                                 answer: undefined,
                                 errors: [],
                             }
@@ -167,10 +182,21 @@ var data = {
                     }
                 },
             },
+            remarks: [
+                {
+                    id: 1,
+                    name: "Dit is een opmerking",
+                    actionee: "Attack",
+                    group: "Algemeen",
+                    type: "Klacht",
+                    complete: false
+                },
+            ]
         },
         40: {
-            walking_time: '00:30:00',
             completed: false,
+            walking_time: '00:30:00',
+            unreachable: false,
             debtor: {
                 name: 'Jumbo',
                 debtor_number: 1000,
@@ -250,7 +276,6 @@ var data = {
                     additional_questions:{},
                 }
             },
-
             map: {
                 icons: {
                     1: {
@@ -260,12 +285,14 @@ var data = {
                     }
                 },
             },
+            remarks: [],
         },
     },
     1505908800: {
         53: {
-            walking_time: '01:30:00',
             completed: false,
+            walking_time: '01:30:00',
+            unreachable: false,
             debtor: {
                 name: 'Grolsch',
                 debtor_number: 1000,
@@ -354,10 +381,12 @@ var data = {
                     }
                 },
             },
+            remarks: [],
         },
         402 : {
-            walking_time: '00:45:00',
             completed: false,
+            walking_time: '00:45:00',
+            unreachable: false,
             debtor: {
                 name: 'Heineken',
                 debtor_number: 1000,
@@ -446,35 +475,141 @@ var data = {
                     }
                 },
             },
+            remarks: [],
         }
     }
 };
 
-var products = {
-    1: {
-
+var availableRemarks = {
+    actionees: {
+        1: 'Attack',
+        2: 'Klant',
+        3: 'Derde partij'
     },
-    32: {
-
+    groups: {
+        1: 'Algemeen',
+        2: 'Groep'
     },
-    432432: {
-
-    },
+    types: {
+        1: 'Klacht',
+        2: 'Service',
+        3: 'Anders'
+    }
 }
 
+var availableComments = [
+    {
+        actionee_id: 1,
+        group_id: 1,
+        type_id: 2,
+        name: "Ik heb een keukenkastje opgeruimd"
+    },
+    {
+        actionee_id: 2,
+        group_id: 1,
+        type_id: 3,
+        name: "De klant heeft beloofd koffie neer te zetten"
+    }
+];
 
-class DataStoreHelper{
-    constructor(){
-        this.isNewRecord = true;
-    }
-    static find(){
-        var dataStoreHelper = new DataStoreHelper();
-        dataStoreHelper.transaction = app.database.db.transaction([this.storeName()], "readwrite");
-        dataStoreHelper.objectStore = dataStoreHelper.transaction.objectStore(this.storeName());
-        dataStoreHelper.className = this.name;
-        return dataStoreHelper;
-    }
-    all(callback){
+// class DataStoreHelper{
+//     constructor(){
+//         this.isNewRecord = true;
+//     }
+//     static find(){
+//         var dataStoreHelper = new DataStoreHelper();
+//         dataStoreHelper.transaction = app.database.db.transaction([this.storeName()], "readwrite");
+//         dataStoreHelper.objectStore = dataStoreHelper.transaction.objectStore(this.storeName());
+//         dataStoreHelper.className = this.name;
+//         return dataStoreHelper;
+//     }
+//     all(callback){
+//         var request = this.objectStore.getAll();
+//         var c = this.className;
+//
+//         request.onsuccess = function(){
+//
+//             var objs = [];
+//
+//             for(var o in request.result){
+//
+//                 var obj = new window[c]();
+//                 obj.isNewRecord = false;
+//
+//                 for(var i in request.result[o]){
+//                     obj[i] = request.result[o][i];
+//                 }
+//
+//                 objs.push(obj);
+//             }
+//
+//             callback.call(request, objs);
+//         }
+//     }
+//     findById(id, callback){
+//         var request = this.objectStore.get(id);
+//         var c = this.className;
+//         request.onsuccess = function(){
+//             var obj = new window[c]();
+//             obj.isNewRecord = false;
+//             for(var i in request.result){
+//                 obj[i] = request.result[i];
+//             }
+//
+//             callback.call(request, obj);
+//         }
+//     }
+//     static put(data){
+//         var dataStoreHelper = new DataStoreHelper();
+//         dataStoreHelper.transaction = app.database.db.transaction([this.storeName()], "readwrite");
+//         dataStoreHelper.objectStore = dataStoreHelper.transaction.objectStore(this.storeName());
+//         dataStoreHelper.className = this.name;
+//         dataStoreHelper.objectStore.put(data);
+//     }
+//     update(callback){
+//         var dataStoreHelper = new DataStoreHelper();
+//
+//         dataStoreHelper.transaction = app.database.db.transaction([this.storeName()], "readwrite");
+//         dataStoreHelper.objectStore = dataStoreHelper.transaction.objectStore(this.storeName());
+//         dataStoreHelper.className = this.name;
+//
+//         var data = {};
+//
+//         for(var i in this){
+//             if(i == 'length'){ continue; }
+//             data[i] = this[i];
+//         }
+//
+//         var request = dataStoreHelper.objectStore.put(data);
+//         request.onerror = function(event) {
+//         // Do something with the error
+//             callback.call(this, false);
+//         };
+//         request.onsuccess = function(event) {
+//         // Success - the data is updated!
+//             callback.call(this, true);
+//         };
+//
+//     }
+// }
+// window['DataStoreHelper'] = DataStoreHelper;
+//
+// class Day extends DataStoreHelper{
+//     static storeName(){
+//         return "day";
+//     }
+//     storeName(){
+//         return "day";
+//     }
+// }
+//
+// window['Day'] = Day;
+
+
+
+var DataStoreHelper = function() {
+    this.isNewRecord = true;
+    this.all = function(callback){
         var request = this.objectStore.getAll();
         var c = this.className;
 
@@ -497,7 +632,8 @@ class DataStoreHelper{
             callback.call(request, objs);
         }
     }
-    findById(id, callback){
+
+    this.findById = function(id, callback){
         var request = this.objectStore.get(id);
         var c = this.className;
         request.onsuccess = function(){
@@ -510,14 +646,8 @@ class DataStoreHelper{
             callback.call(request, obj);
         }
     }
-    static put(data){
-        var dataStoreHelper = new DataStoreHelper();
-        dataStoreHelper.transaction = app.database.db.transaction([this.storeName()], "readwrite");
-        dataStoreHelper.objectStore = dataStoreHelper.transaction.objectStore(this.storeName());
-        dataStoreHelper.className = this.name;
-        dataStoreHelper.objectStore.put(data);
-    }
-    update(callback){
+
+    this.update = function(callback){
         var dataStoreHelper = new DataStoreHelper();
 
         dataStoreHelper.transaction = app.database.db.transaction([this.storeName()], "readwrite");
@@ -533,25 +663,162 @@ class DataStoreHelper{
 
         var request = dataStoreHelper.objectStore.put(data);
         request.onerror = function(event) {
-        // Do something with the error
+            // Do something with the error
             callback.call(this, false);
         };
         request.onsuccess = function(event) {
-        // Success - the data is updated!
+            // Success - the data is updated!
             callback.call(this, true);
         };
+    }
 
+    this.find = function(){
+        var dataStoreHelper = new DataStoreHelper();
+        dataStoreHelper.transaction = app.database.db.transaction([this.storeName()], "readwrite");
+        dataStoreHelper.objectStore = dataStoreHelper.transaction.objectStore(this.storeName());
+        dataStoreHelper.className = this.name;
+        return dataStoreHelper;
+    }
+
+    this.put = function(data){
+        var dataStoreHelper = new DataStoreHelper();
+        dataStoreHelper.transaction = app.database.db.transaction([this.storeName()], "readwrite");
+        dataStoreHelper.objectStore = dataStoreHelper.transaction.objectStore(this.storeName());
+        dataStoreHelper.className = this.name;
+        dataStoreHelper.objectStore.put(data);
     }
 }
+
+DataStoreHelper.all = function(callback){
+    var request = this.objectStore.getAll();
+    var c = this.className;
+
+    request.onsuccess = function(){
+
+        var objs = [];
+
+        for(var o in request.result){
+
+            var obj = new window[c]();
+            obj.isNewRecord = false;
+
+            for(var i in request.result[o]){
+                obj[i] = request.result[o][i];
+            }
+
+            objs.push(obj);
+        }
+
+        callback.call(request, objs);
+    }
+}
+
+DataStoreHelper.findById = function(id, callback){
+    var request = this.objectStore.get(id);
+    var c = this.className;
+    request.onsuccess = function(){
+        var obj = new window[c]();
+        obj.isNewRecord = false;
+        for(var i in request.result){
+            obj[i] = request.result[i];
+        }
+
+        callback.call(request, obj);
+    }
+}
+
+DataStoreHelper.update = function(callback){
+    var dataStoreHelper = new DataStoreHelper();
+
+    dataStoreHelper.transaction = app.database.db.transaction([this.storeName()], "readwrite");
+    dataStoreHelper.objectStore = dataStoreHelper.transaction.objectStore(this.storeName());
+    dataStoreHelper.className = this.name;
+
+    var data = {};
+
+    for(var i in this){
+        if(i == 'length' || typeof this[i] == 'function'){ continue; }
+        data[i] = this[i];
+    }
+
+    var request = dataStoreHelper.objectStore.put(data);
+    request.onerror = function(event) {
+    // Do something with the error
+        callback.call(this, false);
+    };
+    request.onsuccess = function(event) {
+    // Success - the data is updated!
+        callback.call(this, true);
+    };
+}
+
+DataStoreHelper.find = function(){
+    var dataStoreHelper = new DataStoreHelper();
+    dataStoreHelper.transaction = app.database.db.transaction([this.storeName()], "readwrite");
+    dataStoreHelper.objectStore = dataStoreHelper.transaction.objectStore(this.storeName());
+    dataStoreHelper.className = this.name;
+    return dataStoreHelper;
+}
+DataStoreHelper.put = function(data){
+    var dataStoreHelper = new DataStoreHelper();
+    dataStoreHelper.transaction = app.database.db.transaction([this.storeName()], "readwrite");
+    dataStoreHelper.objectStore = dataStoreHelper.transaction.objectStore(this.storeName());
+    dataStoreHelper.className = this.name;
+    dataStoreHelper.objectStore.put(data);
+}
+
 window['DataStoreHelper'] = DataStoreHelper;
 
-class Day extends DataStoreHelper{
-    static storeName(){
+var Day = function() {
+    for(var i in DataStoreHelper){
+        this[i] = DataStoreHelper[i];
+    }
+
+    this.storeName = function(){
         return "day";
     }
-    storeName(){
-        return "day";
-    }
+}
+Day.storeName = function(){
+    return "day";
+}
+for(var i in DataStoreHelper){
+    Day[i] = DataStoreHelper[i];
 }
 
 window['Day'] = Day;
+
+var Comments = function() {
+    for(var i in DataStoreHelper){
+        this[i] = DataStoreHelper[i];
+    }
+
+    this.storeName = function(){
+        return "comments";
+    }
+}
+Comments.storeName = function(){
+    return "comments";
+}
+for(var i in DataStoreHelper){
+    Comments[i] = DataStoreHelper[i];
+}
+
+window['Comments'] = Comments;
+
+var Remarks = function() {
+    for(var i in DataStoreHelper){
+        this[i] = DataStoreHelper[i];
+    }
+
+    this.storeName = function(){
+        return "remarks";
+    }
+}
+Remarks.storeName = function(){
+    return "remarks";
+}
+for(var i in DataStoreHelper){
+    Remarks[i] = DataStoreHelper[i];
+}
+
+window['Remarks'] = Remarks;

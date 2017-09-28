@@ -1,0 +1,44 @@
+<menu class='has-2'>
+    <item action="navigateBack">
+        <i class="material-icons">&#xE5C4;</i>
+    </item>
+    <title>Nieuwe opmerkingen</title>
+</menu>
+<content>
+    <form id='form-create-remark' class='form form-create-remark inner'>
+        <div class='row'>
+            <select name='type_id' class='select'></select>
+        </div>
+        <div class='row'>
+            <select name='actionee_id' class='select'></select>
+        </div>
+        <div class='row'>
+            <select name='group_id' class='select'></select>
+        </div>
+        <div class='row'>
+            <textarea name='name' class='textarea' rows=4></textarea>
+        </div>
+        <button type='submit' class='btn btn-default success wide'>opslaan</button>
+    </form>
+</content>
+<script>
+app.navigate.back = function(){
+    app.navigate.to('views/remarks/index.html', function(e){
+
+    });
+}
+
+Remarks.find().findById(1, function(result){
+    // console.log(result);
+    for(var i in result.data.actionees){
+        $('select[name="actionee_id"]').append( $('<option value="' + i + '">'+ result.data.actionees[i]+'</option>') );
+    }
+    for(var i in result.data.groups){
+        $('select[name="group_id"]').append( $('<option value="' + i + '">'+ result.data.groups[i]+'</option>') );
+    }
+    for(var i in result.data.types){
+        $('select[name="type_id"]').append( $('<option value="' + i + '">'+ result.data.types[i]+'</option>') );
+    }
+});
+
+</script>

@@ -73,6 +73,21 @@ var app = {
                 Day.put({id: i, data: data[i]});
             }
 
+            var transaction = app.database.db.transaction(['comments'], "readwrite");
+            var objectStore = transaction.objectStore('comments');
+
+            objectStore.clear();
+
+            Comments.put({
+                id: 1,
+                data: availableComments
+            });
+
+            Remarks.put({
+                id: 1,
+                data: availableRemarks
+            });
+
             if(cordova.exec){
                 cordova.exec(function(){
                     // success
@@ -107,6 +122,12 @@ var app = {
             request.onupgradeneeded = function(event) {
                 var db = event.target.result;
                 var objectStore = db.createObjectStore('day', { keyPath: "id" , autoIncrement: true});
+                objectStore.createIndex("objIndex", ["id", "data"], { unique: false });
+
+                var objectStore = db.createObjectStore('comments', { keyPath: "id" , autoIncrement: true});
+                objectStore.createIndex("objIndex", ["id", "data"], { unique: false });
+
+                var objectStore = db.createObjectStore('remarks', { keyPath: "id" , autoIncrement: true});
                 objectStore.createIndex("objIndex", ["id", "data"], { unique: false });
             };
             request.onsuccess = function(event) {
@@ -182,6 +203,8 @@ var app = {
             if(app.question.validateAnswer(type, answer, question) == true){
                 question.answer = answer;
                 question.answered = true;
+
+                app.appointment.completed = false;
 
                 if(typeof callback == 'function'){
                     callback.call(this, null);
@@ -305,20 +328,254 @@ var app = {
                 break;
                 case app.const.type_product:
 
+                str += "<select name='question_" + questionIndex + "' class='select'>";
+                for(var i in question.products){
+                    var selected = (question.answer == i) ? 'selected' : '';
+                    str += "<option value='" + i + "' "+selected+">" + question.products[i] + "</option>";
+                }
+                str += "</select>";
+
                 break;
             }
-            str += "<button type='submit' class='btn btn-default wide action'>Beantwoorden</button>";
+            str += "<button type='submit' class='btn btn-default wide action' mdot noselect>Beantwoorden</button>";
             str += "<label class='label label-default exception hidden'></label>"
             str += "</div>";
             str += "</form>";
 
             return str;
         }
+    },
+    actions: {
+        navigateBack: function(e){
+            app.navigate.back();
+        },
+        viewDebtor: function(e){
+            app.navigate.to('views/debtor/view.html', function(e){
+
+            });
+        },
+        sync: function(e){
+            $('item[action="sync"] > .icon').addClass('syncing');
+            $('.planning-list').html('');
+            setTimeout(function(e){
+                app.sync.start(function(e){
+                    app.navigate.to('views/index.html');
+                });
+            }, 500);
+        },
+        viewAppointment: function(e){
+            var day = $(this).attr('day');
+            var appointment = $(this).attr('appointment');
+            Day.find().findById(day, function(result){
+                app.day = result;
+                app.dayIndex = day;
+                app.appointmentIndex = appointment;
+                app.appointment = result.data[appointment];
+                app.navigate.to('views/appointment/index.html');
+            });
+        },
+        completeAppointment: function(e){
+            var appointment = app.appointment;
+            var join = [];
+            var finished = true;
+            for(var i in appointment.checkpoints){
+                var sp = appointment.checkpoints[i];
+                if(sp.unreachable == true){
+                } else {
+                    for(var q in sp.questions){
+                        var spq = sp.questions[q];
+                        if(spq.required === true && spq.answered !== true){
+                            join.push(spq.question);
+                            finished = false;
+                        }
+                    }
+                }
+            }
+            if(finished){
+                app.navigate.to('views/installations/index.html');
+            } else {
+                join = join.join('\n');
+                alert('Er zijn nog openstaande vragen: \n' + join)
+            }
+        },
+        viewCheckpoints: function(e){
+            app.navigate.to('views/checkpoints/index.html');
+        },
+        viewCheckpoint: function(e){
+            var checkpoint = $(this).attr('checkpoint');
+            app.checkpoint = app.appointment.checkpoints[checkpoint];
+            app.checkpointIndex = checkpoint;
+            if(app.checkpoint){
+                app.navigate.to('views/checkpoints/view.html');
+            }
+        },
+        viewRemarks: function(e){
+            app.navigate.to('views/remarks/index.html');
+        },
+        addRemark: function(e){
+            app.navigate.to('views/remarks/create.html');
+        },
+        checkpointMarkUnreachable: function(e){
+            if(confirm("Weet u zeker dat u dit punt wilt markeren als onbereikbaar?")){
+                app.appointment.checkpoints[app.checkpointIndex].unreachable = true;
+                app.day.update(function(e){
+                    app.navigate.to('views/checkpoints/index.html', function(e){
+
+                    });
+                });
+            }
+        },
+        checkpointMarkReachable: function(e){
+            if(confirm("Weet u zeker dat u dit punt wilt markeren als bereikbaar?")){
+                app.appointment.checkpoints[app.checkpointIndex].unreachable = false;
+                app.day.update(function(e){
+                    app.navigate.to('views/checkpoints/index.html', function(e){
+
+                    });
+                });
+            }
+        },
+        checkpointEditName: function(e){
+            var cp = app.appointment.checkpoints[app.checkpointIndex];
+            var newname = prompt("Wijzigen naam: " + cp.name);
+            if(newname){
+                console.log(newname);
+                cp.name = newname;
+                app.day.update(function(e){
+                    app.navigate.to('views/checkpoints/view.html', function(e){
+
+                    });
+                });
+            }
+        },
+        signAppointment: function(e){
+            var appointment = app.appointment;
+
+            var errors = [];
+
+            for(var serviceTypeIndex in appointment.service_types){
+                var st = appointment.service_types[serviceTypeIndex];
+
+                if(st.state == null){
+                    errors.push("Installatie " + st.name + " heeft geen status!");
+                } else if(st.state == st.additional_questions.on){
+                    for(var serviceTypeQuestionIndex in st.additional_questions.questions){
+                        var additionalQuestion = st.additional_questions.questions[serviceTypeQuestionIndex];
+                        if(additionalQuestion.required == true && additionalQuestion.answered == true){
+
+                        } else {
+                            errors.push("Openstaande vraag: " + additionalQuestion.question);
+                        }
+                    }
+                }
+            }
+
+            for(var checkpointIndex in appointment.checkpoints){
+                var cp = appointment.checkpoints[checkpointIndex];
+                if(cp.unreachable == true){
+
+                } else {
+                    for(var questionindex in cp.questions){
+                        var question = cp.questions[questionindex];
+                        if(question.required == true && question.answered == true){
+
+                        } else {
+                            errors.push("Openstaande vraag: " + question.question);
+                        }
+                    }
+                }
+            }
+
+            if(errors.length == 0){
+                app.appointment.completed = true;
+                app.day.update(function(e){
+                    app.navigate.to('views/signature/index.html', function(e){
+
+                    });
+                });
+            } else {
+                alert(errors.join("\n"));
+            }
+        },
+        moreShow: function(e){
+            var list = $(this).find('.more-list');
+
+            if(list.hasClass('hidden')){
+                list.removeClass('hidden');
+            } else {
+                list.addClass('hidden');
+            }
+        },
+        markRemarkComplete: function(e){
+            var index = $(this).attr('remark');
+            if(app.appointment.remarks[index]){
+                var remark = app.appointment.remarks[index];
+                remark.completed = true;
+                app.day.update(function(e){
+                    app.navigate.to('views/remarks/index.html', function(e){
+
+                    });
+                });
+            }
+        },
+        markRemarkIncomplete: function(e){
+            var index = $(this).attr('remark');
+            if(app.appointment.remarks[index]){
+                var remark = app.appointment.remarks[index];
+                remark.completed = false;
+                app.day.update(function(e){
+                    app.navigate.to('views/remarks/index.html', function(e){
+
+                    });
+                });
+            }
+        },
+        //https://github.com/szimek/signature_pad
+        signatureReset: function(e){
+            if(signaturePad){
+                signaturePad.clear();
+            }
+        },
+        signatureSubmit: function(e){
+            if(signaturePad){
+                if(!signaturePad.isEmpty()){
+                    app.appointment.signature = signaturePad.toData();
+                    app.day.update(function(e){
+                        app.navigate.to('views/index.html', function(e){
+
+                        });
+                    });
+                } else {
+                    alert("Handtekening mag niet leeg zijn!");
+                }
+            }
+
+        }
     }
 };
 
 app.initialize();
 
+$(document).on('submit', '.form-create-remark', function(e){
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    var obj = {
+        id: null,
+        name: $('.form-create-remark textarea[name="name"]').val(),
+        actionee_id: $('.form-create-remark select[name="actionee_id"]').val(),
+        group_id: $('.form-create-remark select[name="group_id"]').val(),
+        type_id: $('.form-create-remark select[name="type_id"]').val()
+    };
+    app.appointment.remarks.push(obj);
+    app.day.update(function(){
+        app.navigate.to('views/remarks/index.html', function(e){
+
+        });
+    });
+
+});
 $(document).on('submit', '.installation-list .question-list .question-form', function(e){
 
     e.preventDefault();
@@ -338,17 +595,10 @@ $(document).on('submit', '.installation-list .question-list .question-form', fun
     app.question.answer(questionIndex, entries, question, function(){
         app.day.update(function(){
             app.navigate.to('views/installations/index.html', function(e){
-                // var q= '.question-list[on="'+on+'"][servicetype="'+serviceTypeIndex+'"]';
-                // console.log(q);
-                //
-                // p = $($('.question-list[on="'+on+'"][servicetype="'+serviceTypeIndex+'"]').prev());
-                // console.log(p);
-                // p.attr('on', on);
             });
         });
     });
 });
-
 $(document).on('submit', 'content > .question-list .question-form', function(e){
 
     e.preventDefault();
@@ -365,83 +615,9 @@ $(document).on('submit', 'content > .question-list .question-form', function(e){
         });
     });
 });
-
-
-
-$(document).on('click', '[action="navigateBack"]', function(e){
-    app.navigate.back();
-});
-$(document).on('click', '[action="viewDebtor"]', function(e){
-    app.navigate.to('views/debtor/view.html', function(e){
-
-    });
-});
-$(document).on('click', '[action="sync"]', function(e){
-    $('item[action="sync"] > .icon').addClass('syncing');
-    $('.planning-list').html('');
-    setTimeout(function(e){
-        app.sync.start(function(e){
-            app.navigate.to('views/index.html');
-        });
-    }, 500);
-
-});
-$(document).on('click', '[action="viewAppointment"]', function(e){
-    var day = $(this).attr('day');
-    var appointment = $(this).attr('appointment');
-    Day.find().findById(day, function(result){
-        app.day = result;
-        app.dayIndex = day;
-        app.appointmentIndex = appointment;
-        app.appointment = result.data[appointment];
-        app.navigate.to('views/appointment/index.html');
-    });
-});
-
-$(document).on('click', '[action="viewCheckpoints"]', function(e){
-    app.navigate.to('views/checkpoints/index.html');
-});
-
-$(document).on('click', '[action="viewCheckpoint"]', function(e){
-    var checkpoint = $(this).attr('checkpoint');
-    app.checkpoint = app.appointment.checkpoints[checkpoint];
-    app.checkpointIndex = checkpoint;
-    if(app.checkpoint){
-        app.navigate.to('views/checkpoints/view.html');
-    }
-});
-
 document.addEventListener('backbutton', function (evt) {
     app.navigate.back();
 }, false);
-
-
-$(document).on('click', '[action="completeAppointment"]', function(e){
-
-    var appointment = app.appointment;
-
-    var join = [];
-    var finished = true;
-
-    for(var i in appointment.checkpoints){
-        var sp = appointment.checkpoints[i];
-        for(var q in sp.questions){
-            var spq = sp.questions[q];
-            if(spq.required === true && spq.answered !== true){
-                join.push(spq.question);
-                finished = false;
-            }
-        }
-    }
-
-    if(finished){
-        // alert('COMPLETD');
-        app.navigate.to('views/installations/index.html');
-    } else {
-        join = join.join('\n');
-        alert('Er zijn nog openstaande vragen: \n' + join)
-    }
-});
 $(document).on('submit', '#form-search-code', function(e){
     e.preventDefault();
     var searchValue = $('#form-search-code [name="value"]').val();
@@ -461,7 +637,6 @@ $(document).on('submit', '#form-search-code', function(e){
         $('.checkpoint-list .no-results').addClass('hidden');
     }
 })
-
 $(document).on('click', '.installation-list > li > label', function(e){
     var input = $($(this.parentNode).find('input:checked'));
     var value = input.val();
@@ -474,49 +649,54 @@ $(document).on('click', '.installation-list > li > label', function(e){
         });
     });
 });
-
-$(document).on('click', '[action="submitAppointment"]', function(e){
-    var appointment = app.appointment;
-
-    var errors = [];
-
-    for(var serviceTypeIndex in appointment.service_types){
-        var st = appointment.service_types[serviceTypeIndex];
-
-        if(st.state == null){
-            error.push("Installatie " + st.name + " heeft geen status!");
-        }
-
-        for(var serviceTypeQuestionIndex in st.additional_questions.questions){
-            var additionalQuestion = st.additional_questions.questions[serviceTypeQuestionIndex];
-            if(additionalQuestion.required == true && additionalQuestion.answered == true){
-
-            } else {
-                errors.push("Openstaande vraag: " + additionalQuestion.question);
-            }
-        }
+$(document).on('mousedown touchstart', '[mdot]', function(e){
+    var mdot = $(this).find('.mdot');
+    if(mdot.length == 0){
+        $(this).append( $('<span class="mdot"></span>') );
+        mdot = $(this).find('.mdot');
     }
 
-    for(var checkpointIndex in appointment.checkpoints){
-        var cp = appointment.checkpoints[checkpointIndex];
-        for(var questionindex in cp.questions){
-            var question = cp.questions[questionindex];
-            if(question.required == true && question.answered == true){
+    var max = Math.max( $(this).height(), $(this).width() );
 
-            } else {
-                errors.push("Openstaande vraag: " + question.question);
-            }
-        }
-    }
+    var parentOffset = $(mdot).parent().offset();
 
-    if(errors.length == 0){
-        app.appointment.completed = true;
-        app.day.update(function(e){
-            app.navigate.to('views/index.html', function(e){
-
-            });
-        });
+    if(e.type === 'touchstart'){
+        pageX = e.originalEvent.touches[0].pageX;
+        pageY = e.originalEvent.touches[0].pageY;
     } else {
-        alert(errors.join("\n"));
+        pageX = e.pageX;
+        pageY = e.pageY;
+    }
+
+    var relX = pageX - parentOffset.left - max / 2;
+    var relY = pageY - parentOffset.top - max / 2;
+
+    mdot.attr('style', "left: " + relX + "px; top: " + relY + "px; height: " + max + "px; width: " + max + "px;");
+
+    mdot.removeClass('mousedown');
+    mdot.removeClass('mouseup');
+    mdot.removeClass('animate');
+
+    setTimeout(function(e){
+        mdot.addClass('animate');
+        mdot.addClass('mousedown');
+    }, 10);
+});
+$(document).on('mouseup touchend', '[mdot]', function(e){
+    var mdot = $(this).find('.mdot');
+    if(mdot.length > 0){
+        mdot.css({
+            opacity: mdot.css('opacity'),
+            transform: "scale(" + mdot[0].getBoundingClientRect().width / mdot[0].offsetWidth + ")",
+        });
+        mdot.removeClass('mousedown');
+        mdot.addClass('mouseup');
+    }
+});
+$(document).on('click', '[action]', function(e){
+    var action = $(this).attr('action');
+
+    if(app.actions[action]){
+        app.actions[action].call(this, e);
     }
 });

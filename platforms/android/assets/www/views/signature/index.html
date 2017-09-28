@@ -1,0 +1,40 @@
+<menu class='has-2'>
+    <item action="navigateBack">
+        <i class="material-icons">&#xE5C4;</i>
+    </item>
+    <title>Tekenen</title>
+</menu>
+<content>
+    <div class='inner inner-signature'>
+        <canvas id='signature' class='signature-canvas'>
+
+
+        </canvas>
+        <i class="material-icons signature reset" action="signatureReset">&#xE23B;</i>
+        <i class="material-icons signature return" action='navigateBack'>&#xE5C4;</i>
+        <i class="material-icons signature sign" action="signatureSubmit">&#xE5CA;</i>
+    </div>
+
+
+</content>
+<script>
+    app.navigate.back = function(){
+        app.navigate.to('views/installations/index.html', function(e){
+
+        });
+    }
+    var canvas = document.querySelector("#signature");
+    var ratio =  Math.max(window.devicePixelRatio || 1, 1);
+    canvas.width = canvas.offsetWidth * ratio;
+    canvas.height = canvas.offsetHeight * ratio;
+    canvas.getContext("2d").scale(ratio, ratio);
+    var signaturePad = new SignaturePad(canvas);
+    signaturePad.clear(); // otherwise isEmpty() might return incorrect value
+
+
+    if(app.appointment.signature){
+        signaturePad.fromData(app.appointment.signature);
+    }
+
+
+</script>

@@ -1,0 +1,59 @@
+<menu class='has-2'>
+    <item action="navigateBack">
+        <i class="material-icons">&#xE5C4;</i>
+    </item>
+    <title>Tekenen</title>
+</menu>
+<content>
+    <div class='inner inner-signature'>
+        <span class='signature-text'>klant</span>
+        <canvas class='signature-canvas' target="customer">
+
+        </canvas>
+        <i class="material-icons signature reset" action="signatureReset" target="customer">&#xE23B;</i>
+        <span class='signature-text'>bestrijder</span>
+        <canvas class='signature-canvas' target="inspector">
+
+        </canvas>
+        <i class="material-icons signature reset" action="signatureReset" target="inspector">&#xE23B;</i>
+
+        <i class="material-icons signature return" action='navigateBack' mdot noselect>&#xE5C4;</i>
+        <i class="material-icons signature sign" action="signatureSubmit" mdot noselect>&#xE5CA;</i>
+    </div>
+
+
+</content>
+<script>
+    app.navigate.back = function(){
+        app.navigate.to('views/installations/index.html', function(e){
+
+        });
+    }
+    var ratio =  Math.max(window.devicePixelRatio || 1, 1);
+
+    var canvasCustomer = document.querySelector('.signature-canvas[target="customer"]');
+    canvasCustomer.width = canvasCustomer.offsetWidth * ratio;
+    canvasCustomer.height = canvasCustomer.offsetHeight * ratio;
+    canvasCustomer.getContext("2d").scale(ratio, ratio);
+
+    var canvasInspector = document.querySelector('.signature-canvas[target="inspector"]');
+    canvasInspector.width = canvasInspector.offsetWidth * ratio;
+    canvasInspector.height = canvasInspector.offsetHeight * ratio;
+    canvasInspector.getContext("2d").scale(ratio, ratio);
+
+    var signaturePadCustomer = new SignaturePad(canvasCustomer);
+    signaturePadCustomer.clear();
+
+    var signaturePadInspector = new SignaturePad(canvasInspector)
+    signaturePadInspector.clear();
+
+    if(app.appointment.signatures && app.appointment.signatures.customer){
+        signaturePadCustomer.fromData(app.appointment.signatures.customer);
+    }
+
+    if(app.appointment.signatures && app.appointment.signatures.inspector){
+        signaturePadInspector.fromData(app.appointment.signatures.inspector);
+    }
+
+
+</script>

@@ -12,10 +12,8 @@ var scanner = {
 
 var doubleTapToast = {
     onsuccess: function(data){
-        //console.log("Success: " + data);
     },
     onerror: function(data){
-        //console.log("Error: " + data);
     },
     show: function(){
         cordova.exec(doubleTapToast.onsuccess, doubleTapToast.onerror, "nzzPlugin", "doubleTapToast", []);

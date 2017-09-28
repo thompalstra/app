@@ -1,0 +1,52 @@
+<menu class='has-2'>
+    <item action="navigateBack">
+        <i class="material-icons">&#xE5C4;</i>
+    </item>
+    <title>Opmerkingen</title>
+</menu>
+<content>
+    <ul class='remark-list'>
+
+    </ul>
+    <i id='create-remark' action='addRemark' class="material-icons">add</i>
+</content>
+<script>
+app.navigate.back = function(){
+    app.navigate.to('views/appointment/index.html', function(e){
+
+    });
+}
+
+Remarks.find().findById(1, function(result){
+    var remarks = result.data;
+
+    for(var i in app.appointment.remarks){
+        var remark = app.appointment.remarks[i];
+        var complete = (remark.hasOwnProperty('completed') && remark.completed == true) ? 'completed' : '';
+        var action = (remark.hasOwnProperty('completed') && remark.completed == true) ? 'markRemarkIncomplete' : 'markRemarkComplete';
+        var actionText = (remark.hasOwnProperty('completed') && remark.completed == true) ? 'Aanmelden' : 'Afmelden';
+        var str = "<li class='"+complete+"' remark='"+i+"'>";
+        str += "<item action='moreShow'>";
+            str += "<i class='material-icons'>&#xE5D4;</i>";
+            str += "<ul class='more-list hidden'>";
+                str += "<li action='"+action+"' remark='"+i+"' mdot noselect>"+actionText+"</li>";
+            str += "</ul>";
+        str += "</item>";
+        if(remark.id == null){
+            // is new
+            str += "<h4>"+remark.name+"</h4>";
+            str += "<p>actiehouder: "+remarks.actionees[remark.actionee_id]+"<br/>";
+            str += "groep: "+remarks.groups[remark.group_id]+"<br/>";
+            str += "type: "+remarks.types[remark.type_id]+"</p>";
+        } else {
+            str += "<h4>"+remark.name+"</h4>";
+            str += "<p>actiehouder: "+remark.actionee+"<br/>";
+            str += "groep: "+remark.group+"<br/>";
+            str += "type: "+remark.type+"</p>";
+        }
+        $('.remark-list').append( $(str) );
+    }
+});
+
+
+</script>
