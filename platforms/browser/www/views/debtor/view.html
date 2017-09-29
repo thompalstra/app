@@ -26,6 +26,9 @@
             <span id='invoice_postcode'></span>
             <span id='invoice_city'></span>
         </p>
+        <p>
+            <strong>Betaalmethode:</strong> <span id='payment_method'></span>
+        </p>
     </section>
     <section class='inner'>
         <h2 id='visit'>Adresgegevens</h2>
@@ -38,6 +41,12 @@
             <span id='visit_postcode'></span>
             <span id='visit_city'></span>
         </p>
+    </section>
+    <section class='inner'>
+        <h2 id='visit'>Openingstijden</h2>
+        <table id='times' style='width: 100%'>
+
+        </table>
     </section>
 </content>
 
@@ -70,6 +79,34 @@
     $('#visit_city').html( app.appointment.debtor.visit_city );
     $('#visit_house_number').html( app.appointment.debtor.visit_house_number );
     $('#visit_addition').html( app.appointment.debtor.visit_addition );
+
+    $('#payment_method').html( app.appointment.debtor.payment_method );
+
+    var t = 0;
+    var timeTable = $('#times');
+    while(t < 7){
+        if(app.appointment.debtor.times.hasOwnProperty(t)){
+            var time = app.appointment.debtor.times[t];
+
+            var str = "<tr>";
+            str += "<td>" + app.timestamp.days[t][app.language] + "</td>";
+            str += "<td>" + time.from + "</td>";
+            str += "<td>" + time.to + "</td>";
+            str += "</tr>";
+
+            timeTable.append( $(str) );
+        } else {
+            var str = "<tr>";
+            str += "<td>" + app.timestamp.days[t][app.language] + "</td>";
+            str += "<td><strong>Gesloten</strong></td>";
+            str += "<td></td>";
+            str += "</tr>";
+
+            timeTable.append( $(str) );
+        }
+
+        t++;
+    }
 
     app.navigate.back = function(){
         app.navigate.to('views/appointment/index.html', function(e){

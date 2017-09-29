@@ -54,7 +54,7 @@
                 var completed = (appointment.completed == true) ? 'done' : '';
                 str += "<li class='"+completed+"' action='viewAppointment' mdot noselect day='"+day.id+"' appointment='"+appointmentIndex+"'>";
                 str += "<div class='view'><i class='material-icons'></i></div>";
-                str += appointment.debtor.name;
+                str += "<small>" + appointment.time + "</small> " + appointment.debtor.name;
                 str == "</li>";
 
             }

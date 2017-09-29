@@ -1,0 +1,69 @@
+<menu class='has-2'>
+    <item action="navigateBack">
+        <i class="material-icons">&#xE5C4;</i>
+    </item>
+    <title>Vloerplan</title>
+</menu>
+<content>
+    <section id='floorplan-container' class='floorplan-container'>
+        <div class='inner'>
+            <i class="material-icons zoom in">&#xE8FF;</i>
+            <i class="material-icons zoom out">&#xE900;</i>
+            <img id='floorplan' src="" scale=1/>
+        </div>
+
+    </section>
+</content>
+<script>
+app.navigate.back = function(){
+    app.floorplanIndex = null;
+    app.navigate.to('views/appointment/index.html', function(e){
+
+    });
+}
+var path = cordova.file.dataDirectory + 'img/' + app.floorplan.path;
+$('view title').html( "Vloerplan: " + app.floorplan.name );
+$('#floorplan-container #floorplan').attr( 'src', path );
+
+for(var i in app.appointment.checkpoints){
+    var cp = app.appointment.checkpoints[i];
+    var fp = cp.floorplan;
+    var path = cordova.file.dataDirectory + 'img/' + fp.path;
+    var str = "<div class='floorplan-icon' style='top: "+fp.y+"; left: "+fp.x+";' action='viewCheckpoint' checkpoint='"+i+"'>";
+    str += "<img src='"+path+"'/>";
+    str += "</div>";
+    $('#floorplan-container .inner').append( $(str) );
+}
+var naturalHeight = null;
+var naturalWidth = null;
+
+$(document).ready(function(e){
+    $('#floorplan').attr('naturalWidth', $('#floorplan').width())
+
+    document.querySelector('.zoom.in').addEventListener('click', function(){zoom('in')});
+    document.querySelector('.zoom.out').addEventListener('click', function(){zoom('out')});
+})
+
+
+function zoom(position){
+    var scale = parseFloat($('#floorplan').attr('scale'));
+    var naturalWidth = parseFloat($('#floorplan').attr('naturalWidth'));
+
+    if(position == 'out'){
+        if(scale > 0.25){
+            scale -= 0.25;
+        }
+    } else if(position == 'in'){
+        if(scale < 1.75){
+            scale += 0.25;
+        }
+    }
+    $('#floorplan').attr('scale', scale);
+
+    $('#floorplan').css({
+        width: naturalWidth * scale,
+    });
+}
+
+
+</script>

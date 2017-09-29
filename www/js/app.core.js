@@ -1,4 +1,10 @@
 var app = {
+    appointment: null,
+    appointmentIndex: null,
+    checkpoint: null,
+    checkpointIndex: null,
+    floorplan: null,
+    floorplanIndex: null,
     initialize: function() {
         document.addEventListener('deviceready', this.onDeviceReady.bind(this), false);
     },
@@ -36,14 +42,60 @@ var app = {
             app.navigate.to('views/login.html');
         }
     },
+    image: {
+        download: function(source, destination, successCallback, errorCallback){
+            var fileTransfer = new FileTransfer();
+            var uri = encodeURI(source);
+            var store = cordova.file.dataDirectory + "img/";
+            var fileName = destination;
+            window.resolveLocalFileSystemURL(store + fileName, exists, download);
+
+            function download(){
+                var fileTransfer = new FileTransfer();
+                console.log("About to start transfer from " + uri);
+                fileTransfer.download(uri, store + fileName,
+                    function(entry){
+                        successCallback(entry)
+                    },
+                    function(error){
+                        errorCallback(error)
+                    },
+                    true,{})
+
+            }
+
+            function exists(){
+                alert("File eixsts!");
+                errorCallback(true);
+            }
+
+
+        },
+        delete: function(source){
+
+        },
+        deleteAll: function(callback){
+            console.log('deleting...');
+            var store = cordova.file.dataDirectory + "img/";
+            resolveLocalFileSystemURL(store, function(entry) {
+                console.log(entry);
+                entry.removeRecursively(function(){
+                    // alert('success')
+                    callback(this, null);
+                }, function(){
+                    alert('error');
+                });
+            });
+        }
+    },
     sync: {
         start: function(callback){
             var date = new Date();
-            var m = (date.getMonth() < 10) ? "0"+date.getMonth() : date.getMonth();
+            var mo = ( (parseInt(date.getMonth()) + 1) < 10) ? "0"+(parseInt(date.getMonth()) + 1) : (parseInt(date.getMonth()) + 1);
             var s = (date.getSeconds() < 10) ? "0"+date.getSeconds() : date.getSeconds();
-            var m = (date.getMinutes() < 10) ? "0"+date.getMinutes() : date.getMinutes();
+            var mi = (date.getMinutes() < 10) ? "0"+date.getMinutes() : date.getMinutes();
             var h = (date.getHours() < 10) ? "0"+date.getHours() : date.getHours();
-            var value = date.getDate()+"-"+m+"-"+date.getFullYear()+" "+h+":"+m+":"+s;
+            var value = date.getDate()+"-"+mo+"-"+date.getFullYear()+" "+h+":"+mi+":"+s;
 
             localStorage.setItem('lastsync', value);
 
@@ -63,41 +115,87 @@ var app = {
 
         },
         perf: function(callback){
-            var transaction = app.database.db.transaction(['day'], "readwrite");
-            var objectStore = transaction.objectStore('day');
 
-            objectStore.clear();
+            var files = [
+                {
+                    name: 'map_56.jpg',
+                    path: 'https://www.smartdraw.com/floor-plan/img/house-design-blueprint-example.png?bn=1510011094'
+                },
+                {
+                    name: 'logo_00.jpg',
+                    path: 'https://d30y9cdsu7xlg0.cloudfront.net/png/15130-200.png'
+                }
+            ];
+            index = 0;
+            getFile(index);
 
-            for(var i in data){
-                if(i == 'length'){ continue; }
-                Day.put({id: i, data: data[i]});
+            app.image.deleteAll(function(resp){
+                getFile(index);
+            });
+
+
+            function getFile(index){
+                alert(index + "/" + files.length);
+                app.image.download(
+                    files[index].path,
+                    files[index].name,
+                function(result){
+                    index++;
+                    if(index < files.length){
+                        getFile(index);
+                    } else {
+                        getDays();
+                    }
+                }, function(error){
+                    if(error != true){
+                        alert("Error getting file: " + files[index].name + " skipping...");
+                    }
+                    index++;
+                    if(index < files.length){
+                        getFile(index);
+                    } else {
+                        getDays();
+                    }
+                });
             }
 
-            var transaction = app.database.db.transaction(['comments'], "readwrite");
-            var objectStore = transaction.objectStore('comments');
+            function getDays(i){
+                var transaction = app.database.db.transaction(['day'], "readwrite");
+                var objectStore = transaction.objectStore('day');
 
-            objectStore.clear();
+                objectStore.clear();
 
-            Comments.put({
-                id: 1,
-                data: availableComments
-            });
+                for(var i in data){
+                    if(i == 'length'){ continue; }
+                    Day.put({id: i, data: data[i]});
+                }
 
-            Remarks.put({
-                id: 1,
-                data: availableRemarks
-            });
+                var transaction = app.database.db.transaction(['comments'], "readwrite");
+                var objectStore = transaction.objectStore('comments');
 
-            if(cordova.exec){
-                cordova.exec(function(){
-                    // success
+                objectStore.clear();
+
+                Comments.put({
+                    id: 1,
+                    data: availableComments
+                });
+
+                Remarks.put({
+                    id: 1,
+                    data: availableRemarks
+                });
+
+                if(cordova.exec){
+                    cordova.exec(function(){
+                        // success
+                        callback.call(this, null);
+                    }, function(){
+                        // error
+                        callback.call(this, null);
+                    }, "nzzPlugin", "showEndSyncToast", []);
+                } else {
                     callback.call(this, null);
-                }, function(){
-                    // error
-                    callback.call(this, null);
-                }, "nzzPlugin", "showEndSyncToast", []);
-            } else {
-                callback.call(this, null);
+                }
             }
         }
     },
@@ -346,6 +444,18 @@ var app = {
         }
     },
     actions: {
+        // toggleSidebar: function(e){
+        //     app.image.deleteAll(function(resp){
+        //         console.log(resp);
+        //     });
+        // },
+        viewFloorplan: function(e){
+            app.floorplanIndex = this.getAttribute('floorplan');
+            app.floorplan = app.appointment.floorplan[app.floorplanIndex];
+            app.navigate.to('views/floorplan/view.html', function(e){
+
+            });
+        },
         navigateBack: function(e){
             app.navigate.back();
         },

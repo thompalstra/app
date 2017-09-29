@@ -6,6 +6,12 @@ var data = {
             completed: false,
             walking_time: '00:45:00',
             unreachable: false,
+            time: "13:30",
+            signatures: {
+                customer: null,
+                inspector: null
+            },
+            information: "Extra bezoek na overlast",
             debtor: {
                 name: 'Albert Heijn',
                 debtor_number: 1000,
@@ -21,7 +27,30 @@ var data = {
                 visit_postcode: '1337GG',
                 visit_city: 'Rotterdam',
                 phone_number: '0887779500',
-                email: 'info@ah-heerhugowaard.nl'
+                email: 'info@ah-heerhugowaard.nl',
+                payment_method: 'Contract',
+                times: {
+                	1: {
+                		from: '09:00',
+                		to: '18:00'
+                	},
+                	2: {
+                		from: '09:00',
+                		to: '18:00'
+                	},
+                    3: {
+                        from: '09:00',
+                        to: '17:00'
+                    },
+                    4: {
+                        from: '09:00',
+                		to: '18:00'
+                    },
+                    5: {
+                        from: '09:00',
+                		to: '21:00'
+                    }
+                }
             },
             checkpoints: {
                 32563: {
@@ -42,6 +71,11 @@ var data = {
                             },
                             errors: [],
                         }
+                    },
+                    floorplan: {
+                        x: '23%',
+                        y: '83%',
+                        path: 'logo_00.jpg'
                     },
                 },
                 37: {
@@ -91,7 +125,12 @@ var data = {
                             },
                             errors: [],
                         }
-                    }
+                    },
+                    floorplan: {
+                        x: '50%',
+                        y: '50%',
+                        path: 'logo_00.jpg'
+                    },
                 },
                 231: {
                     name: 'Kopstelling A',
@@ -114,7 +153,12 @@ var data = {
                             answer: undefined,
                             errors: [],
                         }
-                    }
+                    },
+                    floorplan: {
+                        x: '83%',
+                        y: '23%',
+                        path: 'logo_00.jpg'
+                    },
                 }
             },
             service_types:{
@@ -173,14 +217,15 @@ var data = {
                     }
                 }
             },
-            map: {
-                icons: {
-                    0: {
-                        name: 'Icon A',
-                        y: '38%',
-                        x: '85%',
-                    }
+            floorplan: {
+                0: {
+                    path: 'map_56.jpg',
+                    name: 'Vloerplan 56'
                 },
+                1: {
+                    path: 'map_57.jpg',
+                    name: 'Vloeplan 57'
+                }
             },
             remarks: [
                 {
@@ -197,22 +242,29 @@ var data = {
             completed: false,
             walking_time: '00:30:00',
             unreachable: false,
+            time: "13:30",
+            signatures: {
+                customer: null,
+                inspector: null
+            },
             debtor: {
                 name: 'Jumbo',
                 debtor_number: 1000,
-                branch_code: 'AT1000',
+                branch_code: 'AT1001',
                 invoice_address: 'Factuurlaan',
                 invoice_house_number: '1',
                 invoice_addition: 'H',
                 invoice_postcode: '9999AZ',
-                invoice_city: 'Heerhugowaard',
+                invoice_city: 'Haaksbergen',
                 visit_address: 'Bezoeklaan',
                 visit_house_number: '1',
                 visit_addition: '-1',
                 visit_postcode: '1337GG',
                 visit_city: 'Rotterdam',
                 phone_number: '0887779500',
-                email: 'info@ah-heerhugowaard.nl'
+                email: 'info@jumbo-haaksbergen.nl',
+                payment_method: 'Contract',
+                times: {},
             },
             checkpoints: {
                 31: {
@@ -293,6 +345,11 @@ var data = {
             completed: false,
             walking_time: '01:30:00',
             unreachable: false,
+            time: "13:30",
+            signatures: {
+                customer: null,
+                inspector: null
+            },
             debtor: {
                 name: 'Grolsch',
                 debtor_number: 1000,
@@ -301,14 +358,16 @@ var data = {
                 invoice_house_number: '1',
                 invoice_addition: 'H',
                 invoice_postcode: '9999AZ',
-                invoice_city: 'Heerhugowaard',
+                invoice_city: 'Enschede',
                 visit_address: 'Bezoeklaan',
                 visit_house_number: '1',
                 visit_addition: '-1',
                 visit_postcode: '1337GG',
                 visit_city: 'Rotterdam',
                 phone_number: '0887779500',
-                email: 'info@ah-heerhugowaard.nl'
+                email: 'info@grolsch.nl',
+                payment_method: 'Pin',
+                times: {}
             },
             checkpoints: {
                 85: {
@@ -387,6 +446,11 @@ var data = {
             completed: false,
             walking_time: '00:45:00',
             unreachable: false,
+            time: "13:30",
+            signatures: {
+                customer: null,
+                inspector: null
+            },
             debtor: {
                 name: 'Heineken',
                 debtor_number: 1000,
@@ -395,14 +459,16 @@ var data = {
                 invoice_house_number: '1',
                 invoice_addition: 'H',
                 invoice_postcode: '9999AZ',
-                invoice_city: 'Heerhugowaard',
+                invoice_city: 'Den Haag',
                 visit_address: 'Bezoeklaan',
                 visit_house_number: '1',
                 visit_addition: '-1',
                 visit_postcode: '1337GG',
                 visit_city: 'Rotterdam',
                 phone_number: '0887779500',
-                email: 'info@ah-heerhugowaard.nl'
+                email: 'info@heineken.nl',
+                payment_method: 'Contant',
+                times: {}
             },
             checkpoints: {
                 85: {

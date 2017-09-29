@@ -192,6 +192,10 @@ app > view > menu > item[action="sync"] .icon.syncing{
     padding: 0;
     box-sizing: border-box;
 }
+app > view > content > .inner,
+.planning-list .inner{
+    border: 1px solid #c5c5c5;
+}
 
 .planning-list > section > li{
     text-align: center;
@@ -557,4 +561,69 @@ menu [action="moreShow"] .more-list{
     width: 50%;
     color: white;
     background-color: #71BA51;
+}
+
+
+.floorplan-container{
+    width: 100%;
+    height: 100%;
+    overflow: scroll;
+    position: relative;
+    background-color: black;
+}
+
+.floorplan-container .inner{
+    display: inline-block;
+    height: auto;
+    width: auto;
+    position: relative;
+    float: left;
+    min-width: 100%;
+}
+
+.floorplan-container .inner img{
+    float: left;
+    min-width: 100%;
+}
+
+.floorplan-container .inner .zoom{
+    position: fixed;
+    right: 20px;
+    width: 50px;
+    height: 50px;
+    text-align: center;
+}
+.floorplan-container .inner .zoom{
+    width: 50px;
+    height: 50px;
+    line-height: 50px;
+    background-color: #002c50;
+    color: white;
+}
+
+.floorplan-container .inner .zoom.in{
+    bottom: 70px;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+}
+.floorplan-container .inner .zoom.out{
+    bottom: 20px;
+    border-top: 1px solid white;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+
+.floorplan-container .floorplan-icon{
+    position: absolute;
+    height: 40px;
+    width: 40px;
+    z-index: 100;
+}
+.floorplan-container .floorplan-icon img{
+    height: 40px;
+    width: 40px;
+    background-color: white;
+    border-radius: 100%;
+    border: 2px solid #002c50;
+    box-sizing: border-box;
 }

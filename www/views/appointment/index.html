@@ -5,6 +5,9 @@
     <title>Afspraak</title>
 </menu>
 <content>
+    <section id='appointment-information' class='inner' style="color: #71BA51;">
+
+    </section>
     <section class='inner' action="viewCheckpoints" mdot noselect>
         <h2 class='title'>Meetpunten</h2>
     </section>
@@ -14,6 +17,10 @@
     <section class='inner' action="viewRemarks" mdot noselect>
         <h2 class='title'>Opmerkingen</h2>
     </section>
+    <section class='inner'>
+        <ul id='floorplan-list'></ul>
+    </section>
+    <!-- <section class='inner' action="viewMap" mdot noselect -->
 
     <div id='complete-appointment' action="completeAppointment" mdot noselect>
         Afspraak afronden
@@ -27,6 +34,23 @@
     for(var i in app.appointment.checkpoints){
         var sp =  app.appointment.checkpoints[i];
     }
+
+    for(var i in app.appointment.floorplan){
+        var floorplan = app.appointment.floorplan[i];
+        var str= "<li action='viewFloorplan' floorplan='"+i+"'>";
+        str += floorplan.name;
+        str += "</li>";
+
+        $('#floorplan-list').append( $(str) );
+    }
+
+
+    if(app.appointment.hasOwnProperty('information')){
+        $('#appointment-information').html( app.appointment.information );
+    } else {
+        $('#appointment-information').addClass('hidden');
+    }
+
 
     app.navigate.back = function(){
         app.appointment = null;
