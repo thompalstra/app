@@ -10,6 +10,46 @@ app > view > menu > item[action="sync"] .icon.syncing{
 @-webkit-keyframes spin { 100% { -webkit-transform: rotate(360deg); } }
 @keyframes spin { 100% { -webkit-transform: rotate(360deg); transform:rotate(360deg); } }
 
+.floorplan-list{
+    padding: 0;
+    margin: -10px;
+    list-style: none;
+}
+
+[mdot]{
+    opacity: 1;
+    transition: opacity .3s linear, box-shadow .3s linear;
+    -webkit-box-shadow: 0px 5px 10px 0px rgba(0,0,0,0.0);
+    -moz-box-shadow: 0px 5px 10px 0px rgba(0,0,0,0.0);
+    box-shadow: 0px 5px 10px 0px rgba(0,0,0,0.0);
+}
+[mdot]:active{
+    opacity: 0.5;
+    -webkit-box-shadow: 0px 5px 10px 0px rgba(0,0,0,0.3);
+    -moz-box-shadow: 0px 5px 10px 0px rgba(0,0,0,0.3);
+    box-shadow: 0px 5px 10px 0px rgba(0,0,0,0.3);
+}
+
+.floorplan-list > li{
+    background-color: #3D8EB9;
+    color: white;
+    height: 50px;
+    line-height: 50px;
+    padding: 0 10px;
+    position: relative;
+}
+.floorplan-list > li:after{
+    content: "\E0C8";
+    font-family: "Material Icons";
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 50px;
+    width: 50px;
+    line-height: 50px;
+    text-align: center;
+}
+
 .remark-list{
     padding: 0;
     margin: 0;
@@ -59,7 +99,7 @@ app > view > menu > item[action="sync"] .icon.syncing{
     bottom: 10px;
     color: white;
     background-color: #71BA51;
-    font-size: 50px;
+    font-size: 25px;
     line-height: 50px;
     text-align: center;
     border-radius: 100%;
@@ -503,7 +543,7 @@ menu [action="moreShow"] .more-list{
 }
 
 [action="moreShow"] .more-list li{
-    width: 180px;
+    width: 200px;
     text-align: left;
     padding: 0 10px;
     box-sizing: border-box;
@@ -626,4 +666,86 @@ menu [action="moreShow"] .more-list{
     border-radius: 100%;
     border: 2px solid #002c50;
     box-sizing: border-box;
+}
+
+progress{
+    appearance: none;
+    -moz-appearance: none;
+    -webkit-appearance: none;
+}
+
+::-moz-progress-bar,
+::-webkit-progress-value{
+    background: black;
+    color: purple;
+}
+
+::-webkit-progress-bar{
+    color: #ddd;
+}
+::-webkit-progress-value{
+    background-color: #002c50;
+}
+
+.sync-container{
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 10000;
+    display: none;
+}
+
+app.sync .sync-container{
+    display: inherit;
+}
+
+.sync-container.collapsed{
+    bottom: -50px;
+}
+.sync-container:before{
+    content: "";
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    z-index: -1;
+    background-color: rgba(0,0,0,.3);
+}
+.sync-container.collapsed #sync-toggler:after{
+    content: "\E316";
+}
+.sync-container #sync-toggler:after{
+    content: "\E313";
+}
+.sync-container #sync-toggler{
+    font-family: "Material Icons";
+    height: 25px;
+    line-height: 25px;
+    font-size: 24px;
+    left: 0;
+    right: 0;
+    margin: 0 auto;
+    display: inline-block;
+    top: -25px;
+    text-align: center;
+    position: absolute;
+    background-color: white;
+}
+
+.sync-container #sync-progress{
+    width: 100%;
+    height: 25px;
+    line-height: 25px;
+    box-sizing: border-box;
+    text-align: center;
+    border: 10px solid white;
+    float: left;
+}
+.sync-container #sync-text{
+    height: 50px;
+    width: 100%;
+    line-height: 50px;
+    display: inline-block;
+    background-color: white;
+    text-align: center;
+    float: left;
 }

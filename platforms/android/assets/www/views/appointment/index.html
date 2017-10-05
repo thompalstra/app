@@ -18,7 +18,7 @@
         <h2 class='title'>Opmerkingen</h2>
     </section>
     <section class='inner'>
-        <ul id='floorplan-list'></ul>
+        <ul id='floorplan-list' class='floorplan-list'></ul>
     </section>
     <!-- <section class='inner' action="viewMap" mdot noselect -->
 
@@ -37,7 +37,7 @@
 
     for(var i in app.appointment.floorplan){
         var floorplan = app.appointment.floorplan[i];
-        var str= "<li action='viewFloorplan' floorplan='"+i+"'>";
+        var str= "<li action='viewFloorplan' floorplan='"+i+"' mdot noselect>";
         str += floorplan.name;
         str += "</li>";
 

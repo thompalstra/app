@@ -29,7 +29,7 @@ for(var i in app.appointment.checkpoints){
     var cp = app.appointment.checkpoints[i];
     var fp = cp.floorplan;
     var path = cordova.file.dataDirectory + 'img/' + fp.path;
-    var str = "<div class='floorplan-icon' style='top: "+fp.y+"; left: "+fp.x+";' action='viewCheckpoint' checkpoint='"+i+"'>";
+    var str = "<div class='floorplan-icon' style='top: "+fp.y+"; left: "+fp.x+";' action='viewCheckpoint' checkpoint='"+i+"' mdot noselect>";
     str += "<img src='"+path+"'/>";
     str += "</div>";
     $('#floorplan-container .inner').append( $(str) );
@@ -38,8 +38,6 @@ var naturalHeight = null;
 var naturalWidth = null;
 
 $(document).ready(function(e){
-    $('#floorplan').attr('naturalWidth', $('#floorplan').width())
-
     document.querySelector('.zoom.in').addEventListener('click', function(){zoom('in')});
     document.querySelector('.zoom.out').addEventListener('click', function(){zoom('out')});
 })
@@ -47,9 +45,19 @@ $(document).ready(function(e){
 
 function zoom(position){
     var scale = parseFloat($('#floorplan').attr('scale'));
-    var naturalWidth = parseFloat($('#floorplan').attr('naturalWidth'));
 
-    if(position == 'out'){
+    var naturalWidth = parseFloat($('#floorplan').attr('naturalWidth'));
+    if(!naturalWidth){
+        $('#floorplan').attr('naturalWidth', $('#floorplan').width() );
+        naturalWidth = parseFloat($('#floorplan').attr('naturalWidth'));
+    }
+
+
+    var currentWidth = $('#floorplan').width();
+    var windowWidth = $(window).width();
+
+
+    if(currentWidth > windowWidth && position == 'out'){
         if(scale > 0.25){
             scale -= 0.25;
         }
@@ -59,10 +67,11 @@ function zoom(position){
         }
     }
     $('#floorplan').attr('scale', scale);
-
     $('#floorplan').css({
         width: naturalWidth * scale,
     });
+
+
 }
 
 

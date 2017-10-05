@@ -18,6 +18,7 @@
 
 <script>
     app.navigate.back = function(){
+        app.scanner.canScan = false;
         app.navigate.to('views/appointment/index.html', function(e){
 
         });
@@ -48,4 +49,5 @@
         str += "</li>";
         $('.checkpoint-list').append( $(str) );
     }
+    app.scanner.canScan = true;
 </script>

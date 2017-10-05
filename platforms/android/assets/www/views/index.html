@@ -8,6 +8,12 @@
     </item>
 </menu>
 <content>
+    <section class='sync-container collapsed'>
+        <label id='sync-toggler'></label>
+        <progress id='sync-progress' min=1 max=1 value=1></progress>
+        <label id='sync-text'></label>
+    </section>
+
     <section class='inner' style='position: relative;'>
         <h2 class='title'>Planning</h2>
         <p id='lastsync'></p>
@@ -39,8 +45,15 @@
 
     }
     // load
+    // console.log(Day);
+    // console.log(Day.find());
+    //
+    // Day.find().all(function(days){
+    //     console.log(days);
+    // });
 
-    Day.find().all(function(days){
+    var day = new Day();
+    day.find().all(function(days){
         for(var dayIndex in days){
             var day = days[dayIndex];
             var str = "<section class='inner'>";

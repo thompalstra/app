@@ -5,6 +5,7 @@ var app = {
     checkpointIndex: null,
     floorplan: null,
     floorplanIndex: null,
+    user: null,
     initialize: function() {
         document.addEventListener('deviceready', this.onDeviceReady.bind(this), false);
     },
@@ -23,6 +24,16 @@ var app = {
         app.const.type_text = 4;
         app.const.type_product = 5;
 
+        if(device && device.available === true){
+            if(device.platform == 'Android'){
+                app.imei = device.uuid;
+            } else if(device.platform == 'browser'){
+                app.imei = 'browser';
+            }
+        }
+
+        alert(app.imei);
+
 
         app.scanner = scanner;
         app.scanner.register();
@@ -31,16 +42,27 @@ var app = {
         app.database.open(function(){
             var transaction = app.database.db.transaction(['day'], "readwrite");
             var objectStore = transaction.objectStore('day');
-            app.procedure.user();
+
+            app.user = new User();
+
+            if(app.user.isGuest == true){
+                app.protocol.guest();
+            } else {
+                app.protocol.user();
+            }
         });
     },
-    procedure: {
+    log: function(str){
+        console.log(str);
+    },
+    protocol: {
         user: function(){
             app.navigate.to('views/index.html');
         },
         guest: function(){
             app.navigate.to('views/login.html');
-        }
+        },
+
     },
     image: {
         download: function(source, destination, successCallback, errorCallback){
@@ -52,7 +74,7 @@ var app = {
 
             function download(){
                 var fileTransfer = new FileTransfer();
-                console.log("About to start transfer from " + uri);
+                // console.log("About to start transfer from " + uri);
                 fileTransfer.download(uri, store + fileName,
                     function(entry){
                         successCallback(entry)
@@ -74,100 +96,229 @@ var app = {
         delete: function(source){
 
         },
-        deleteAll: function(callback){
-            console.log('deleting...');
-            var store = cordova.file.dataDirectory + "img/";
-            resolveLocalFileSystemURL(store, function(entry) {
-                console.log(entry);
+        deleteAll: function(folder, callback){
+            app.log('attempting to delete ' + folder);
+            var store = cordova.file.dataDirectory + folder;
+            app.log('deleteing from path: ' + store);
+            window.resolveLocalFileSystemURL(store, function(entry) {
                 entry.removeRecursively(function(){
-                    // alert('success')
+                    app.log('success! deleted: '+folder);
                     callback(this, null);
                 }, function(){
-                    alert('error');
+                    app.log('error deleting ' + folder);
+                    callback(this, null);
                 });
+            }, function(err){
+                callback(this, null);
             });
         }
     },
     sync: {
+        progressBar: {
+            text: function(val){
+                if(typeof val == 'undefined'){
+                    return $('#sync-text').html();
+                } else {
+                    console.log(val);
+                    $('#sync-text').html(val);
+                }
+            },
+            max: function(val){
+                if(typeof val == 'undefined'){
+                    return $('#sync-progress').attr('max');
+                } else {
+                    $('#sync-progress').attr('max', val);
+                }
+            },
+            min: function(val){
+                if(typeof val == 'undefined'){
+                    return $('#sync-progress').attr('min');
+                } else {
+                    $('#sync-progress').attr('min', val);
+                }
+            },
+            value: function(val){
+                if(typeof val == 'undefined'){
+                    return $('#sync-progress').attr('value');
+                } else {
+                    $('#sync-progress').attr('value', val);
+                }
+            },
+            increment: function(){
+                var value = parseFloat($('#sync-progress').attr('value'));
+                $('#sync-progress').val( ++value );
+            },
+        },
+        ping: function(){
+            var result = false;
+
+            $.ajax({
+                url: app.restClient.ping,
+                dataType: 'json',
+                success: function(resp){
+                    if(resp.result === true){
+                        if(resp.message === 'pong'){
+                            result = true;
+                        }
+                    }
+                },
+                error: function(err){
+                    result = false;
+                },
+                async: false
+            });
+
+            return result;
+        },
         start: function(callback){
-            var date = new Date();
-            var mo = ( (parseInt(date.getMonth()) + 1) < 10) ? "0"+(parseInt(date.getMonth()) + 1) : (parseInt(date.getMonth()) + 1);
-            var s = (date.getSeconds() < 10) ? "0"+date.getSeconds() : date.getSeconds();
-            var mi = (date.getMinutes() < 10) ? "0"+date.getMinutes() : date.getMinutes();
-            var h = (date.getHours() < 10) ? "0"+date.getHours() : date.getHours();
-            var value = date.getDate()+"-"+mo+"-"+date.getFullYear()+" "+h+":"+mi+":"+s;
+            if(app.sync.ping()){
 
-            localStorage.setItem('lastsync', value);
 
-            if(cordova.exec){
-                cordova.exec(function(){
-                    // success
+
+                var date = new Date();
+                var mo = ( (parseInt(date.getMonth()) + 1) < 10) ? "0"+(parseInt(date.getMonth()) + 1) : (parseInt(date.getMonth()) + 1);
+                var s = (date.getSeconds() < 10) ? "0"+date.getSeconds() : date.getSeconds();
+                var mi = (date.getMinutes() < 10) ? "0"+date.getMinutes() : date.getMinutes();
+                var h = (date.getHours() < 10) ? "0"+date.getHours() : date.getHours();
+                var value = date.getDate()+"-"+mo+"-"+date.getFullYear()+" "+h+":"+mi+":"+s;
+
+                localStorage.setItem('lastsync', value);
+
+                if(cordova.exec){
+                    cordova.exec(function(){
+                        // success
+                        app.sync.perf(callback);
+                    }, function(){
+                        // error
+                        app.sync.perf(callback);
+                    }, "nzzPlugin", "showStartSyncToast", []);
+                } else {
                     app.sync.perf(callback);
-                }, function(){
-                    // error
-                    app.sync.perf(callback);
-                }, "nzzPlugin", "showStartSyncToast", []);
+                }
             } else {
-                app.sync.perf(callback);
+                alert("Server onbereikbaar. Controleer internetverbinding.");
+                callback.call(this, null);
             }
+        },
+        getFiles: function(){
 
+            var files = [];
 
+            var data = {
+                "AppUserValidateForm[imei]": app.user.imei,
+                "AppUserValidateForm[token]": app.user.token,
+                "AppUserValidateForm[inspector_id]": app.user.inspector_id,
+            };
 
+            console.log(data);
+
+            $.ajax({
+                url: app.restClient.getFiles,
+                method: 'POST',
+                dataType: 'json',
+                data: data,
+                success: function(resp){
+                    if(resp.result === true){
+                        files = resp.data;
+                    }
+                },
+                error: function(err){
+
+                },
+                async: false
+            });
+
+            return files;
         },
         perf: function(callback){
+            var files = app.sync.getFiles();
 
-            var files = [
-                {
-                    name: 'map_56.jpg',
-                    path: 'https://www.smartdraw.com/floor-plan/img/house-design-blueprint-example.png?bn=1510011094'
-                },
-                {
-                    name: 'logo_00.jpg',
-                    path: 'https://d30y9cdsu7xlg0.cloudfront.net/png/15130-200.png'
-                }
-            ];
             index = 0;
-            getFile(index);
 
-            app.image.deleteAll(function(resp){
+            app.sync.progressBar.min(0);
+            app.sync.progressBar.max( files.length );
+            app.sync.progressBar.value( index );
+
+
+
+            app.image.deleteAll("img/", function(resp){
                 getFile(index);
             });
 
 
             function getFile(index){
-                alert(index + "/" + files.length);
-                app.image.download(
-                    files[index].path,
-                    files[index].name,
-                function(result){
-                    index++;
-                    if(index < files.length){
-                        getFile(index);
-                    } else {
+                if(index < files.length){
+
+                    app.sync.progressBar.text( "Bestanden ophalen: (" + (index + 1) + "/" + app.sync.progressBar.max() + ")" );
+                    app.sync.progressBar.increment();
+
+                    app.image.download(
+                        files[index].path,
+                        files[index].name,
+                    // success
+                    function(result){
+                        // index++;
+                        if(index < files.length){
+                            index++;
+
+                            //setTimeout(function(e){
+                                getFile(index);
+                            //}, 2000);
+
+
+                        } else {
+                            getDays();
+                        }
+                    },
+                    // error
+                    function(error){
+                        if(error != true){
+                            console.log("Error getting file: " + files[index].name + " skipping...");
+                        }
+                        // index++;
+                        if(index < files.length){
+                            index++
+                            //setTimeout(function(e){
+                                getFile(index);
+                            //}, 2000);
+                        } else {
+                            //setTimeout(function(e){
+                                getDays();
+                            //}, 2000);
+                        }
+                    });
+                } else {
+                    //setTimeout(function(e){
                         getDays();
-                    }
-                }, function(error){
-                    if(error != true){
-                        alert("Error getting file: " + files[index].name + " skipping...");
-                    }
-                    index++;
-                    if(index < files.length){
-                        getFile(index);
-                    } else {
-                        getDays();
-                    }
-                });
+                    //}, 2000);
+                }
+
             }
 
             function getDays(i){
+                app.sync.progressBar.min(0);
+                app.sync.progressBar.max( data.length );
+                app.sync.progressBar.value( 0 );
+
+
                 var transaction = app.database.db.transaction(['day'], "readwrite");
                 var objectStore = transaction.objectStore('day');
 
                 objectStore.clear();
 
+                var index = 0;
+                d = new Day();
+                data = d.sync();
+
                 for(var i in data){
                     if(i == 'length'){ continue; }
-                    Day.put({id: i, data: data[i]});
+
+                    app.sync.progressBar.text( "Jobs ophalen: (" + (index + 1) + "/" + app.sync.progressBar.max() + ")" );
+                    app.sync.progressBar.increment();
+
+                    var d = new Day();
+                    index++;
+                    d.put({id: i, data: data[i]});
                 }
 
                 var transaction = app.database.db.transaction(['comments'], "readwrite");
@@ -175,15 +326,29 @@ var app = {
 
                 objectStore.clear();
 
-                Comments.put({
-                    id: 1,
-                    data: availableComments
-                });
+                app.sync.progressBar.min(0);
+                app.sync.progressBar.max( 3 );
+                app.sync.progressBar.value( 1 );
+                app.sync.progressBar.text( "Opmerkingen ophalen: (" + app.sync.progressBar.value() + "/" + app.sync.progressBar.max() + ")" );
 
-                Remarks.put({
+                var c = new Comments();
+                c.put({
                     id: 1,
-                    data: availableRemarks
+                    data: c.sync()
                 });
+                app.sync.progressBar.increment();
+                app.sync.progressBar.text( "Opmerkingen ophalen: (" + app.sync.progressBar.value()  + "/" + app.sync.progressBar.max() + ")" );
+
+
+                // app.sync.progressBar.text( "Opmerkingen ophalen: (" + app.sync.progressBar.val()  + "/" + app.sync.progressBar.max() + ")" );
+                var r = new Remarks();
+                r.put({
+                    id: 1,
+                    data: r.sync()
+                });
+                app.sync.progressBar.increment();
+                app.sync.progressBar.text( "Opmerkingen ophalen: (" + app.sync.progressBar.value()  + "/" + app.sync.progressBar.max() + ")" );
+
 
                 if(cordova.exec){
                     cordova.exec(function(){
@@ -195,6 +360,7 @@ var app = {
                     }, "nzzPlugin", "showEndSyncToast", []);
                 } else {
                     callback.call(this, null);
+
                 }
             }
         }
@@ -320,7 +486,7 @@ var app = {
                 exp.html( exception );
             }
         },
-        validateAnswer(type, answer, question){
+        validateAnswer: function(type, answer, question){
             question.errors = [];
 
             if( (answer == null || answer == "" || typeof answer == 'undefined' )  && question.required == true){
@@ -387,7 +553,7 @@ var app = {
 
                     for(var c in question.choices){
                         var checked = '';
-                        if(question.answer != undefined){
+                        if(question.answer != undefined && question.answer != 'undefined'){
                             checked = (question.answer.includes(c) ? 'checked' : '');
                         }
 
@@ -420,7 +586,7 @@ var app = {
                 break;
                 case app.const.type_text:
 
-                var val = (question.answer == undefined) ? "" : question.answer;
+                var val = (question.answer == undefined || question.answer == 'undefined') ? "" : question.answer;
                 str += "<input class='input' type='text' name='question_" + questionIndex + "' value='"+val+"'>";
 
                 break;
@@ -444,11 +610,6 @@ var app = {
         }
     },
     actions: {
-        // toggleSidebar: function(e){
-        //     app.image.deleteAll(function(resp){
-        //         console.log(resp);
-        //     });
-        // },
         viewFloorplan: function(e){
             app.floorplanIndex = this.getAttribute('floorplan');
             app.floorplan = app.appointment.floorplan[app.floorplanIndex];
@@ -464,19 +625,30 @@ var app = {
 
             });
         },
+        viewHome: function(e){
+            $('app').removeClass('sync');
+            app.navigate.to('views/index.html', function(e){
+
+            });
+        },
         sync: function(e){
             $('item[action="sync"] > .icon').addClass('syncing');
             $('.planning-list').html('');
+            $('app').addClass('sync');
             setTimeout(function(e){
                 app.sync.start(function(e){
-                    app.navigate.to('views/index.html');
+                    $('.sync-container').removeClass('collapsed');
+                    $('[action="sync"] > .icon').removeClass('syncing');
+                    $('.sync-container').html( "<button class='btn btn-default success wide' action='viewHome'>opnieuw laden</button>" );
                 });
             }, 500);
         },
         viewAppointment: function(e){
             var day = $(this).attr('day');
             var appointment = $(this).attr('appointment');
-            Day.find().findById(day, function(result){
+            var d = new Day();
+            d.find().findById(day, function(result){
+            // Day.find().findById(day, function(result){
                 app.day = result;
                 app.dayIndex = day;
                 app.appointmentIndex = appointment;
@@ -597,11 +769,8 @@ var app = {
             }
 
             if(errors.length == 0){
-                app.appointment.completed = true;
-                app.day.update(function(e){
-                    app.navigate.to('views/signature/index.html', function(e){
+                app.navigate.to('views/signature/index.html', function(e){
 
-                    });
                 });
             } else {
                 alert(errors.join("\n"));
@@ -666,6 +835,7 @@ var app = {
                 if(!cancel){
                     app.appointment.signatures.customer = signaturePadCustomer.toData();
                     app.appointment.signatures.inspector = signaturePadInspector.toData();
+                    app.appointment.completed = true;
                     app.day.update(function(e){
                         app.navigate.to('views/index.html', function(e){
 
@@ -673,20 +843,11 @@ var app = {
                     });
                 }
             }
-            // if(signaturePad){
-            //     if(!signaturePad.isEmpty()){
-            //         app.appointment.signature = signaturePad.toData();
-            //         app.day.update(function(e){
-            //             app.navigate.to('views/index.html', function(e){
-            //
-            //             });
-            //         });
-            //     } else {
-            //         alert("Handtekening mag niet leeg zijn!");
-            //     }
-            // }
         }
-    }
+    },
+    exceptions: {
+        serverError: "Er ging iets mis. Probeer het opnieuw later en/of start de applicatie opnieuw",
+    },
 };
 
 app.initialize();
@@ -711,6 +872,9 @@ $(document).on('submit', '.form-create-remark', function(e){
     });
 
 });
+
+
+
 $(document).on('submit', '.installation-list .question-list .question-form', function(e){
 
     e.preventDefault();
@@ -725,6 +889,7 @@ $(document).on('submit', '.installation-list .question-list .question-form', fun
 
     var fd = new FormData( $('.question-list[servicetype="'+serviceTypeIndex+'"] form[question="'+questionIndex+'"]')[0] );
     var entries = fd.getAll('question_' + questionIndex);
+
 
     var question = app.appointment.service_types[serviceTypeIndex].additional_questions.questions[questionIndex];
     app.question.answer(questionIndex, entries, question, function(){
@@ -742,7 +907,9 @@ $(document).on('submit', 'content > .question-list .question-form', function(e){
     var questionIndex = this.getAttribute('question');
 
     var fd = new FormData( $('form[question="'+questionIndex+'"]')[0] );
+
     var entries = fd.getAll('question_' + questionIndex);
+
     var question = app.day['data'][app.appointmentIndex]['checkpoints'][app.checkpointIndex]['questions'][questionIndex];
     app.question.answer(questionIndex, entries, question, function(e){
         app.day.update(function(){
@@ -784,54 +951,133 @@ $(document).on('click', '.installation-list > li > label', function(e){
         });
     });
 });
-$(document).on('mousedown touchstart', '[mdot]', function(e){
-    var mdot = $(this).find('.mdot');
-    if(mdot.length == 0){
-        $(this).append( $('<span class="mdot"></span>') );
-        mdot = $(this).find('.mdot');
-    }
 
-    var max = Math.max( $(this).height(), $(this).width() );
 
-    var parentOffset = $(mdot).parent().offset();
 
-    if(e.type === 'touchstart'){
-        pageX = e.originalEvent.touches[0].pageX;
-        pageY = e.originalEvent.touches[0].pageY;
-    } else {
-        pageX = e.pageX;
-        pageY = e.pageY;
-    }
+$(document).on('submit', '#form-login-form', function(e){
 
-    var relX = pageX - parentOffset.left - max / 2;
-    var relY = pageY - parentOffset.top - max / 2;
+    e.preventDefault();
 
-    mdot.attr('style', "left: " + relX + "px; top: " + relY + "px; height: " + max + "px; width: " + max + "px;");
+    $('#login-exception').addClass('hidden');
+    $('#login-exception').html('');
 
-    mdot.removeClass('mousedown');
-    mdot.removeClass('mouseup');
-    mdot.removeClass('animate');
+    var username = $('input[name="username"]').val();
+    var password = $('input[name="password"]').val();
 
-    setTimeout(function(e){
-        mdot.addClass('animate');
-        mdot.addClass('mousedown');
-    }, 10);
+    app.user.login(
+        username,
+        password,
+        function(resp){
+            if(resp.result === true){
+                app.navigate.to('views/index.html', function(e){
+
+                });
+            } else if(resp.result === false){
+                $('.exception').removeClass('hidden');
+                $('.exception').html( resp.message );
+            } else {
+                app.notification.show(app.exceptions.serverError);
+            }
+        },
+        function(){
+            alert("Server onbereikbaar");
+        }
+    )
 });
-$(document).on('mouseup touchend', '[mdot]', function(e){
-    var mdot = $(this).find('.mdot');
-    if(mdot.length > 0){
-        mdot.css({
-            opacity: mdot.css('opacity'),
-            transform: "scale(" + mdot[0].getBoundingClientRect().width / mdot[0].offsetWidth + ")",
-        });
-        mdot.removeClass('mousedown');
-        mdot.addClass('mouseup');
-    }
-});
+// $(document).on('mousedown touchstart', '[mdot]', function(e){
+//     var mdot = $(this).find('.mdot');
+//     if(mdot.length == 0){
+//         $(this).append( $('<span class="mdot"></span>') );
+//         mdot = $(this).find('.mdot');
+//     }
+//
+//     var max = Math.max( $(this).height(), $(this).width() );
+//
+//     var parentOffset = $(mdot).parent().offset();
+//
+//     if(e.type === 'touchstart'){
+//         pageX = e.originalEvent.touches[0].pageX;
+//         pageY = e.originalEvent.touches[0].pageY;
+//     } else {
+//         pageX = e.pageX;
+//         pageY = e.pageY;
+//     }
+//
+//     var relX = pageX - parentOffset.left - max / 2;
+//     var relY = pageY - parentOffset.top - max / 2;
+//
+//     mdot.attr('style', "left: " + relX + "px; top: " + relY + "px; height: " + max + "px; width: " + max + "px;");
+//
+//     mdot.removeClass('mousedown');
+//     mdot.removeClass('mouseup');
+//     mdot.removeClass('animate');
+//
+//     setTimeout(function(e){
+//         mdot.addClass('animate');
+//         mdot.addClass('mousedown');
+//     }, 10);
+// });
+// $(document).on('mouseup touchend', '[mdot]', function(e){
+//     var mdot = $(this).find('.mdot');
+//     if(mdot.length > 0){
+//         mdot.css({
+//             opacity: mdot.css('opacity'),
+//             transform: "scale(" + mdot[0].getBoundingClientRect().width / mdot[0].offsetWidth + ")",
+//         });
+//         mdot.removeClass('mousedown');
+//         mdot.addClass('mouseup');
+//     }
+// });
 $(document).on('click', '[action]', function(e){
     var action = $(this).attr('action');
 
     if(app.actions[action]){
         app.actions[action].call(this, e);
+    }
+});
+
+$(document).on('click', '#sync-toggler', function(e){
+    $(this.parentNode).toggleClass('collapsed');
+})
+var baseUrl = "http://thom.at01.app.yii2.dev03.netzozeker.info";
+
+app.restClient = {
+    ping: baseUrl + '/ping',
+    userLogin: baseUrl + '/user/login',
+    userAuth: baseUrl + '/user/auth',
+
+    getFiles: baseUrl + '/job/get-files',
+    getComments: baseUrl + '/job/get-comments',
+    getRemarks: baseUrl + '/job/get-remarks',
+    getDays: baseUrl + '/job/get-jobs'
+};
+
+
+$(document).on('change', '#default-remarks', function(e){
+    // get opt
+    var option = $(this).find(':selected');
+
+    console.log(option);
+
+    var actionee_id = $(option).attr('actionee_id');
+
+    if(actionee_id){
+        var group_id = $(option).attr('group_id');
+        var type_id = $(option).attr('type_id');
+        var name = $(option).attr('name');
+
+        $('[name="actionee_id"]').val(actionee_id);
+        $('[name="actionee_id"]').attr('disabled', '');
+        $('[name="type_id"]').val(type_id);
+        $('[name="type_id"]').attr('disabled', '');
+        $('[name="group_id"]').val(group_id);
+        $('[name="group_id"]').attr('disabled', '');
+        $('[name="name"]').val(name);
+        $('[name="name"]').attr('disabled', '');
+    } else {
+        $('[name="actionee_id"]').attr('disabled', false);
+        $('[name="type_id"]').attr('disabled', false);
+        $('[name="group_id"]').attr('disabled', false);
+        $('[name="name"]').attr('disabled', false);
     }
 });

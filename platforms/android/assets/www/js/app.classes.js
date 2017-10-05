@@ -56,7 +56,7 @@ var data = {
                 32563: {
                     name: 'Rattenvanger Ultra MK3000Plus V2.0.1',
                     type: 'Rat',
-                    code: 'CODEX666',
+                    code: '3STWUW007886595',
                     questions: {
                         0: {
                             question: 'Hoeveel gif is er op?',
@@ -546,240 +546,27 @@ var data = {
     }
 };
 
-var availableRemarks = {
-    actionees: {
-        1: 'Attack',
-        2: 'Klant',
-        3: 'Derde partij'
-    },
-    groups: {
-        1: 'Algemeen',
-        2: 'Groep'
-    },
-    types: {
-        1: 'Klacht',
-        2: 'Service',
-        3: 'Anders'
+var DataStoreHelper = function() {}
+
+
+DataStoreHelper.prototype.all = DataStoreHelper.all = function(callback){
+    var objectStore = this.objectStore;
+	var request = objectStore.openCursor();
+    var results = [];
+	request.onsuccess = function(event){
+		var cursor = event.target.result;
+		if(cursor){
+            results.push(cursor.value);
+			cursor.continue();
+        } else {
+            callback.call(this, results);
+        }
+
     }
 }
 
-var availableComments = [
-    {
-        actionee_id: 1,
-        group_id: 1,
-        type_id: 2,
-        name: "Ik heb een keukenkastje opgeruimd"
-    },
-    {
-        actionee_id: 2,
-        group_id: 1,
-        type_id: 3,
-        name: "De klant heeft beloofd koffie neer te zetten"
-    }
-];
-
-// class DataStoreHelper{
-//     constructor(){
-//         this.isNewRecord = true;
-//     }
-//     static find(){
-//         var dataStoreHelper = new DataStoreHelper();
-//         dataStoreHelper.transaction = app.database.db.transaction([this.storeName()], "readwrite");
-//         dataStoreHelper.objectStore = dataStoreHelper.transaction.objectStore(this.storeName());
-//         dataStoreHelper.className = this.name;
-//         return dataStoreHelper;
-//     }
-//     all(callback){
-//         var request = this.objectStore.getAll();
-//         var c = this.className;
-//
-//         request.onsuccess = function(){
-//
-//             var objs = [];
-//
-//             for(var o in request.result){
-//
-//                 var obj = new window[c]();
-//                 obj.isNewRecord = false;
-//
-//                 for(var i in request.result[o]){
-//                     obj[i] = request.result[o][i];
-//                 }
-//
-//                 objs.push(obj);
-//             }
-//
-//             callback.call(request, objs);
-//         }
-//     }
-//     findById(id, callback){
-//         var request = this.objectStore.get(id);
-//         var c = this.className;
-//         request.onsuccess = function(){
-//             var obj = new window[c]();
-//             obj.isNewRecord = false;
-//             for(var i in request.result){
-//                 obj[i] = request.result[i];
-//             }
-//
-//             callback.call(request, obj);
-//         }
-//     }
-//     static put(data){
-//         var dataStoreHelper = new DataStoreHelper();
-//         dataStoreHelper.transaction = app.database.db.transaction([this.storeName()], "readwrite");
-//         dataStoreHelper.objectStore = dataStoreHelper.transaction.objectStore(this.storeName());
-//         dataStoreHelper.className = this.name;
-//         dataStoreHelper.objectStore.put(data);
-//     }
-//     update(callback){
-//         var dataStoreHelper = new DataStoreHelper();
-//
-//         dataStoreHelper.transaction = app.database.db.transaction([this.storeName()], "readwrite");
-//         dataStoreHelper.objectStore = dataStoreHelper.transaction.objectStore(this.storeName());
-//         dataStoreHelper.className = this.name;
-//
-//         var data = {};
-//
-//         for(var i in this){
-//             if(i == 'length'){ continue; }
-//             data[i] = this[i];
-//         }
-//
-//         var request = dataStoreHelper.objectStore.put(data);
-//         request.onerror = function(event) {
-//         // Do something with the error
-//             callback.call(this, false);
-//         };
-//         request.onsuccess = function(event) {
-//         // Success - the data is updated!
-//             callback.call(this, true);
-//         };
-//
-//     }
-// }
-// window['DataStoreHelper'] = DataStoreHelper;
-//
-// class Day extends DataStoreHelper{
-//     static storeName(){
-//         return "day";
-//     }
-//     storeName(){
-//         return "day";
-//     }
-// }
-//
-// window['Day'] = Day;
-
-
-
-var DataStoreHelper = function() {
-    this.isNewRecord = true;
-    this.all = function(callback){
-        var request = this.objectStore.getAll();
-        var c = this.className;
-
-        request.onsuccess = function(){
-
-            var objs = [];
-
-            for(var o in request.result){
-
-                var obj = new window[c]();
-                obj.isNewRecord = false;
-
-                for(var i in request.result[o]){
-                    obj[i] = request.result[o][i];
-                }
-
-                objs.push(obj);
-            }
-
-            callback.call(request, objs);
-        }
-    }
-
-    this.findById = function(id, callback){
-        var request = this.objectStore.get(id);
-        var c = this.className;
-        request.onsuccess = function(){
-            var obj = new window[c]();
-            obj.isNewRecord = false;
-            for(var i in request.result){
-                obj[i] = request.result[i];
-            }
-
-            callback.call(request, obj);
-        }
-    }
-
-    this.update = function(callback){
-        var dataStoreHelper = new DataStoreHelper();
-
-        dataStoreHelper.transaction = app.database.db.transaction([this.storeName()], "readwrite");
-        dataStoreHelper.objectStore = dataStoreHelper.transaction.objectStore(this.storeName());
-        dataStoreHelper.className = this.name;
-
-        var data = {};
-
-        for(var i in this){
-            if(i == 'length'){ continue; }
-            data[i] = this[i];
-        }
-
-        var request = dataStoreHelper.objectStore.put(data);
-        request.onerror = function(event) {
-            // Do something with the error
-            callback.call(this, false);
-        };
-        request.onsuccess = function(event) {
-            // Success - the data is updated!
-            callback.call(this, true);
-        };
-    }
-
-    this.find = function(){
-        var dataStoreHelper = new DataStoreHelper();
-        dataStoreHelper.transaction = app.database.db.transaction([this.storeName()], "readwrite");
-        dataStoreHelper.objectStore = dataStoreHelper.transaction.objectStore(this.storeName());
-        dataStoreHelper.className = this.name;
-        return dataStoreHelper;
-    }
-
-    this.put = function(data){
-        var dataStoreHelper = new DataStoreHelper();
-        dataStoreHelper.transaction = app.database.db.transaction([this.storeName()], "readwrite");
-        dataStoreHelper.objectStore = dataStoreHelper.transaction.objectStore(this.storeName());
-        dataStoreHelper.className = this.name;
-        dataStoreHelper.objectStore.put(data);
-    }
-}
-
-DataStoreHelper.all = function(callback){
-    var request = this.objectStore.getAll();
-    var c = this.className;
-
-    request.onsuccess = function(){
-
-        var objs = [];
-
-        for(var o in request.result){
-
-            var obj = new window[c]();
-            obj.isNewRecord = false;
-
-            for(var i in request.result[o]){
-                obj[i] = request.result[o][i];
-            }
-
-            objs.push(obj);
-        }
-
-        callback.call(request, objs);
-    }
-}
-
-DataStoreHelper.findById = function(id, callback){
+DataStoreHelper.prototype.isNewRecord = DataStoreHelper.isNewRecord = true;
+DataStoreHelper.prototype.findById = DataStoreHelper.findById = function(id, callback){
     var request = this.objectStore.get(id);
     var c = this.className;
     request.onsuccess = function(){
@@ -793,12 +580,12 @@ DataStoreHelper.findById = function(id, callback){
     }
 }
 
-DataStoreHelper.update = function(callback){
+DataStoreHelper.prototype.update = DataStoreHelper.update = function(callback){
     var dataStoreHelper = new DataStoreHelper();
 
     dataStoreHelper.transaction = app.database.db.transaction([this.storeName()], "readwrite");
     dataStoreHelper.objectStore = dataStoreHelper.transaction.objectStore(this.storeName());
-    dataStoreHelper.className = this.name;
+    dataStoreHelper.className = this.className;
 
     var data = {};
 
@@ -809,82 +596,214 @@ DataStoreHelper.update = function(callback){
 
     var request = dataStoreHelper.objectStore.put(data);
     request.onerror = function(event) {
-    // Do something with the error
         callback.call(this, false);
     };
     request.onsuccess = function(event) {
-    // Success - the data is updated!
         callback.call(this, true);
     };
 }
-
-DataStoreHelper.find = function(){
+DataStoreHelper.prototype.find = DataStoreHelper.find = function(){
     var dataStoreHelper = new DataStoreHelper();
     dataStoreHelper.transaction = app.database.db.transaction([this.storeName()], "readwrite");
     dataStoreHelper.objectStore = dataStoreHelper.transaction.objectStore(this.storeName());
-    dataStoreHelper.className = this.name;
+    dataStoreHelper.className = this.className;
     return dataStoreHelper;
 }
-DataStoreHelper.put = function(data){
+DataStoreHelper.prototype.put = DataStoreHelper.put = function(data){
     var dataStoreHelper = new DataStoreHelper();
     dataStoreHelper.transaction = app.database.db.transaction([this.storeName()], "readwrite");
     dataStoreHelper.objectStore = dataStoreHelper.transaction.objectStore(this.storeName());
-    dataStoreHelper.className = this.name;
+    dataStoreHelper.className = this.className;
     dataStoreHelper.objectStore.put(data);
 }
 
 window['DataStoreHelper'] = DataStoreHelper;
 
 var Day = function() {
-    for(var i in DataStoreHelper){
-        this[i] = DataStoreHelper[i];
-    }
+    this.className = 'Day';
 
     this.storeName = function(){
         return "day";
     }
-}
-Day.storeName = function(){
-    return "day";
-}
-for(var i in DataStoreHelper){
-    Day[i] = DataStoreHelper[i];
+    this.sync = function(){
+        var result = [];
+        $.ajax({
+            url: app.restClient.getDays,
+            method: 'POST',
+            dataType: 'json',
+            data: {
+                "AppUserValidateForm[imei]": app.user.imei,
+                "AppUserValidateForm[token]": app.user.token,
+                "AppUserValidateForm[inspector_id]": app.user.inspector_id,
+            },
+            success: function(resp){
+                if(resp.result == true){
+                    result = resp.data;
+                } else if(resp.result == false){
+                    alert('Er ging iets mis! (100)');
+                } else {
+                    alert(app.exceptions.serverError);
+                }
+            },
+            async: false
+        });
+        return result;
+    }
 }
 
+Day.prototype.all = DataStoreHelper.all;
+Day.prototype.findById = DataStoreHelper.findById;
+Day.prototype.update = DataStoreHelper.update;
+Day.prototype.find = DataStoreHelper.find;
+Day.prototype.put = DataStoreHelper.put;
 window['Day'] = Day;
 
 var Comments = function() {
-    for(var i in DataStoreHelper){
-        this[i] = DataStoreHelper[i];
-    }
-
+    this.className = 'Comments';
     this.storeName = function(){
         return "comments";
     }
-}
-Comments.storeName = function(){
-    return "comments";
-}
-for(var i in DataStoreHelper){
-    Comments[i] = DataStoreHelper[i];
+    this.sync = function(){
+        var result = [];
+        $.ajax({
+            url: app.restClient.getComments,
+            method: 'POST',
+            dataType: 'json',
+            data: {
+                "AppUserValidateForm[imei]": app.user.imei,
+                "AppUserValidateForm[token]": app.user.token,
+                "AppUserValidateForm[inspector_id]": app.user.inspector_id,
+            },
+            success: function(resp){
+                if(resp.result == true){
+                    result = resp.data;
+                } else if(resp.result == false){
+                    alert('Er ging iets mis! (100)');
+                } else {
+                    alert(app.exceptions.serverError);
+                }
+            },
+            async: false
+        });
+        return result;
+    }
 }
 
+Comments.prototype.all = DataStoreHelper.all;
+Comments.prototype.findById = DataStoreHelper.findById;
+Comments.prototype.update = DataStoreHelper.update;
+Comments.prototype.find = DataStoreHelper.find;
+Comments.prototype.put = DataStoreHelper.put;
 window['Comments'] = Comments;
 
 var Remarks = function() {
-    for(var i in DataStoreHelper){
-        this[i] = DataStoreHelper[i];
-    }
-
+    this.className = 'Remarks';
     this.storeName = function(){
         return "remarks";
     }
-}
-Remarks.storeName = function(){
-    return "remarks";
-}
-for(var i in DataStoreHelper){
-    Remarks[i] = DataStoreHelper[i];
+    this.sync = function(){
+        var result = [];
+        $.ajax({
+            url: app.restClient.getRemarks,
+            method: 'POST',
+            dataType: 'json',
+            data: {
+                "AppUserValidateForm[imei]": app.user.imei,
+                "AppUserValidateForm[token]": app.user.token,
+                "AppUserValidateForm[inspector_id]": app.user.inspector_id,
+            },
+            success: function(resp){
+                if(resp.result == true){
+                    result = resp.data;
+                } else if(resp.result == false){
+                    alert('Er ging iets mis! (110)');
+                } else {
+                    alert(app.exceptions.serverError);
+                }
+            },
+            async: false
+        });
+        return result;
+    }
 }
 
+Remarks.prototype.all = DataStoreHelper.all;
+Remarks.prototype.findById = DataStoreHelper.findById;
+Remarks.prototype.update = DataStoreHelper.update;
+Remarks.prototype.find = DataStoreHelper.find;
+Remarks.prototype.put = DataStoreHelper.put;
 window['Remarks'] = Remarks;
+
+
+
+var User = function(args){
+    this.imei = localStorage.getItem('imei');
+    this.inspector_id = localStorage.getItem('inspector_id');
+    this.token = localStorage.getItem('token');
+
+    this.isGuest =
+        (this.imei == null || this.inspector_id == null || this.token == null);
+
+    for(var i in args){
+        this[i] = args;
+    }
+}
+User.prototype.login = function(username, password, success, error){
+    $.ajax({
+        url: app.restClient.userLogin,
+        method: 'POST',
+        dataType: 'json',
+        data: {
+            "AppUserLoginForm[username]": username,
+            "AppUserLoginForm[password]": password,
+            "AppUserLoginForm[imei]": app.imei,
+        },
+        success: function(resp){
+
+            if(resp.result === true){
+                localStorage.setItem('imei', app.imei);
+                localStorage.setItem('token', resp.data.token);
+                localStorage.setItem('inspector_id', resp.data.inspector_id);
+                localStorage.setItem('name', resp.data.name);
+
+                success.call(this, resp);
+            } else if(resp.result === false) {
+                success.call(this, resp);
+            } else {
+                app.notification.show(app.exceptions.serverError);
+            }
+
+        },
+        error: function(){
+
+            localStorage.removeItem('imei');
+            localStorage.removeItem('token');
+            localStorage.removeItem('inspector_id');
+            localStorage.removeItem('name');
+
+            error.call(this, null);
+        },
+        async: false
+    })
+}
+User.prototype.auth = function(success, error){
+    var p = this;
+    $.ajax({
+        url: app.restClient.userAuth,
+        method: 'POST',
+        dataType: 'json',
+        data: {
+            "AppUserValidateForm[imei]": this.imei,
+            "AppUserValidateForm[token]": this.token,
+            "AppUserValidateForm[inspector_id]": this.inspector_id,
+        },
+        success: function(resp){
+            success.call(this, resp);
+        },
+        error: function(){
+            error.call(this, null);
+        },
+        async: false,
+    })
+}
+window['User'] = User;

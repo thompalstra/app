@@ -16,8 +16,8 @@ app.navigate.back = function(){
 
     });
 }
-
-Remarks.find().findById(1, function(result){
+var r = new Remarks();
+r.find().findById(1, function(result){
     var remarks = result.data;
 
     for(var i in app.appointment.remarks){

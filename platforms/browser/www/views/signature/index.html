@@ -7,14 +7,18 @@
 <content>
     <div class='inner inner-signature'>
         <span class='signature-text'>klant</span>
+        <img>
         <canvas class='signature-canvas' target="customer">
 
         </canvas>
+        </img>
         <i class="material-icons signature reset" action="signatureReset" target="customer">&#xE23B;</i>
         <span class='signature-text'>bestrijder</span>
+        <img>
         <canvas class='signature-canvas' target="inspector">
 
         </canvas>
+        </img>
         <i class="material-icons signature reset" action="signatureReset" target="inspector">&#xE23B;</i>
 
         <i class="material-icons signature return" action='navigateBack' mdot noselect>&#xE5C4;</i>
@@ -32,14 +36,14 @@
     var ratio =  Math.max(window.devicePixelRatio || 1, 1);
 
     var canvasCustomer = document.querySelector('.signature-canvas[target="customer"]');
-    canvasCustomer.width = canvasCustomer.offsetWidth * ratio;
-    canvasCustomer.height = canvasCustomer.offsetHeight * ratio;
-    canvasCustomer.getContext("2d").scale(ratio, ratio);
+    // canvasCustomer.width = canvasCustomer.offsetWidth * ratio;
+    // canvasCustomer.height = canvasCustomer.offsetHeight * ratio;
+    // canvasCustomer.getContext("2d").scale(ratio, ratio);
 
     var canvasInspector = document.querySelector('.signature-canvas[target="inspector"]');
-    canvasInspector.width = canvasInspector.offsetWidth * ratio;
-    canvasInspector.height = canvasInspector.offsetHeight * ratio;
-    canvasInspector.getContext("2d").scale(ratio, ratio);
+    // canvasInspector.width = canvasInspector.offsetWidth * ratio;
+    // canvasInspector.height = canvasInspector.offsetHeight * ratio;
+    // canvasInspector.getContext("2d").scale(ratio, ratio);
 
     var signaturePadCustomer = new SignaturePad(canvasCustomer);
     signaturePadCustomer.clear();

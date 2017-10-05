@@ -4,18 +4,29 @@
     </item>
     <title>Nieuwe opmerkingen</title>
 </menu>
+</menu>
 <content>
     <form id='form-create-remark' class='form form-create-remark inner'>
         <div class='row'>
+            <label>Soort:</label>
+            <select id='default-remarks' class='select'>
+                <option actionee_id="">Eigen opmerking</option>
+            </select>
+        </div>
+        <div class='row'>
+            <label>Type:</label>
             <select name='type_id' class='select'></select>
         </div>
         <div class='row'>
+            <label>Actiehouder:</label>
             <select name='actionee_id' class='select'></select>
         </div>
         <div class='row'>
+            <label>Groep:</label>
             <select name='group_id' class='select'></select>
         </div>
         <div class='row'>
+            <label>Omschrijving:</label>
             <textarea name='name' class='textarea' rows=4></textarea>
         </div>
         <button type='submit' class='btn btn-default success wide'>opslaan</button>
@@ -28,7 +39,27 @@ app.navigate.back = function(){
     });
 }
 
-Remarks.find().findById(1, function(result){
+var c = new Comments();
+c.find().all(function(result){
+    for(var i in result[0].data){
+        var item = result[0].data[i];
+        var str = "<option ";
+        str += "actionee_id='"+item.actionee_id+"' ";
+        str += "group_id='"+item.group_id+"' ";
+        str += "type_id='"+item.type_id+"' ";
+        str += "name='"+item.name+"' >";
+        str += item.name;
+        str += "</option>";
+
+        $('#default-remarks').append( $(str) );
+    }
+});
+
+
+// $('#default-remarks')
+
+var r = new Remarks();
+r.find().findById(1, function(result){
     // console.log(result);
     for(var i in result.data.actionees){
         $('select[name="actionee_id"]').append( $('<option value="' + i + '">'+ result.data.actionees[i]+'</option>') );

@@ -198,6 +198,14 @@ module.exports = [
         "clobbers": [
             "window.FileTransfer"
         ]
+    },
+    {
+        "id": "cordova-plugin-device.device",
+        "file": "plugins/cordova-plugin-device/www/device.js",
+        "pluginId": "cordova-plugin-device",
+        "clobbers": [
+            "device"
+        ]
     }
 ];
 module.exports.metadata = 
@@ -207,7 +215,8 @@ module.exports.metadata =
     "nzzplugin": "0.0.1",
     "cordova-plugin-statusbar": "2.2.3",
     "cordova-plugin-file": "4.0.0",
-    "cordova-plugin-file-transfer": "1.6.3"
+    "cordova-plugin-file-transfer": "1.6.3",
+    "cordova-plugin-device": "1.1.6"
 };
 // BOTTOM OF METADATA
 });

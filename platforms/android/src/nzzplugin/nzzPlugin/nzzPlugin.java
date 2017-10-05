@@ -111,7 +111,7 @@ public class nzzPlugin extends CordovaPlugin {
 				@Override
 				public void onRead(DecodeResult decodeResult) {
                     String message = decodeResult.getText();
-                    PluginResult resulta = new PluginResult(PluginResult.Status.OK, "first response");
+                    PluginResult resulta = new PluginResult(PluginResult.Status.OK, message);
                     resulta.setKeepCallback(true);
                     scanCallbackContext.sendPluginResult(resulta);
 				}
