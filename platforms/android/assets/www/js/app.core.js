@@ -32,9 +32,6 @@ var app = {
             }
         }
 
-        alert(app.imei);
-
-
         app.scanner = scanner;
         app.scanner.register();
 
@@ -557,7 +554,7 @@ var app = {
                             checked = (question.answer.includes(c) ? 'checked' : '');
                         }
 
-                        str += "<div>";
+                        str += "<div style='margin: 10px 0'>";
                         str += "<input id='question_"+subId+"' type='checkbox' value='" + c + "' name='question_" + questionIndex + "' "+checked+">";
                         str += "<label for='question_"+subId+"'>"+question.choices[c]+"</label>";
                         str += "</div>";
@@ -568,12 +565,12 @@ var app = {
                 case app.const.type_yn:
 
                 isTrue = (question.answer == 1 ? 'checked' : '');
-                str += "<div>";
+                str += "<div style='margin: 10px 0'>";
                 str += "<input id='question_"+questionIndex+"_1' type='radio' value='1' name='question_" + questionIndex + "' "+isTrue+" >"
                 str += "<label for='question_"+questionIndex+"_1'>Ja</label>";
                 str += "</div>";
                 isFalse = (question.answer == 0 ? 'checked' : '');
-                str += "<div>";
+                str += "<div style='margin: 10px 0'>";
                 str += "<input id='question_"+questionIndex+"_0' type='radio' value='0' name='question_" + questionIndex + "' "+isFalse+">"
                 str += "<label for='question_"+questionIndex+"_0'>Nee</label>";
                 str += "</div>";
@@ -894,7 +891,9 @@ $(document).on('submit', '.installation-list .question-list .question-form', fun
     var question = app.appointment.service_types[serviceTypeIndex].additional_questions.questions[questionIndex];
     app.question.answer(questionIndex, entries, question, function(){
         app.day.update(function(){
+            var scrollTop = $('content')[0].scrollTop;
             app.navigate.to('views/installations/index.html', function(e){
+                $('content')[0].scrollTop = scrollTop;
             });
         });
     });
@@ -913,7 +912,10 @@ $(document).on('submit', 'content > .question-list .question-form', function(e){
     var question = app.day['data'][app.appointmentIndex]['checkpoints'][app.checkpointIndex]['questions'][questionIndex];
     app.question.answer(questionIndex, entries, question, function(e){
         app.day.update(function(){
-            app.navigate.to('views/checkpoints/view.html');
+            var scrollTop = $('content')[0].scrollTop;
+            app.navigate.to('views/checkpoints/view.html', function(e){
+                $('content')[0].scrollTop = scrollTop;
+            });
         });
     });
 });
@@ -1039,7 +1041,8 @@ $(document).on('click', '[action]', function(e){
 $(document).on('click', '#sync-toggler', function(e){
     $(this.parentNode).toggleClass('collapsed');
 })
-var baseUrl = "http://thom.at01.app.yii2.dev03.netzozeker.info";
+// var baseUrl = "http://thom.at01.app.yii2.dev03.netzozeker.info";
+var baseUrl = "https://at01.app.yii2.projecten03.netzozeker.info";
 
 app.restClient = {
     ping: baseUrl + '/ping',

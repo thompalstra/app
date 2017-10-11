@@ -347,6 +347,7 @@ app > view > content > .inner,
     float: left;
     position: relative;
     margin-top: 10px;
+    border-top: 10px solid gray;
 }
 .installation-list li .service-type:after{
     content: attr(content);
@@ -376,11 +377,11 @@ app > view > content > .inner,
     background-color: #CF000F;
 }
 .installation-list li .service-type.status-2{
-    background-color: #FD5B03;
+    background-color: #cccccc;
 }
 
 .installation-list li .service-type.status-3{
-    background-color: #71BA51;
+    background-color: #4a86e8;
 }
 
 .installation-list li ul{
@@ -407,24 +408,30 @@ app > view > content > .inner,
     margin-left: 0;
     margin-right: 0;
 }
-
+.installation-list li[on="1"] .status-1{
+    border-top: 10px solid #CF000F;
+}
 .installation-list li[on="1"] .status-2,
 .installation-list li[on="1"] .status-3{
-    opacity: .4;
-    -webkit-filter: grayscale(100%); /* Safari 6.0 - 9.0 */
-   filter: grayscale(100%);
+    filter:brightness(90%);
+    border-top: 10px solid gray;
+}
+.installation-list li[on="2"] .status-2{
+    border-top: 10px solid #cccccc;
 }
 .installation-list li[on="2"] .status-1,
 .installation-list li[on="2"] .status-3{
-    opacity: .4;
-    -webkit-filter: grayscale(100%); /* Safari 6.0 - 9.0 */
-   filter: grayscale(100%);
+    filter:brightness(90%);
+    border-top: 10px solid gray;
+}
+.installation-list li[on="3"] .status-3{
+    border-top: 10px solid #4a86e8;
 }
 .installation-list li[on="3"] .status-1,
 .installation-list li[on="3"] .status-2{
-    opacity: .4;
-    -webkit-filter: grayscale(100%); /* Safari 6.0 - 9.0 */
-   filter: grayscale(100%);
+    filter:brightness(90%);
+    border-top: 10px solid gray;
+
 }
 
 

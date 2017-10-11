@@ -21,12 +21,14 @@
     <feature name="Device">
         <param name="android-package" value="org.apache.cordova.device.Device" />
     </feature>
-    <name>HelloCordova</name>
+    <name>Scantack</name>
     <description>
-        A sample Apache Cordova application that responds to the deviceready event.
+        
+        Scantack
     </description>
     <author email="dev@cordova.apache.org" href="http://cordova.io">
-        Apache Cordova Team
+        
+        Scantack
     </author>
     <content src="index.html" />
     <access origin="*" />

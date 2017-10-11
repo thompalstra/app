@@ -1,5 +1,5 @@
-<menu class='has-2'>
-    <item action="navigateBack">
+<menu class='has-2 scheme remarks'>
+    <item action="navigateBack" mdot noselect>
         <i class="material-icons">&#xE5C4;</i>
     </item>
     <title>Opmerkingen</title>
@@ -25,11 +25,20 @@ r.find().findById(1, function(result){
         var complete = (remark.hasOwnProperty('completed') && remark.completed == true) ? 'completed' : '';
         var action = (remark.hasOwnProperty('completed') && remark.completed == true) ? 'markRemarkIncomplete' : 'markRemarkComplete';
         var actionText = (remark.hasOwnProperty('completed') && remark.completed == true) ? 'Aanmelden' : 'Afmelden';
-        var str = "<li class='"+complete+"' remark='"+i+"'>";
+        var toggled = (remark.hasOwnProperty('is_private') && remark.is_private == true) ? "toggled='true'" : '';
+
+        console.log(remark.is_private);
+
+        var str = "<li class='"+complete+"' "+toggled+" remark='"+i+"'>";
         str += "<item action='moreShow'>";
             str += "<i class='material-icons'>&#xE5D4;</i>";
             str += "<ul class='more-list hidden'>";
                 str += "<li action='"+action+"' remark='"+i+"' mdot noselect>"+actionText+"</li>";
+
+                if( (remark.hasOwnProperty('is_private') && remark.is_private == true) ){
+                    str +=  "<li action='toggleRemark' remark='"+i+"'>Weergeven</li>";
+                }
+
             str += "</ul>";
         str += "</item>";
         if(remark.id == null){

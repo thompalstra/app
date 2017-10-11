@@ -1,3 +1,9 @@
+body, html{
+    -webkit-user-select: none;  /* Chrome all / Safari all */
+    -moz-user-select: none;     /* Firefox all */
+    -ms-user-select: none;      /* IE 10+ */
+    user-select: none;          /* Likely future */
+}
 body{
     background-color: #ddd;
 }
@@ -18,16 +24,10 @@ app > view > menu > item[action="sync"] .icon.syncing{
 
 [mdot]{
     opacity: 1;
-    transition: opacity .3s linear, box-shadow .3s linear;
-    -webkit-box-shadow: 0px 5px 10px 0px rgba(0,0,0,0.0);
-    -moz-box-shadow: 0px 5px 10px 0px rgba(0,0,0,0.0);
-    box-shadow: 0px 5px 10px 0px rgba(0,0,0,0.0);
+    transition: opacity .3s linear;
 }
 [mdot]:active{
     opacity: 0.5;
-    -webkit-box-shadow: 0px 5px 10px 0px rgba(0,0,0,0.3);
-    -moz-box-shadow: 0px 5px 10px 0px rgba(0,0,0,0.3);
-    box-shadow: 0px 5px 10px 0px rgba(0,0,0,0.3);
 }
 
 .floorplan-list > li{
@@ -62,12 +62,22 @@ app > view > menu > item[action="sync"] .icon.syncing{
 .remark-list > li{
     background-color: white;
     width: calc(100% - 20px);
+    min-height: 50px;
     margin: 10px;
     padding: 10px;
     box-sizing: border-box;
     position: relative;
     order: 5;
 }
+
+.remark-list > li[toggled="false"]{
+
+}
+.remark-list > li[toggled="true"] h4,
+.remark-list > li[toggled="true"] p{
+    display: none;
+}
+
 .remark-list > li.completed{
     order: 10;
     background-color: #ebebeb;
@@ -238,10 +248,8 @@ app > view > content > .inner,
 }
 
 .planning-list > section > li{
-    text-align: center;
+    text-align: left;
     line-height: 50px;
-    /*background-color: #333;*/
-    /*color: white;*/
 }
 
 .planning-list > section > li > ul{
@@ -260,7 +268,8 @@ app > view > content > .inner,
     color: white;
 }
 .planning-list > section > li > ul > li .view .material-icons:after{
-    content: "\E8B6";
+    /*content: "\E8B6";*/
+    content: "\E5DA";
 }
 .planning-list > section > li > ul > li.done .view .material-icons:after{
     content: "\E5CA";
@@ -347,6 +356,7 @@ app > view > content > .inner,
     float: left;
     position: relative;
     margin-top: 10px;
+    border-top: 10px solid gray;
 }
 .installation-list li .service-type:after{
     content: attr(content);
@@ -364,6 +374,96 @@ app > view > content > .inner,
     margin: 0 0 10px 0;
 }
 
+.appointment{
+
+}
+.appointment.information,
+.appointment.view-checkpoints,
+.appointment.view-debtor,
+.appointment.view-remarks{
+    line-height: 40px;
+    padding: 0 10px;
+}
+.appointment.information{
+    margin: 10px 0 0 0;
+line-height: normal;
+    width: 100%;
+    border: 0;
+    color: #333;
+    background-color: transparent;
+}
+.appointment.information .title,
+.appointment.view-checkpoints .title,
+.appointment.view-debtor .title,
+.appointment.view-remarks .title{
+    /*line-height: 80px;*/
+    font-size: 16px;
+}
+.appointment.red-card{
+    margin: 0;
+    text-align: center;
+    width: 100%;
+    border: 0;
+    background-color: #CF000F;
+    color: white;
+    border-bottom: 1px solid #c5c5c5;
+}
+
+
+.scheme{
+
+}
+.scheme.default{
+    color: white;
+    background-color: #002c50
+}
+.scheme.debtor-detail{
+    color: white;
+    background-color: #249991;
+}
+.scheme.remarks{
+    color: white;
+    background-color: #BADA55;
+}
+.scheme.checkpoints{
+    color: white;
+    background-color: #D2580F;
+}
+.scheme.floorplan{
+    color: white;
+    background-color: #3D8EB9;
+}
+
+.appointment.view-checkpoints .title:after{
+    content: "\E1B7";
+    /*background-color: #D2580F;*/
+}
+.appointment.view-debtor .title:after{
+    content: "\E853";
+    /*background-color: #249991;*/
+}
+.appointment.view-remarks .title:after{
+    content: "\E0B9";
+    /*background-color: #BADA55;*/
+}
+
+.appointment.information:after,
+.appointment .title:after{
+    font-family: "Material Icons";
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 50px;
+    width: 50px;
+    line-height: 50px;
+    text-align: center;
+    font-size: 16px;
+    /*color: white;*/
+    /*background-color: #3D8EB9;*/
+    /*border-left: 1px solid #c5c5c5;*/
+}
+
+
 
 .installation-list li input[type="radio"]{
     display: none;
@@ -376,11 +476,11 @@ app > view > content > .inner,
     background-color: #CF000F;
 }
 .installation-list li .service-type.status-2{
-    background-color: #FD5B03;
+    background-color: #cccccc;
 }
 
 .installation-list li .service-type.status-3{
-    background-color: #71BA51;
+    background-color: #4a86e8;
 }
 
 .installation-list li ul{
@@ -407,24 +507,30 @@ app > view > content > .inner,
     margin-left: 0;
     margin-right: 0;
 }
-
+.installation-list li[on="1"] .status-1{
+    border-top: 10px solid #CF000F;
+}
 .installation-list li[on="1"] .status-2,
 .installation-list li[on="1"] .status-3{
-    opacity: .4;
-    -webkit-filter: grayscale(100%); /* Safari 6.0 - 9.0 */
-   filter: grayscale(100%);
+    filter:brightness(90%);
+    border-top: 10px solid gray;
+}
+.installation-list li[on="2"] .status-2{
+    border-top: 10px solid #cccccc;
 }
 .installation-list li[on="2"] .status-1,
 .installation-list li[on="2"] .status-3{
-    opacity: .4;
-    -webkit-filter: grayscale(100%); /* Safari 6.0 - 9.0 */
-   filter: grayscale(100%);
+    filter:brightness(90%);
+    border-top: 10px solid gray;
+}
+.installation-list li[on="3"] .status-3{
+    border-top: 10px solid #4a86e8;
 }
 .installation-list li[on="3"] .status-1,
 .installation-list li[on="3"] .status-2{
-    opacity: .4;
-    -webkit-filter: grayscale(100%); /* Safari 6.0 - 9.0 */
-   filter: grayscale(100%);
+    filter:brightness(90%);
+    border-top: 10px solid gray;
+
 }
 
 
@@ -443,16 +549,21 @@ app > view > content > .inner,
     text-align: center;
 }
 .info-table .icon + .value{
+    /*background-color: #249991;*/
     width: calc(100% - 50px);
     height: 50px;
 }
 
+.info-table tr{
+    background-color: #249991;
+}
+
 .info-table .phone{
-    background-color: #3D8EB9;
+    /*background-color: #3D8EB9;*/
     color: white;
 }
 .info-table .email{
-    background-color: #71BA51;
+    /*background-color: #71BA51;*/
     color: white;
 }
 

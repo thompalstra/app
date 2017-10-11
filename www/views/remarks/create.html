@@ -1,5 +1,5 @@
-<menu class='has-2'>
-    <item action="navigateBack">
+<menu class='has-2 scheme remarks'>
+    <item action="navigateBack" mdot noselect>
         <i class="material-icons">&#xE5C4;</i>
     </item>
     <title>Nieuwe opmerkingen</title>
@@ -28,6 +28,11 @@
         <div class='row'>
             <label>Omschrijving:</label>
             <textarea name='name' class='textarea' rows=4></textarea>
+        </div>
+        <div class='row'>
+            <label>Privé
+                <input type='checkbox' name='is_private'/>
+            </label>
         </div>
         <button type='submit' class='btn btn-default success wide'>opslaan</button>
     </form>
