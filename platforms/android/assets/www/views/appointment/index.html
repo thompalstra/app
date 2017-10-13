@@ -1,27 +1,28 @@
-<menu class='has-2'>
+<menu class='has-2 scheme'>
     <item action="navigateBack" mdot noselect>
         <i class="material-icons">&#xE5C4;</i>
     </item>
     <title>Afspraak</title>
 </menu>
 <content>
-    <section id='appointment-information' class='inner' style="color: #71BA51;">
+    <section id='red-card' class='inner appointment red-card hidden'>
+        Rode kaart actief
+    </section>
+    <section id='appointment-information' class='inner appointment information'>
 
     </section>
-    <section class='inner' action="viewCheckpoints" mdot noselect>
+    <section class='inner appointment view-checkpoints' action="viewCheckpoints" mdot noselect>
         <h2 class='title'>Meetpunten</h2>
     </section>
-    <section class='inner' action="viewDebtor" mdot noselect>
+    <section class='inner appointment view-debtor scheme' action="viewDebtor" mdot noselect>
         <h2 class='title'>Detail</h2>
     </section>
-    <section class='inner' action="viewRemarks" mdot noselect>
+    <section class='inner appointment view-remarks' action="viewRemarks" mdot noselect>
         <h2 class='title'>Opmerkingen</h2>
     </section>
     <section class='inner'>
         <ul id='floorplan-list' class='floorplan-list'></ul>
     </section>
-    <!-- <section class='inner' action="viewMap" mdot noselect -->
-
     <div id='complete-appointment' action="completeAppointment" mdot noselect>
         Afspraak afronden
     </div>
@@ -30,6 +31,11 @@
 
 <script>
     $('view title').html( app.appointment.debtor.name );
+
+
+    if(app.appointment.red_card == true){
+        $('#red-card').removeClass('hidden');
+    }
 
     for(var i in app.appointment.checkpoints){
         var sp =  app.appointment.checkpoints[i];

@@ -564,18 +564,55 @@ DataStoreHelper.prototype.all = DataStoreHelper.all = function(callback){
 
     }
 }
+DataStoreHelper.prototype.findByIds = DataStoreHelper.findByIds = function(keys, callback){
 
+
+    var collection = [];
+    var objectStore = this.objectStore;
+    var constructorClass = this.className;
+
+    if(Array.isArray( keys )){
+        var length = keys.length;
+        get.call(this, 0);
+
+        function get(arrayIndex){
+            console.log("Array index: " + arrayIndex);
+            var request = objectStore.get(keys[arrayIndex]);
+
+            console.log(keys[arrayIndex]);
+            request.onsuccess = function(){
+
+                var obj = false;
+                if(typeof request.result != 'undefined'){
+                    var obj = new window[constructorClass]();
+                    obj.isNewRecord = false;
+                    for(var i in request.result){
+                        obj[i] = request.result[i];
+                    }
+                }
+                collection.push(obj);
+                if(arrayIndex < length - 1){
+                    get(++arrayIndex);
+                } else {
+                    callback.call(this, collection);
+                }
+            }
+        }
+    }
+}
 DataStoreHelper.prototype.isNewRecord = DataStoreHelper.isNewRecord = true;
 DataStoreHelper.prototype.findById = DataStoreHelper.findById = function(id, callback){
     var request = this.objectStore.get(id);
     var c = this.className;
     request.onsuccess = function(){
-        var obj = new window[c]();
-        obj.isNewRecord = false;
-        for(var i in request.result){
-            obj[i] = request.result[i];
+        var obj = false;
+        if(typeof request.result != 'undefined'){
+            var obj = new window[c]();
+            obj.isNewRecord = false;
+            for(var i in request.result){
+                obj[i] = request.result[i];
+            }
         }
-
         callback.call(request, obj);
     }
 }
@@ -733,6 +770,85 @@ Remarks.prototype.update = DataStoreHelper.update;
 Remarks.prototype.find = DataStoreHelper.find;
 Remarks.prototype.put = DataStoreHelper.put;
 window['Remarks'] = Remarks;
+
+
+var Product = function() {
+    this.className = 'Product';
+    this.storeName = function(){
+        return "product";
+    }
+    this.sync = function(){
+        var result = [];
+        $.ajax({
+            url: app.restClient.getProducts,
+            method: 'POST',
+            dataType: 'json',
+            data: {
+                "AppUserValidateForm[imei]": app.user.imei,
+                "AppUserValidateForm[token]": app.user.token,
+                "AppUserValidateForm[inspector_id]": app.user.inspector_id,
+            },
+            success: function(resp){
+                if(resp.result == true){
+                    result = resp.data;
+                } else if(resp.result == false){
+                    alert('Er ging iets mis! (110)');
+                } else {
+                    alert(app.exceptions.serverError);
+                }
+            },
+            async: false
+        });
+        return result;
+    }
+}
+
+Product.prototype.all = DataStoreHelper.all;
+Product.prototype.findById = DataStoreHelper.findById;
+Product.prototype.update = DataStoreHelper.update;
+Product.prototype.find = DataStoreHelper.find;
+Product.prototype.put = DataStoreHelper.put;
+window['Product'] = Product;
+
+
+
+var Category = function() {
+    this.className = 'Category';
+    this.storeName = function(){
+        return "category";
+    }
+    this.sync = function(){
+        var result = [];
+        $.ajax({
+            url: app.restClient.getCategories,
+            method: 'POST',
+            dataType: 'json',
+            data: {
+                "AppUserValidateForm[imei]": app.user.imei,
+                "AppUserValidateForm[token]": app.user.token,
+                "AppUserValidateForm[inspector_id]": app.user.inspector_id,
+            },
+            success: function(resp){
+                if(resp.result == true){
+                    result = resp.data;
+                } else if(resp.result == false){
+                    alert('Er ging iets mis! (110)');
+                } else {
+                    alert(app.exceptions.serverError);
+                }
+            },
+            async: false
+        });
+        return result;
+    }
+}
+
+Category.prototype.all = DataStoreHelper.all;
+Category.prototype.findById = DataStoreHelper.findById;
+Category.prototype.update = DataStoreHelper.update;
+Category.prototype.find = DataStoreHelper.find;
+Category.prototype.put = DataStoreHelper.put;
+window['Category'] = Category;
 
 
 

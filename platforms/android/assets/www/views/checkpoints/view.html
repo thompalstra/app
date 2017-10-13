@@ -1,4 +1,4 @@
-<menu class='has-3'>
+<menu class='has-3 scheme checkpoints'>
     <item action="navigateBack" mdot noselect>
         <i class="material-icons">&#xE5C4;</i>
     </item>
@@ -13,9 +13,7 @@
     </item>
 </menu>
 <content>
-    <ul class='question-list'>
-
-    </ul>
+    <ul class='question-list'></ul>
 </content>
 
 <script>
@@ -53,5 +51,5 @@
         }
     }
 
-    $('title').html(app.checkpoint.name);
+    $('title').html(app.checkpoint.location_description);
 </script>

@@ -1,4 +1,4 @@
-<menu class='has-2'>
+<menu class='has-2 scheme checkpoints'>
     <item action="navigateBack" mdot noselect>
         <i class="material-icons">&#xE5C4;</i>
     </item>
@@ -34,7 +34,7 @@
 
         for(var qI in sp.questions){
             var q = sp.questions[qI];
-            if(q.answered == false && q.required == true){
+            if(q.answered == false && q.is_required == true){
                 isFinished = '';
                 break;
             }
@@ -43,9 +43,9 @@
         var unreachable = (sp.unreachable == true) ? 'unreachable' : '';
 
         var str = "<li class='item "+isFinished+" "+unreachable+"' data-code='"+sp.code+"' action='viewCheckpoint' checkpoint='"+i+"' mdot noselect>";
-        str += "<h4>" + sp.name + "</h4>";
+        str += "<h4>" + sp.location_description + "</h4>";
         str += "<div class='view'><i class='material-icons'>&#xE8B6;</i></div>";
-        str += "<div class='code'>" + sp.code + "</div>";
+        str += "<div class='code'>" + sp.barcode + "</div>";
         str += "</li>";
         $('.checkpoint-list').append( $(str) );
     }

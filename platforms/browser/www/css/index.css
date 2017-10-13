@@ -490,17 +490,25 @@ line-height: normal;
 .installation-list .completed{
     order: 5;
 }
-
-.installation-list li[on="1"] + ul[on="1"],
-.installation-list li[on="2"] + ul[on="2"],
-.installation-list li[on="3"] + ul[on="3"]{
+.installation-list li ~ ul[on="*"],
+.installation-list li[on="1"] ~ ul[on="1"],
+.installation-list li[on="2"] ~ ul[on="2"],
+.installation-list li[on="3"] ~ ul[on="3"]{
     display: flex;
     width: 100%;
+    margin-top: 10px;
 }
 
-.installation-list .question-list{
+.installation-list li ~ ul[on="*"]{
+    order: 5;
+}
+
+.installation-list .question-list[on="1"],
+.installation-list .question-list[on="2"],
+.installation-list .question-list[on="3"]{
     float: left;
     display: none;
+    margin: 0; padding: 0;
 }
 
 .installation-list .question-list li{

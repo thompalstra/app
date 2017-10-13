@@ -20,7 +20,7 @@ app.navigate.back = function(){
 
 for(var i in app.appointment.service_types){
     var st =  app.appointment.service_types[i];
-    if(st.additional_questions.hasOwnProperty('on')){
+    // if(st.additional_questions.hasOwnProperty('on')){
         var isAnswered = true;
         for(var iq in st.additional_questions.questions){
             var q = st.additional_questions.questions[iq];
@@ -43,27 +43,14 @@ for(var i in app.appointment.service_types){
             str += "</label>";
         }
 
-        // str += "<label for='service_type_"+i+"_"+1+"'>";
-        // str += "<input id='service_type_"+i+"_"+1+"'' type='radio' name='service_type_"+i+"' value='1'>";
-        // str += "<div class='service-type status-1' content='Overlast'></div>";
-        // str += "</label>";
-        //
-        // str += "<label for='service_type_"+i+"_"+2+"'>";
-        // str += "<input id='service_type_"+i+"_"+2+"'' type='radio' name='service_type_"+i+"' value='2'>";
-        // str += "<div class='service-type status-2' content='Risico'></div>";
-        // str += "</label>";
-        //
-        // str += "<label for='service_type_"+i+"_"+3+"'>";
-        // str += "<input id='service_type_"+i+"_"+3+"'' type='radio' name='service_type_"+i+"' value='3'>";
-        // str += "<div class='service-type status-3' content='Geen overlast'></div>";
-        // str += "</label>";
-
         str += "</li>";
 
-        str += "<ul class='question-list "+isAnswered+"' on='"+st.additional_questions.on+"' servicetype='"+i+"'>";
+        str += "<ul class='question-list "+isAnswered+"' >";
+        console.log(st);
+        for(var questionIndex in st.additional_questions){
 
-        for(var questionIndex in st.additional_questions.questions){
-            var question = st.additional_questions.questions[questionIndex];
+            var question = st.additional_questions[questionIndex];
+            console.log(question);
             var answered = (question.answered) ? 'answered' : '';
             str += "<li class='"+answered+"'>";
             str +=  app.question.createHTML(questionIndex, question);
@@ -73,8 +60,8 @@ for(var i in app.appointment.service_types){
 
 
         $('.installation-list').append( $(str) );
-    } else {
+    // } else {
 
-    }
+    // }
 }
 </script>

@@ -22,9 +22,9 @@ r.find().findById(1, function(result){
 
     for(var i in app.appointment.remarks){
         var remark = app.appointment.remarks[i];
-        var complete = (remark.hasOwnProperty('completed') && remark.completed == true) ? 'completed' : '';
-        var action = (remark.hasOwnProperty('completed') && remark.completed == true) ? 'markRemarkIncomplete' : 'markRemarkComplete';
-        var actionText = (remark.hasOwnProperty('completed') && remark.completed == true) ? 'Aanmelden' : 'Afmelden';
+        var complete = (remark.hasOwnProperty('is_completed') && remark.is_completed == true) ? 'is_completed' : '';
+        var action = (remark.hasOwnProperty('is_completed') && remark.is_completed == true) ? 'markRemarkIncomplete' : 'markRemarkComplete';
+        var actionText = (remark.hasOwnProperty('is_completed') && remark.is_completed == true) ? 'Aanmelden' : 'Afmelden';
         var toggled = (remark.hasOwnProperty('is_private') && remark.is_private == true) ? "toggled='true'" : '';
 
         console.log(remark.is_private);

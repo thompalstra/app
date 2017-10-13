@@ -37,10 +37,6 @@ var app = {
 
         app.database.prepare();
         app.database.open(function(){
-            // database connection has been established
-
-            // var transaction = app.database.db.transaction(['day'], "readwrite");
-            // var objectStore = transaction.objectStore('day');
             setCategories();
 
             // read product categories
@@ -555,7 +551,7 @@ var app = {
         validateAnswer: function(type, answer, question){
             question.errors = [];
 
-            if( (answer == null || answer == "" || typeof answer == 'undefined' )  && question.required == true){
+            if( (answer == null || answer == "" || typeof answer == 'undefined' )  && question.is_required == true){
                 question.errors.push("Antwoord mag niet leeg zijn!");
             }
 
@@ -740,7 +736,7 @@ var app = {
                 } else {
                     for(var q in sp.questions){
                         var spq = sp.questions[q];
-                        if(spq.required === true && spq.answered !== true){
+                        if(spq.is_required === true && spq.answered !== true){
                             join.push(spq.question);
                             finished = false;
                         }
@@ -817,7 +813,7 @@ var app = {
                 } else if(st.state == st.additional_questions.on){
                     for(var serviceTypeQuestionIndex in st.additional_questions.questions){
                         var additionalQuestion = st.additional_questions.questions[serviceTypeQuestionIndex];
-                        if(additionalQuestion.required == true && additionalQuestion.answered == true){
+                        if(additionalQuestion.is_required == true && additionalQuestion.answered == true){
 
                         } else {
                             errors.push("Openstaande vraag: " + additionalQuestion.question);
@@ -828,12 +824,11 @@ var app = {
 
             for(var checkpointIndex in appointment.checkpoints){
                 var cp = appointment.checkpoints[checkpointIndex];
-                if(cp.unreachable == true){
 
-                } else {
+                if(cp.is_required == true && cp.unreachable == false){
                     for(var questionindex in cp.questions){
                         var question = cp.questions[questionindex];
-                        if(question.required == true && question.answered == true){
+                        if(question.is_required == true && question.answered == true){
 
                         } else {
                             errors.push("Openstaande vraag: " + question.question);
@@ -863,7 +858,7 @@ var app = {
             var index = $(this).attr('remark');
             if(app.appointment.remarks[index]){
                 var remark = app.appointment.remarks[index];
-                remark.completed = true;
+                remark.is_completed = true;
                 app.day.update(function(e){
                     app.navigate.to('views/remarks/index.html', function(e){
 
@@ -875,7 +870,7 @@ var app = {
             var index = $(this).attr('remark');
             if(app.appointment.remarks[index]){
                 var remark = app.appointment.remarks[index];
-                remark.completed = false;
+                remark.is_completed = false;
                 app.day.update(function(e){
                     app.navigate.to('views/remarks/index.html', function(e){
 
@@ -980,7 +975,8 @@ $(document).on('submit', '.installation-list .question-list .question-form', fun
     var entries = fd.getAll('question_' + questionIndex);
 
 
-    var question = app.appointment.service_types[serviceTypeIndex].additional_questions.questions[questionIndex];
+    var question = app.appointment.service_types[serviceTypeIndex].additional_questions[questionIndex];
+
     app.question.answer(questionIndex, entries, question, function(){
         app.day.update(function(){
             var scrollTop = $('content')[0].scrollTop;

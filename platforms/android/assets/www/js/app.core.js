@@ -37,15 +37,41 @@ var app = {
 
         app.database.prepare();
         app.database.open(function(){
-            var transaction = app.database.db.transaction(['day'], "readwrite");
-            var objectStore = transaction.objectStore('day');
+            setCategories();
 
-            app.user = new User();
+            // read product categories
+            function setCategories(){
+                var c = new Category();
+                app.categories = {};
 
-            if(app.user.isGuest == true){
-                app.protocol.guest();
-            } else {
-                app.protocol.user();
+                c.find().all(function(categoryList){
+                    for(var categoryIndex in categoryList){
+                        app.categories[categoryIndex] = categoryList[categoryIndex].data;
+                    }
+                    setProducts();
+                });
+            }
+
+            // read products
+            function setProducts(){
+                var p = new Product();
+                app.products = {};
+
+                p.find().all(function(productList){
+                    for(var productIndex in productList){
+                        app.products[productIndex] = productList[productIndex].data;
+                    }
+                    finish();
+                });
+            }
+
+            function finish(){
+                app.user = new User();
+                if(app.user.isGuest == true){
+                    app.protocol.guest();
+                } else {
+                    app.protocol.user();
+                }
             }
         });
     },
@@ -336,15 +362,48 @@ var app = {
                 app.sync.progressBar.increment();
                 app.sync.progressBar.text( "Opmerkingen ophalen: (" + app.sync.progressBar.value()  + "/" + app.sync.progressBar.max() + ")" );
 
-
-                // app.sync.progressBar.text( "Opmerkingen ophalen: (" + app.sync.progressBar.val()  + "/" + app.sync.progressBar.max() + ")" );
                 var r = new Remarks();
                 r.put({
                     id: 1,
                     data: r.sync()
                 });
-                app.sync.progressBar.increment();
-                app.sync.progressBar.text( "Opmerkingen ophalen: (" + app.sync.progressBar.value()  + "/" + app.sync.progressBar.max() + ")" );
+
+                app.sync.progressBar.text( "Product categorieën ophalen" );
+
+                var transaction = app.database.db.transaction(['category'], "readwrite");
+                var objectStore = transaction.objectStore('category');
+
+                objectStore.clear();
+
+                var c = new Category();
+                var categories = c.sync();
+
+                for(var i in categories){
+                    var category = categories[i];
+                    c.put({
+                        id: i,
+                        data: category
+                    });
+                }
+
+                var transaction = app.database.db.transaction(['product'], "readwrite");
+                var objectStore = transaction.objectStore('product');
+
+                objectStore.clear();
+
+                app.sync.progressBar.text( "Producten ophalen" );
+
+                var p = new Product();
+                var products = p.sync();
+
+                for(var i in products){
+                    var product = products[i];
+                    p.put({
+                        id: i,
+                        data: product
+                    });
+                }
+
 
 
                 if(cordova.exec){
@@ -389,6 +448,12 @@ var app = {
                 objectStore.createIndex("objIndex", ["id", "data"], { unique: false });
 
                 var objectStore = db.createObjectStore('remarks', { keyPath: "id" , autoIncrement: true});
+                objectStore.createIndex("objIndex", ["id", "data"], { unique: false });
+
+                var objectStore = db.createObjectStore('product', { keyPath: "id" , autoIncrement: true});
+                objectStore.createIndex("objIndex", ["id", "data"], { unique: false });
+
+                var objectStore = db.createObjectStore('category', { keyPath: "id" , autoIncrement: true});
                 objectStore.createIndex("objIndex", ["id", "data"], { unique: false });
             };
             request.onsuccess = function(event) {
@@ -486,7 +551,7 @@ var app = {
         validateAnswer: function(type, answer, question){
             question.errors = [];
 
-            if( (answer == null || answer == "" || typeof answer == 'undefined' )  && question.required == true){
+            if( (answer == null || answer == "" || typeof answer == 'undefined' )  && question.is_required == true){
                 question.errors.push("Antwoord mag niet leeg zijn!");
             }
 
@@ -591,8 +656,12 @@ var app = {
 
                 str += "<select name='question_" + questionIndex + "' class='select'>";
                 for(var i in question.products){
+                    var name = "question_" + questionIndex;
+                    var product = app.products[i];
                     var selected = (question.answer == i) ? 'selected' : '';
-                    str += "<option value='" + i + "' "+selected+">" + question.products[i] + "</option>";
+                    str += "<option value='" + i + "' "+selected+">" + product.name + "</option>";
+
+
                 }
                 str += "</select>";
 
@@ -607,6 +676,10 @@ var app = {
         }
     },
     actions: {
+        toggleRemark: function(e){
+            $(this).html( ( $(this.parentNode.parentNode.parentNode).attr('toggled') == 'true' ) ? 'Verbergen' : 'Weergeven' );
+            $(this.parentNode.parentNode.parentNode).attr('toggled', (  $(this.parentNode.parentNode.parentNode).attr('toggled') == 'true' ) ? 'false' : 'true' );
+        },
         viewFloorplan: function(e){
             app.floorplanIndex = this.getAttribute('floorplan');
             app.floorplan = app.appointment.floorplan[app.floorplanIndex];
@@ -663,7 +736,7 @@ var app = {
                 } else {
                     for(var q in sp.questions){
                         var spq = sp.questions[q];
-                        if(spq.required === true && spq.answered !== true){
+                        if(spq.is_required === true && spq.answered !== true){
                             join.push(spq.question);
                             finished = false;
                         }
@@ -740,7 +813,7 @@ var app = {
                 } else if(st.state == st.additional_questions.on){
                     for(var serviceTypeQuestionIndex in st.additional_questions.questions){
                         var additionalQuestion = st.additional_questions.questions[serviceTypeQuestionIndex];
-                        if(additionalQuestion.required == true && additionalQuestion.answered == true){
+                        if(additionalQuestion.is_required == true && additionalQuestion.answered == true){
 
                         } else {
                             errors.push("Openstaande vraag: " + additionalQuestion.question);
@@ -751,12 +824,11 @@ var app = {
 
             for(var checkpointIndex in appointment.checkpoints){
                 var cp = appointment.checkpoints[checkpointIndex];
-                if(cp.unreachable == true){
 
-                } else {
+                if(cp.is_required == true && cp.unreachable == false){
                     for(var questionindex in cp.questions){
                         var question = cp.questions[questionindex];
-                        if(question.required == true && question.answered == true){
+                        if(question.is_required == true && question.answered == true){
 
                         } else {
                             errors.push("Openstaande vraag: " + question.question);
@@ -786,7 +858,7 @@ var app = {
             var index = $(this).attr('remark');
             if(app.appointment.remarks[index]){
                 var remark = app.appointment.remarks[index];
-                remark.completed = true;
+                remark.is_completed = true;
                 app.day.update(function(e){
                     app.navigate.to('views/remarks/index.html', function(e){
 
@@ -798,7 +870,7 @@ var app = {
             var index = $(this).attr('remark');
             if(app.appointment.remarks[index]){
                 var remark = app.appointment.remarks[index];
-                remark.completed = false;
+                remark.is_completed = false;
                 app.day.update(function(e){
                     app.navigate.to('views/remarks/index.html', function(e){
 
@@ -829,7 +901,21 @@ var app = {
                     alert("Bestrijder handtekening mag niet leeg zijn");
                 }
 
+                var customerFirstName = $('#customer-first-name').val();
+                if(empty(customerFirstName)){
+                    cancel = true;
+                    alert("Klant voornaam mag niet leeg zijn");
+                }
+
+                var customerLastName = $('#customer-last-name').val();
+                if(empty(customerLastName)){
+                    cancel = true;
+                    alert("Klant achternaam mag niet leeg zijn");
+                }
+
                 if(!cancel){
+                    app.appointment.signatures.customer_first_name = customerFirstName;
+                    app.appointment.signatures.customer_last_name = customerLastName;
                     app.appointment.signatures.customer = signaturePadCustomer.toData();
                     app.appointment.signatures.inspector = signaturePadInspector.toData();
                     app.appointment.completed = true;
@@ -859,7 +945,8 @@ $(document).on('submit', '.form-create-remark', function(e){
         name: $('.form-create-remark textarea[name="name"]').val(),
         actionee_id: $('.form-create-remark select[name="actionee_id"]').val(),
         group_id: $('.form-create-remark select[name="group_id"]').val(),
-        type_id: $('.form-create-remark select[name="type_id"]').val()
+        type_id: $('.form-create-remark select[name="type_id"]').val(),
+        is_private: $('.form-create-remark input[name="is_private"]').val() == "on" ? true : false,
     };
     app.appointment.remarks.push(obj);
     app.day.update(function(){
@@ -888,7 +975,8 @@ $(document).on('submit', '.installation-list .question-list .question-form', fun
     var entries = fd.getAll('question_' + questionIndex);
 
 
-    var question = app.appointment.service_types[serviceTypeIndex].additional_questions.questions[questionIndex];
+    var question = app.appointment.service_types[serviceTypeIndex].additional_questions[questionIndex];
+
     app.question.answer(questionIndex, entries, question, function(){
         app.day.update(function(){
             var scrollTop = $('content')[0].scrollTop;
@@ -986,50 +1074,6 @@ $(document).on('submit', '#form-login-form', function(e){
         }
     )
 });
-// $(document).on('mousedown touchstart', '[mdot]', function(e){
-//     var mdot = $(this).find('.mdot');
-//     if(mdot.length == 0){
-//         $(this).append( $('<span class="mdot"></span>') );
-//         mdot = $(this).find('.mdot');
-//     }
-//
-//     var max = Math.max( $(this).height(), $(this).width() );
-//
-//     var parentOffset = $(mdot).parent().offset();
-//
-//     if(e.type === 'touchstart'){
-//         pageX = e.originalEvent.touches[0].pageX;
-//         pageY = e.originalEvent.touches[0].pageY;
-//     } else {
-//         pageX = e.pageX;
-//         pageY = e.pageY;
-//     }
-//
-//     var relX = pageX - parentOffset.left - max / 2;
-//     var relY = pageY - parentOffset.top - max / 2;
-//
-//     mdot.attr('style', "left: " + relX + "px; top: " + relY + "px; height: " + max + "px; width: " + max + "px;");
-//
-//     mdot.removeClass('mousedown');
-//     mdot.removeClass('mouseup');
-//     mdot.removeClass('animate');
-//
-//     setTimeout(function(e){
-//         mdot.addClass('animate');
-//         mdot.addClass('mousedown');
-//     }, 10);
-// });
-// $(document).on('mouseup touchend', '[mdot]', function(e){
-//     var mdot = $(this).find('.mdot');
-//     if(mdot.length > 0){
-//         mdot.css({
-//             opacity: mdot.css('opacity'),
-//             transform: "scale(" + mdot[0].getBoundingClientRect().width / mdot[0].offsetWidth + ")",
-//         });
-//         mdot.removeClass('mousedown');
-//         mdot.addClass('mouseup');
-//     }
-// });
 $(document).on('click', '[action]', function(e){
     var action = $(this).attr('action');
 
@@ -1041,8 +1085,9 @@ $(document).on('click', '[action]', function(e){
 $(document).on('click', '#sync-toggler', function(e){
     $(this.parentNode).toggleClass('collapsed');
 })
-// var baseUrl = "http://thom.at01.app.yii2.dev03.netzozeker.info";
-var baseUrl = "https://at01.app.yii2.projecten03.netzozeker.info";
+var baseUrl = "http://thom.at01.app.yii2.dev03.netzozeker.info";
+// var baseUrl = "https://at01.app.yii2.projecten03.netzozeker.info";
+// var baseUrl = "https://at01-acc.app.yii2.projecten03.netzozeker.info/";
 
 app.restClient = {
     ping: baseUrl + '/ping',
@@ -1052,7 +1097,9 @@ app.restClient = {
     getFiles: baseUrl + '/job/get-files',
     getComments: baseUrl + '/job/get-comments',
     getRemarks: baseUrl + '/job/get-remarks',
-    getDays: baseUrl + '/job/get-jobs'
+    getDays: baseUrl + '/job/get-jobs',
+    getProducts: baseUrl + '/job/get-products',
+    getCategories: baseUrl + '/job/get-categories'
 };
 
 
@@ -1084,3 +1131,12 @@ $(document).on('change', '#default-remarks', function(e){
         $('[name="name"]').attr('disabled', false);
     }
 });
+// $(document).on('click', '.remark-list > li[toggled]:not(item)', function(e){
+//     var remark = $(this).attr('remark');
+//     var state = $('[remark="'+remark+'"]').attr('toggled');
+//     if(state == 'true'){
+//         $(this).attr('toggled', 'false');
+//     } else {
+//         $(this).attr('toggled', 'true');
+//     }
+// });
