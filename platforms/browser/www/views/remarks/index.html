@@ -27,8 +27,6 @@ r.find().findById(1, function(result){
         var actionText = (remark.hasOwnProperty('is_completed') && remark.is_completed == true) ? 'Aanmelden' : 'Afmelden';
         var toggled = (remark.hasOwnProperty('is_private') && remark.is_private == true) ? "toggled='true'" : '';
 
-        console.log(remark.is_private);
-
         var str = "<li class='"+complete+"' "+toggled+" remark='"+i+"'>";
         str += "<item action='moreShow'>";
             str += "<i class='material-icons'>&#xE5D4;</i>";

@@ -22,6 +22,10 @@ app > view > menu > item[action="sync"] .icon.syncing{
     list-style: none;
 }
 
+[disabled]{
+    color: #7f7f7f;
+}
+
 [mdot]{
     opacity: 1;
     transition: opacity .3s linear;

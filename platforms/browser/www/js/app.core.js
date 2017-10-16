@@ -37,43 +37,46 @@ var app = {
 
         app.database.prepare();
         app.database.open(function(){
-            setCategories();
 
-            // read product categories
-            function setCategories(){
-                var c = new Category();
-                app.categories = {};
+            app.setCategories(function(e){
+                app.setProducts(function(e){
+                    app.finish();
+                })
+            });
 
-                c.find().all(function(categoryList){
-                    for(var categoryIndex in categoryList){
-                        app.categories[categoryIndex] = categoryList[categoryIndex].data;
-                    }
-                    setProducts();
-                });
-            }
-
-            // read products
-            function setProducts(){
-                var p = new Product();
-                app.products = {};
-
-                p.find().all(function(productList){
-                    for(var productIndex in productList){
-                        app.products[productIndex] = productList[productIndex].data;
-                    }
-                    finish();
-                });
-            }
-
-            function finish(){
-                app.user = new User();
-                if(app.user.isGuest == true){
-                    app.protocol.guest();
-                } else {
-                    app.protocol.user();
-                }
-            }
         });
+    },
+    setCategories: function(callback){
+        var c = new Category();
+        app.categories = {};
+
+        c.find().all(function(categoryList){
+            for(var categoryIndex in categoryList){
+                var category = categoryList[categoryIndex];
+                app.categories[category.id] = category.data;
+            }
+            callback.call(this, null);
+            // setProducts();
+        });
+    },
+    setProducts: function(callback){
+        var p = new Product();
+        app.products = {};
+        p.find().all(function(productList){
+            for(var productIndex in productList){
+                var product = productList[productIndex];
+                app.products[product.id] = product.data;
+            }
+            callback.call(this, null);
+        });
+    },
+    finish: function(){
+        app.user = new User();
+        if(app.user.isGuest == true){
+            app.protocol.guest();
+        } else {
+            app.protocol.user();
+        }
     },
     log: function(str){
         console.log(str);
@@ -707,9 +710,16 @@ var app = {
             $('app').addClass('sync');
             setTimeout(function(e){
                 app.sync.start(function(e){
-                    $('.sync-container').removeClass('collapsed');
-                    $('[action="sync"] > .icon').removeClass('syncing');
-                    $('.sync-container').html( "<button class='btn btn-default success wide' action='viewHome'>opnieuw laden</button>" );
+                    app.setCategories(function(e){
+                        console.log('setting categories...');
+                        app.setProducts(function(e){
+                            console.log('setting products...');
+                            $('.sync-container').removeClass('collapsed');
+                            $('[action="sync"] > .icon').removeClass('syncing');
+                            $('.sync-container').html( "<button class='btn btn-default success wide' action='viewHome'>opnieuw laden</button>" );
+                            // app.finish();
+                        })
+                    });
                 });
             }, 500);
         },
@@ -789,10 +799,19 @@ var app = {
         },
         checkpointEditName: function(e){
             var cp = app.appointment.checkpoints[app.checkpointIndex];
-            var newname = prompt("Wijzigen naam: " + cp.name);
+
+
+            var title = "";
+            if(cp.location_description == ""){
+                title = "Naam instellen";
+            } else {
+                title = "Wijzigen naam: " + cp.location_description;
+            }
+
+            var newname = prompt(title);
             if(newname){
                 console.log(newname);
-                cp.name = newname;
+                cp.location_description = newname;
                 app.day.update(function(e){
                     app.navigate.to('views/checkpoints/view.html', function(e){
 
@@ -816,7 +835,7 @@ var app = {
                         if(additionalQuestion.is_required == true && additionalQuestion.answered == true){
 
                         } else {
-                            errors.push("Openstaande vraag: " + additionalQuestion.question);
+                            errors.push("1 Openstaande vraag: " + additionalQuestion.question);
                         }
                     }
                 }
@@ -828,10 +847,9 @@ var app = {
                 if(cp.is_required == true && cp.unreachable == false){
                     for(var questionindex in cp.questions){
                         var question = cp.questions[questionindex];
-                        if(question.is_required == true && question.answered == true){
-
-                        } else {
-                            errors.push("Openstaande vraag: " + question.question);
+                        console.log(question.answered);
+                        if(question.is_required == true && question.answered != true){
+                            errors.push("2 Openstaande vraag: " + question.question);
                         }
                     }
                 }
@@ -902,13 +920,13 @@ var app = {
                 }
 
                 var customerFirstName = $('#customer-first-name').val();
-                if(empty(customerFirstName)){
+                if(customerFirstName == ""){
                     cancel = true;
                     alert("Klant voornaam mag niet leeg zijn");
                 }
 
                 var customerLastName = $('#customer-last-name').val();
-                if(empty(customerLastName)){
+                if(customerLastName == ""){
                     cancel = true;
                     alert("Klant achternaam mag niet leeg zijn");
                 }
@@ -970,6 +988,8 @@ $(document).on('submit', '.installation-list .question-list .question-form', fun
     var on = $(this.parentNode.parentNode).attr('on');
 
     var serviceTypeIndex = $(this.parentNode.parentNode).attr('servicetype');
+
+
 
     var fd = new FormData( $('.question-list[servicetype="'+serviceTypeIndex+'"] form[question="'+questionIndex+'"]')[0] );
     var entries = fd.getAll('question_' + questionIndex);
@@ -1077,9 +1097,14 @@ $(document).on('submit', '#form-login-form', function(e){
 $(document).on('click', '[action]', function(e){
     var action = $(this).attr('action');
 
-    if(app.actions[action]){
-        app.actions[action].call(this, e);
+    if(!$(this).attr('disabled')){
+        if(app.actions[action]){
+            return app.actions[action].call(this, e);
+        }
+
     }
+    alert("Actie niet toegestaan.");
+
 });
 
 $(document).on('click', '#sync-toggler', function(e){

@@ -8,7 +8,7 @@
 
         <ul class='more-list hidden'>
             <li action='checkpointMarkUnreachable' mdot noselect>Markeer onbereikbaar</li>
-            <li action='checkpointEditName' mdot noselect>Bewerk naam</li>
+            <li action='checkpointEditName' mdot noselect disabled>Bewerk naam</li>
         </ul>
     </item>
 </menu>
@@ -32,7 +32,6 @@
         action.html("Markeer bereikbaar");
     }
 
-
     for(var i in app.day['data'][app.appointmentIndex]['checkpoints'][app.checkpointIndex]['questions']){
         var questionIndex = i;
         var question = app.day['data'][app.appointmentIndex]['checkpoints'][app.checkpointIndex]['questions'][i];
@@ -52,4 +51,11 @@
     }
 
     $('title').html(app.checkpoint.location_description);
+    if(app.day['data'][app.appointmentIndex]['checkpoints'][app.checkpointIndex].is_editable){
+        $('[action="checkpointEditName"]').attr('disabled', false);
+    }
+    if(app.day['data'][app.appointmentIndex]['checkpoints'][app.checkpointIndex].location_description == ""){
+        $('[action="checkpointEditName"]').trigger('click');
+    }
+
 </script>

@@ -7,8 +7,14 @@
 <content>
     <div class='inner inner-signature'>
         <span class='signature-text'>klant</span>
-        <input id='customer-first-name'/>
-        <input id='customer-last-name'/>
+        <div class='form'>
+            <div class='row'>
+                <input id='customer-first-name' class='input' placeholder="Voornaam"/>
+            </div>
+            <div class='row'>
+                <input id='customer-last-name' class='input' placeholder="Achternaam"/>
+            </div>
+        </div>
         <img>
         <canvas class='signature-canvas' target="customer">
 
@@ -59,6 +65,14 @@
 
     if(app.appointment.signatures && app.appointment.signatures.inspector){
         signaturePadInspector.fromData(app.appointment.signatures.inspector);
+    }
+
+    if(app.appointment.signatures && app.appointment.signatures.customer_first_name){
+        $('#customer-first-name').val(app.appointment.signatures.customer_first_name);
+    }
+
+    if(app.appointment.signatures && app.appointment.signatures.customer_last_name){
+        $('#customer-last-name').val(app.appointment.signatures.customer_last_name);
     }
 
 
