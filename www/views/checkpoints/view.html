@@ -1,61 +1,115 @@
 <menu class='has-3 scheme checkpoints'>
     <item action="navigateBack" mdot noselect>
-        <i class="material-icons">&#xE5C4;</i>
+        <i class="material-icons icon">&#xE5C4;</i>
     </item>
     <title>Meetpunten</title>
     <item action="moreShow">
-        <i class="material-icons">&#xE5D4;</i>
+        <i class="material-icons icon">&#xE5D4;</i>
 
         <ul class='more-list hidden'>
+            <li action='viewRemarks' mdot noselect>Opmerkingen</li>
             <li action='checkpointMarkUnreachable' mdot noselect>Markeer onbereikbaar</li>
             <li action='checkpointEditName' mdot noselect disabled>Bewerk naam</li>
+            <li action='checkpointDelete' mdot noselect disabled>Verwijderen</li>
         </ul>
     </item>
 </menu>
 <content>
+    <div id='dialog-checkpoint-delete' class='modal' dialog-ok='Ok' dialog-cancel='Annuleer' backdrop>
+        <div class='inner'>
+            <strong><p>Meetpunt verwijderen</p></strong>
+            <p>Weet u zeker dat u dit meetpunt wilt verwijderen?</p>
+        </div>
+    </div>
+    <div class='modal-backdrop'></div>
     <ul class='question-list'></ul>
 </content>
 
 <script>
-    app.scanner.canScan = false;
-    app.navigate.back = function(){
-        app.navigate.to('views/checkpoints/index.html', function(e){
+    checkName();
 
-        });
+    function checkName(){
+        if(app.checkpoint.location_description.length == 0){
+            var description = prompt("Meetpunt naam leeg. Geef een nieuwe naam op");
+            if(description){
+                if(description.length > 0){
+                    app.checkpoint.location_description = description;
+                    app.day.update(function(e){
+                        checkBarcode();
+                    });
+                }
+            } else {
+                app.navigate.to('views/checkpoints/view.html');
+            }
+        } else {
+            checkBarcode();
+        }
     }
-    var sp = app.day['data'][app.appointmentIndex]['checkpoints'][app.checkpointIndex];
-    var unreachable = (sp.unreachable == true) ? 'unreachable' : '';
+    function checkBarcode(){
+        if(app.checkpoint.barcode.length == 0){
+            app.scanner.canScan = 'insertCode';
+            alert("Barcode leeg. Scan een barcode en klik vervolgens op OK");
+            if(app.checkpoint.barcode.length > 0){
 
-    if(sp.unreachable == true){
-        var action = $('[action="checkpointMarkUnreachable"]');
-        action.attr('action', 'checkpointMarkReachable');
-        action.html("Markeer bereikbaar");
-    }
-
-    for(var i in app.day['data'][app.appointmentIndex]['checkpoints'][app.checkpointIndex]['questions']){
-        var questionIndex = i;
-        var question = app.day['data'][app.appointmentIndex]['checkpoints'][app.checkpointIndex]['questions'][i];
-        if(question.answered === false){
-            str = '<li>';
-            str += app.question.createHTML(questionIndex, question);
-            str += '</li>';
-            $('.question-list').append( $(str) );
-
-        } else if(question.answered === true){
-            str = '<li class="answered">';
-            str += app.question.createHTML(questionIndex, question);
-            str += '</li>';
-            $('.question-list').append( $(str) );
-
+            } else {
+                app.navigate.to('views/checkpoints/view.html');
+            }
+            app.scanner.canScan = false;
+        } else {
+            loadCheckpoint();
         }
     }
 
-    $('title').html(app.checkpoint.location_description);
-    if(app.day['data'][app.appointmentIndex]['checkpoints'][app.checkpointIndex].is_editable){
-        $('[action="checkpointEditName"]').attr('disabled', false);
-    }
-    if(app.day['data'][app.appointmentIndex]['checkpoints'][app.checkpointIndex].location_description == ""){
-        $('[action="checkpointEditName"]').trigger('click');
-    }
+    function loadCheckpoint(){
+        app.scanner.canScan = false;
+        app.navigate.back = function(){
+            app.navigate.to('views/checkpoints/index.html', function(e){
 
+            });
+        }
+        var sp = app.day['data'][app.appointmentIndex]['checkpoints'][app.checkpointIndex];
+        var unreachable = (sp.unreachable == true) ? 'unreachable' : '';
+
+        if(sp.unreachable == true){
+            var action = $('[action="checkpointMarkUnreachable"]');
+            action.attr('action', 'checkpointMarkReachable');
+            action.html("Markeer bereikbaar");
+        }
+
+        if(sp.is_temporary == true){
+            var action = $('[action="checkpointDelete"]');
+            action.attr('disabled', false);
+        }
+
+        for(var i in app.day['data'][app.appointmentIndex]['checkpoints'][app.checkpointIndex]['questions']){
+            var questionIndex = i;
+            var question = app.day['data'][app.appointmentIndex]['checkpoints'][app.checkpointIndex]['questions'][i];
+            var answered = '';
+
+            if(question.answered == true || app.appointment.completed == true ){
+                answered = 'answered';
+            }
+
+            str = '<li class="'+answered+'">';
+            str += app.question.createHTML(questionIndex, question);
+            str += '</li>';
+            $('.question-list').append( $(str) );
+        }
+
+        $('#dialog-checkpoint-delete').on('ok', function(e){
+            e.preventDefault();
+            app.checkpoint.is_deleted = 1;
+            app.day.update(function(e){
+                new Modal( $('#dialog-checkpoint-delete')[0] ).hide();
+                app.navigate.to('views/checkpoints/index.html', function(e){
+
+                });
+            });
+        });
+
+        $('title').html(app.checkpoint.location_description);
+        if(app.day['data'][app.appointmentIndex]['checkpoints'][app.checkpointIndex].is_editable){
+            $('[action="checkpointEditName"]').attr('disabled', false);
+        }
+    }
 </script>

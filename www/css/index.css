@@ -37,8 +37,8 @@ app > view > menu > item[action="sync"] .icon.syncing{
 .floorplan-list > li{
     background-color: #3D8EB9;
     color: white;
-    height: 50px;
-    line-height: 50px;
+    height: 60px;
+    line-height: 60px;
     padding: 0 10px;
     position: relative;
 }
@@ -48,12 +48,25 @@ app > view > menu > item[action="sync"] .icon.syncing{
     position: absolute;
     right: 0;
     top: 0;
-    height: 50px;
-    width: 50px;
-    line-height: 50px;
+    height: 60px;
+    width: 60px;
+    line-height: 60px;
     text-align: center;
 }
 
+.image-list{
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+}
+.image-list li{
+    background-color: white;
+    width: 100%;
+}
+.image-list li img{
+    width: 100%;
+}
 .remark-list{
     padding: 0;
     margin: 0;
@@ -104,7 +117,7 @@ app > view > menu > item[action="sync"] .icon.syncing{
     line-height: 50px;
     color: black;
 }
-
+#create-checkpoint,
 #create-remark{
     position: fixed;
     width: 50px;
@@ -117,6 +130,10 @@ app > view > menu > item[action="sync"] .icon.syncing{
     line-height: 50px;
     text-align: center;
     border-radius: 100%;
+}
+
+#remark-add-image-form{
+    display: none;
 }
 
 .checkpoint-list{
@@ -135,15 +152,11 @@ app > view > menu > item[action="sync"] .icon.syncing{
     padding: 0;
     box-sizing: border-box;
     position: relative;
-    border-bottom-style: solid;
+    /*border-bottom-style: solid;
     border-bottom-width: 5px;
-    border-bottom-color: gray;
+    border-bottom-color: gray;*/
 }
 
-.checkpoint-list li.item.finished{
-    border-bottom-color: #71BA51;
-    order: 5;
-}
 .checkpoint-list li.item.unreachable{
     opacity: .4;
     order: 9;
@@ -174,44 +187,82 @@ app > view > menu > item[action="sync"] .icon.syncing{
     color: #333;
 }*/
 
-.checkpoint-list li.item .view{
+/*.checkpoint-list li.item .view,*/
+.checkpoint-list li.item .used-tox,
+.checkpoint-list li.item .comments{
     position: absolute;
-    right: 0;
     top: 0;
-    font-family: "Material Icons";
-    height: 50px;
-    width: 50px;
     text-align: center;
-    font-size: 26px;
+    height: 50px;
     line-height: 50px;
-    color: #333;
-    /*border-left: 1px solid #ddd;*/
+    width: 50px;
+
+    color: #ddd;
+    border-left: 1px solid #ddd;
 }
+/*.checkpoint-list li.item .view > i,*/
+.checkpoint-list li.item .used-tox > i,
+.checkpoint-list li.item .comments > i{
+    height: 50px;
+    line-height: 50px;
+    width: 50px;
+}
+
+.checkpoint-list li.item .comments{
+    right: 0;
+}
+.checkpoint-list li.item .comments.active{
+    color: orange;
+}
+.checkpoint-list li.item .comments:after{
+    content: attr(count);
+    width: 20px;
+    height: 20px;
+    border-radius: 100%;
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    color: inherit;
+    background-color: #ddd;
+    color: white;
+    font-size: 12px;
+    line-height: 20px;
+}
+.checkpoint-list li.item .comments.active.active:after{
+    background-color: orange;
+}
+.checkpoint-list li.item .used-tox{
+    right: 50px;
+}
+.checkpoint-list li.item .used-tox.active{
+    color: red;
+}
+/*.checkpoint-list li.item .view{
+    right: 0;
+    color: #333;
+}*/
 
 .checkpoint-list li.item .code{
     width: 100%;
     display: inline-block;
     box-sizing: border-box;
-    background-color: #333;
-    color: white;
+    background-color: white;
+    color: #333;
+    border-top: 1px solid #ddd;
     height: 30px;
     line-height: 30px;
     padding: 0 10px;
     font-size: 12px;
 }
-
-/*.checkpoint-list li.item:after{
-    content: attr(data-code);
-    width: 100%;
-    display: inline-block;
-    box-sizing: border-box;
+.checkpoint-list li.item.required .code{
     background-color: #333;
     color: white;
-    height: 30px;
-    line-height: 30px;
-    padding: 0 10px;
-    font-size: 12px;
-}*/
+}
+.checkpoint-list li.item.finished .code{
+    background-color: #71BA51;
+    color: white;
+    order: 5;
+}
 
 .planning-list{
     padding: 0;
@@ -342,7 +393,26 @@ app > view > content > .inner,
     overflow: auto;
     width: 100%;
     padding: 10px;
+    margin: 0 0 10px 0;
     box-sizing: border-box;
+}
+
+
+.toggle-additional-questions{
+    display: inline-block;
+    width: 100%;
+    padding: 10px;
+    margin: 10px -10px -10px -10px;
+    text-align: center;
+    background-color: #333;
+    color: white;
+}
+
+.installation-list > li[servicetype][show] + .service-type-questions{
+    /*margin: 0 0 10px 0;*/
+}
+.installation-list > li[servicetype][hide] + .service-type-questions{
+    display: none;
 }
 
 .installation-list li h2{
@@ -378,13 +448,41 @@ app > view > content > .inner,
     margin: 0 0 10px 0;
 }
 
+.installation-list .question-list[servicetype="1"],
+.installation-list .question-list[servicetype="2"],
+.installation-list .question-list[servicetype="3"]{
+    display: none;
+    padding: 0;
+    margin: 0;
+}
+
+.installation-list .question-list{
+    width: 100%;
+    float: left;
+    margin: 0 0 10px 0;
+}
+
+.installation-list > li[on="1"] + .service-type-questions > .question-list[servicetype="1"]{
+    /*margin-top: 10px;*/
+    display: inherit;
+}
+.installation-list > li[on="2"] + .service-type-questions > .question-list[servicetype="2"]{
+    /*margin-top: 10px;*/
+    display: inherit;
+}
+.installation-list > li[on="3"] + .service-type-questions > .question-list[servicetype="3"]{
+    /*margin-top: 10px;*/
+    display: inherit;
+}
+
 .appointment{
 
 }
 .appointment.information,
 .appointment.view-checkpoints,
 .appointment.view-debtor,
-.appointment.view-remarks{
+.appointment.view-remarks,
+.appointment.view-products{
     line-height: 40px;
     padding: 0 10px;
 }
@@ -399,7 +497,8 @@ line-height: normal;
 .appointment.information .title,
 .appointment.view-checkpoints .title,
 .appointment.view-debtor .title,
-.appointment.view-remarks .title{
+.appointment.view-remarks .title,
+.appointment.view-products .title{
     /*line-height: 80px;*/
     font-size: 16px;
 }
@@ -451,15 +550,19 @@ line-height: normal;
     /*background-color: #BADA55;*/
 }
 
+.appointment.view-products .title:after{
+    content: "\E875";
+}
+
 .appointment.information:after,
 .appointment .title:after{
     font-family: "Material Icons";
     position: absolute;
     right: 0;
     top: 0;
-    height: 50px;
-    width: 50px;
-    line-height: 50px;
+    height: 60px;
+    width: 60px;
+    line-height: 60px;
     text-align: center;
     font-size: 16px;
     /*color: white;*/
@@ -519,6 +622,10 @@ line-height: normal;
     margin-left: 0;
     margin-right: 0;
 }
+.installation-list .question-list li:last-child{
+    margin-bottom: 0;
+}
+
 .installation-list li[on="1"] .status-1{
     border-top: 10px solid #CF000F;
 }
@@ -629,9 +736,25 @@ line-height: normal;
 .form-search-code .btn-icon{
     float: right;
 }
-
+.form.question-form{
+    position: relative;
+    margin-bottom: 0;
+}
 .form.question-form h4{
-    margin: 0; padding: 0;
+    margin: 0; padding: 10px 0;
+}
+
+.form.question-form:after{
+    content: attr(question);
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    margin: 0;
+    padding: 0;
+    color: #aaa;
+    font-size: 11px;
+    line-height: 8px;
+    text-align: right;
 }
 
 [action="moreShow"]{
@@ -641,9 +764,7 @@ line-height: normal;
 [action="moreShow"] .more-list{
     position: absolute;
     list-style: none;
-    /*top: calc(100% + 10px);*/
-    top: 50px;
-    right: 10px;
+    right: 5px;
     background-color: white;
     color: black;
     margin: 0;
@@ -661,8 +782,8 @@ line-height: normal;
     border-top: 1px solid #ddd;
 }
 
-menu [action="moreShow"] .more-list{
-    top: calc( 100% + 10px );
+[action="moreShow"] .more-list{
+    top: 5px;
 }
 
 [action="moreShow"] .more-list li{
@@ -670,8 +791,8 @@ menu [action="moreShow"] .more-list{
     text-align: left;
     padding: 0 10px;
     box-sizing: border-box;
-    font-size: 14px;
-    line-height: 50px;
+    font-size: 18px;
+    line-height: 60px;
 }
 
 .signature-canvas{
@@ -692,6 +813,19 @@ menu [action="moreShow"] .more-list{
     color: #a6cbdf;
 }
 
+#customer-first-name{
+    margin-right: 5px;
+}
+#customer-last-name{
+    margin-left: 5px;
+}
+
+#customer-first-name,
+#customer-last-name{
+    width: calc( 50% - 5px );
+    float: left;
+}
+
 .signature{
     text-align: center;
     height: 50px;
@@ -701,6 +835,15 @@ menu [action="moreShow"] .more-list{
 }
 .inner.inner-signature{
     height: calc(100% - 20px);
+}
+.inner.product-row{
+    background-color: white;
+    width: calc(100% - 20px);
+    margin: 0 10px 10px 10px;
+    padding: 10px;
+    box-sizing: border-box;
+    position: relative;
+    display: inline-block;
 }
 .signature.return{
     width: 50%;
@@ -809,66 +952,125 @@ progress{
 ::-webkit-progress-value{
     background-color: #002c50;
 }
+#remark-upload-progress,
+#sync-progress{
+    width: 100%;
+}
 
-.sync-container{
+
+
+.modal{
     position: fixed;
-    bottom: 0;
+    /*top: 0;*/
+    transform: translate(0, -50%);
+    top: 50%;
     left: 0;
     right: 0;
+    /*bottom: 0;*/
+    margin: auto;
+    padding: 10px;
+    background-color: white;
+    /*min-width: 270px;*/
+    width: 270px;
+    /*min-height: 200px;*/
+    border: 0;
+
+    -webkit-box-shadow: 2px 2px 14px 2px rgba(0,0,0,0.3);
+    -moz-box-shadow: 2px 2px 14px 2px rgba(0,0,0,0.3);
+    box-shadow: 2px 2px 14px 2px rgba(0,0,0,0.3);
+
     z-index: 10000;
     display: none;
 }
-
-app.sync .sync-container{
+.modal[open]{
     display: inherit;
 }
 
-.sync-container.collapsed{
-    bottom: -50px;
-}
-.sync-container:before{
-    content: "";
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    z-index: -1;
-    background-color: rgba(0,0,0,.3);
-}
-.sync-container.collapsed #sync-toggler:after{
-    content: "\E316";
-}
-.sync-container #sync-toggler:after{
-    content: "\E313";
-}
-.sync-container #sync-toggler{
-    font-family: "Material Icons";
-    height: 25px;
-    line-height: 25px;
-    font-size: 24px;
-    left: 0;
-    right: 0;
-    margin: 0 auto;
-    display: inline-block;
-    top: -25px;
-    text-align: center;
-    position: absolute;
-    background-color: white;
+.modal .row.btn-row{
+    width: 100%;
+    min-width: 250px;
+    text-align: right;
+    box-sizing: border-box;
 }
 
-.sync-container #sync-progress{
-    width: 100%;
-    height: 25px;
-    line-height: 25px;
-    box-sizing: border-box;
-    text-align: center;
-    border: 10px solid white;
+.modal[backdrop] ~ .modal-backdrop{
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 9999;
+    background-color: rgba(255,255,255,.5);
+}
+.pull-left{
     float: left;
 }
-.sync-container #sync-text{
-    height: 50px;
+.pull-right{
+    float: right;
+}
+.modal[backdrop][open] ~ .modal-backdrop{
+    display: inherit;
+}
+.modal .inner{
+    padding: 10px;
+}
+
+.modal .modal-input{
     width: 100%;
+    height: 40px;
+    line-height: 40px;
+    outline: 0;
+    border-top: 0;
+    border-left: 0;
+    border-right: 0;
+    border-bottom: 1px solid #008473;
+}
+.modal .label.error{
+    color: red;
+}
+.modal .modal-input.error{
+    border-bottom-color: red;
+    color: red;
+}
+
+#form-add-product,
+#form-add-product .row{
+    margin: 0;
+}
+#form-add-product .btn.btn-default.success{
+    width: 50px;
+    min-width: 50px;
+    height: 50px;
     line-height: 50px;
-    display: inline-block;
-    background-color: white;
-    text-align: center;
+}
+#form-add-product select{
+    width: calc(100% - 50px);
+}
+
+.product-list{
+
+}
+.product-list .product-count{
+    width: 25%;
     float: left;
+    display: inline-block;
+}
+.product-list .product-name{
+    width: 75%;
+    float: right;
+    display: inline-block;
+}
+.red-card-on-state{
+    display: inline-block;
+    width: 100%;
+    padding: 10px;
+    margin: -10px -10px 10px -10px;
+    background-color: #CF000F;
+    color: white;
+}
+
+
+.service-type-questions{
+    order: 5;
 }

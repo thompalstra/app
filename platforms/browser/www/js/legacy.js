@@ -35,7 +35,7 @@
 // $(document).on('click', '[action="viewRemarks"]', function(e){
 //     app.navigate.to('views/remarks/index.html');
 // });
-// $(document).on('click', '[action="addRemark"]', function(e){
+// $(document).on('click', '[action="remarkAdd"]', function(e){
 //     app.navigate.to('views/remarks/create.html');
 // });
 
@@ -175,7 +175,7 @@
 //     }
 // })
 
-// $(document).on('click', '[action="markRemarkComplete"]', function(e){
+// $(document).on('click', '[action="remarkMarkComplete"]', function(e){
 //     var index = $(this).attr('remark');
 //     if(app.appointment.remarks[index]){
 //         var remark = app.appointment.remarks[index];
@@ -187,7 +187,7 @@
 //         });
 //     }
 // });
-// $(document).on('click', '[action="markRemarkIncomplete"]', function(e){
+// $(document).on('click', '[action="remarkMarkIncomplete"]', function(e){
 //     var index = $(this).attr('remark');
 //     if(app.appointment.remarks[index]){
 //         var remark = app.appointment.remarks[index];

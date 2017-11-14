@@ -1,3 +1,14 @@
+var PRIO_JOB_REGULAR = 1;
+var PRIO_JOB_NUISANCE = 2;
+var PRIO_JOB_REGULAR_RISK = 3;
+var PRIO_JOB_REGULAR_NUISANCE = 4;
+
+var QUESTION_TYPE_CHOICE = 1;
+var QUESTION_TYPE_YN = 2;
+var QUESTION_TYPE_NUMBER = 3;
+var QUESTION_TYPE_TEXT = 4;
+var QUESTION_TYPE_PRODUCT = 5;
+
 var app = {
     appointment: null,
     appointmentIndex: null,
@@ -18,11 +29,17 @@ var app = {
             StatusBar.backgroundColorByHexString("#002c50");
         }
 
-        app.const.type_choice = 1;
-        app.const.type_yn = 2;
-        app.const.type_number = 3;
-        app.const.type_text = 4;
-        app.const.type_product = 5;
+        app.const.prio_job = {
+            1: 'Regulier',
+            2: 'Overlast',
+            3: 'Regulier + Risico',
+            4: 'Regulier + Overlast'
+        };
+        app.const.states = {
+            1: 'Overlast',
+            2: 'Risico',
+            3: 'Geen overlast'
+        };
 
         if(device && device.available === true){
             if(device.platform == 'Android'){
@@ -40,11 +57,33 @@ var app = {
 
             app.setCategories(function(e){
                 app.setProducts(function(e){
-                    app.finish();
+                    app.setCheckpointTypes(function(e){
+                        app.finish();
+                    });
                 })
             });
 
         });
+    },
+    handleError: function(error){
+        switch(error.status){
+            case 401:
+                alert("U bent niet bevoegd deze actie uit te voeren. U wordt teruggestuurd naar het login scherm.");
+                localStorage.removeItem('imei');
+                localStorage.removeItem('token');
+                localStorage.removeItem('inspector_id');
+                localStorage.removeItem('name');
+                return app.protocol.guest();
+            break;
+            case 403:
+                alert("U probeert gegevens op te halen zonder gebruikersgegevens. Uw sessie wordt beëindigd.");
+                localStorage.removeItem('imei');
+                localStorage.removeItem('token');
+                localStorage.removeItem('inspector_id');
+                localStorage.removeItem('name');
+                return app.protocol.guest();
+            break;
+        }
     },
     setCategories: function(callback){
         var c = new Category();
@@ -66,6 +105,17 @@ var app = {
             for(var productIndex in productList){
                 var product = productList[productIndex];
                 app.products[product.id] = product.data;
+            }
+            callback.call(this, null);
+        });
+    },
+    setCheckpointTypes: function(callback){
+        var ct = new window['CheckpointType'];
+        app.checkpointTypes = {};
+        ct.find().all(function(checkpointTypeList){
+            for(var checkpointTypeIndex in checkpointTypeList){
+                var checkpointType = checkpointTypeList[checkpointTypeIndex];
+                app.checkpointTypes[checkpointType.id] = checkpointType.data;
             }
             callback.call(this, null);
         });
@@ -96,11 +146,11 @@ var app = {
             var uri = encodeURI(source);
             var store = cordova.file.dataDirectory + "img/";
             var fileName = destination;
+
             window.resolveLocalFileSystemURL(store + fileName, exists, download);
 
             function download(){
                 var fileTransfer = new FileTransfer();
-                // console.log("About to start transfer from " + uri);
                 fileTransfer.download(uri, store + fileName,
                     function(entry){
                         successCallback(entry)
@@ -145,7 +195,6 @@ var app = {
                 if(typeof val == 'undefined'){
                     return $('#sync-text').html();
                 } else {
-                    console.log(val);
                     $('#sync-text').html(val);
                 }
             },
@@ -199,8 +248,6 @@ var app = {
         start: function(callback){
             if(app.sync.ping()){
 
-
-
                 var date = new Date();
                 var mo = ( (parseInt(date.getMonth()) + 1) < 10) ? "0"+(parseInt(date.getMonth()) + 1) : (parseInt(date.getMonth()) + 1);
                 var s = (date.getSeconds() < 10) ? "0"+date.getSeconds() : date.getSeconds();
@@ -236,8 +283,6 @@ var app = {
                 "AppUserValidateForm[inspector_id]": app.user.inspector_id,
             };
 
-            console.log(data);
-
             $.ajax({
                 url: app.restClient.getFiles,
                 method: 'POST',
@@ -249,7 +294,7 @@ var app = {
                     }
                 },
                 error: function(err){
-
+                    return app.handleError(err);
                 },
                 async: false
             });
@@ -257,75 +302,43 @@ var app = {
             return files;
         },
         perf: function(callback){
-            var files = app.sync.getFiles();
-
             index = 0;
 
             app.sync.progressBar.min(0);
-            app.sync.progressBar.max( files.length );
-            app.sync.progressBar.value( index );
+            app.sync.progressBar.max(7);
+            app.sync.progressBar.value(0);
 
+            putDays();
 
+            // 1
+            function putDays(){
+                app.sync.progressBar.value(0);
+                app.sync.progressBar.text( "Jobs versturen: (" + app.sync.progressBar.value() + "/" + app.sync.progressBar.max() + ")" );
 
-            app.image.deleteAll("img/", function(resp){
-                getFile(index);
-            });
+                var d = new Day();
+                d.find().all(function(request){
 
-
-            function getFile(index){
-                if(index < files.length){
-
-                    app.sync.progressBar.text( "Bestanden ophalen: (" + (index + 1) + "/" + app.sync.progressBar.max() + ")" );
-                    app.sync.progressBar.increment();
-
-                    app.image.download(
-                        files[index].path,
-                        files[index].name,
-                    // success
-                    function(result){
-                        // index++;
-                        if(index < files.length){
-                            index++;
-
-                            //setTimeout(function(e){
-                                getFile(index);
-                            //}, 2000);
-
-
-                        } else {
+                    var success = function(result){
+                        console.log('success: get days');
+                        //setTimeout(function(e){
                             getDays();
-                        }
-                    },
-                    // error
-                    function(error){
-                        if(error != true){
-                            console.log("Error getting file: " + files[index].name + " skipping...");
-                        }
-                        // index++;
-                        if(index < files.length){
-                            index++
-                            //setTimeout(function(e){
-                                getFile(index);
-                            //}, 2000);
-                        } else {
-                            //setTimeout(function(e){
-                                getDays();
-                            //}, 2000);
-                        }
-                    });
-                } else {
-                    //setTimeout(function(e){
-                        getDays();
-                    //}, 2000);
-                }
+                        //}, 500);
+                    }
 
+                    var error = function(result){
+                        // console.log('error: get days');
+                        // setTimeout(function(e){
+                            getDays();
+                        // }, 500);
+                    }
+                    d.send(request, success, error);
+                });
             }
-
-            function getDays(i){
-                app.sync.progressBar.min(0);
-                app.sync.progressBar.max( data.length );
-                app.sync.progressBar.value( 0 );
-
+            // 2
+            function getDays(){
+                // days - 1
+                app.sync.progressBar.value( 1 );
+                app.sync.progressBar.text( "Jobs ophalen: (" + app.sync.progressBar.value() + "/" + app.sync.progressBar.max() + ")" );
 
                 var transaction = app.database.db.transaction(['day'], "readwrite");
                 var objectStore = transaction.objectStore('day');
@@ -338,40 +351,72 @@ var app = {
 
                 for(var i in data){
                     if(i == 'length'){ continue; }
-
-                    app.sync.progressBar.text( "Jobs ophalen: (" + (index + 1) + "/" + app.sync.progressBar.max() + ")" );
-                    app.sync.progressBar.increment();
-
                     var d = new Day();
                     index++;
                     d.put({id: i, data: data[i]});
                 }
+                //setTimeout(function(e){
+                    getRemarks();
+                //}, 500);
+            }
+            // 3
+            function getRemarks(){
+                app.sync.progressBar.value( 3 );
+                app.sync.progressBar.text( "Opmerkingen ophalen: (" + app.sync.progressBar.value() + "/" + app.sync.progressBar.max() + ")" );
 
                 var transaction = app.database.db.transaction(['comments'], "readwrite");
                 var objectStore = transaction.objectStore('comments');
 
                 objectStore.clear();
 
-                app.sync.progressBar.min(0);
-                app.sync.progressBar.max( 3 );
-                app.sync.progressBar.value( 1 );
-                app.sync.progressBar.text( "Opmerkingen ophalen: (" + app.sync.progressBar.value() + "/" + app.sync.progressBar.max() + ")" );
-
                 var c = new Comments();
                 c.put({
                     id: 1,
                     data: c.sync()
                 });
-                app.sync.progressBar.increment();
-                app.sync.progressBar.text( "Opmerkingen ophalen: (" + app.sync.progressBar.value()  + "/" + app.sync.progressBar.max() + ")" );
+
+                var transaction = app.database.db.transaction(['remarks'], "readwrite");
+                var objectStore = transaction.objectStore('remarks');
+
+                objectStore.clear();
 
                 var r = new Remarks();
                 r.put({
                     id: 1,
                     data: r.sync()
                 });
+                // setTimeout(function(e){
+                    getServiceTypes();
+                // }, 500);
+            }
+            // 4
+            function getServiceTypes(){
+                app.sync.progressBar.value( 4 );
+                app.sync.progressBar.text( "Meetpunttypes ophalen: (" + app.sync.progressBar.value() + "/" + app.sync.progressBar.max() + ")" );
 
-                app.sync.progressBar.text( "Product categorieën ophalen" );
+                var transaction = app.database.db.transaction(['checkpointtype'], "readwrite");
+                var objectStore = transaction.objectStore('checkpointtype');
+
+                objectStore.clear();
+
+                var ct = new window['CheckpointType']();
+                var CheckpointTypes = ct.sync();
+
+                for(var i in CheckpointTypes){
+                    var CheckpointType = CheckpointTypes[i];
+                    ct.put({
+                        id: i,
+                        data: CheckpointType
+                    });
+                }
+                // setTimeout(function(e){
+                    getProductCategories();
+                // }, 500);
+            }
+            // 5
+            function getProductCategories(){
+                app.sync.progressBar.value( 5 );
+                app.sync.progressBar.text( "Product categorieën ophalen: (" + app.sync.progressBar.value() + "/" + app.sync.progressBar.max() + ")" );
 
                 var transaction = app.database.db.transaction(['category'], "readwrite");
                 var objectStore = transaction.objectStore('category');
@@ -388,13 +433,19 @@ var app = {
                         data: category
                     });
                 }
+                // setTimeout(function(e){
+                    getProducts();
+                // }, 500);
+            }
+            // 6
+            function getProducts(){
+                app.sync.progressBar.value( 6 );
+                app.sync.progressBar.text( "Producten ophalen: (" + app.sync.progressBar.value() + "/" + app.sync.progressBar.max() + ")" );
 
                 var transaction = app.database.db.transaction(['product'], "readwrite");
                 var objectStore = transaction.objectStore('product');
 
                 objectStore.clear();
-
-                app.sync.progressBar.text( "Producten ophalen" );
 
                 var p = new Product();
                 var products = p.sync();
@@ -406,9 +457,13 @@ var app = {
                         data: product
                     });
                 }
-
-
-
+                // setTimeout(function(e){
+                    end();
+                // }, 500);
+            }
+            // complete
+            function end(){
+                app.sync.progressBar.value( 7 );
                 if(cordova.exec){
                     cordova.exec(function(){
                         // success
@@ -419,7 +474,6 @@ var app = {
                     }, "nzzPlugin", "showEndSyncToast", []);
                 } else {
                     callback.call(this, null);
-
                 }
             }
         }
@@ -457,6 +511,9 @@ var app = {
                 objectStore.createIndex("objIndex", ["id", "data"], { unique: false });
 
                 var objectStore = db.createObjectStore('category', { keyPath: "id" , autoIncrement: true});
+                objectStore.createIndex("objIndex", ["id", "data"], { unique: false });
+
+                var objectStore = db.createObjectStore('checkpointtype', { keyPath: "id" , autoIncrement: true});
                 objectStore.createIndex("objIndex", ["id", "data"], { unique: false });
             };
             request.onsuccess = function(event) {
@@ -525,15 +582,16 @@ var app = {
         error: null,
         answer: function(id, answer, question, callback){
             // var question = app.day['data'][app.appointmentIndex]['checkpoints'][app.checkpointIndex]['questions'][id];
+            question.answered = false;
             var type = question.type;
 
-            var answer = (question.type == app.const.type_choice) ? answer : answer[0];
+            var answer = (question.type == QUESTION_TYPE_CHOICE || question.type == QUESTION_TYPE_PRODUCT) ? answer : answer[0];
 
             if(app.question.validateAnswer(type, answer, question) == true){
                 question.answer = answer;
                 question.answered = true;
 
-                app.appointment.completed = false;
+                app.appointment.completed = 0;
 
                 if(typeof callback == 'function'){
                     callback.call(this, null);
@@ -558,19 +616,19 @@ var app = {
                 question.errors.push("Antwoord mag niet leeg zijn!");
             }
 
-            app.const.type_choice = 1;
-            app.const.type_yn = 2;
-            app.const.type_number = 3;
-            app.const.type_text = 4;
-            app.const.type_product = 5;
+            QUESTION_TYPE_CHOICE = 1;
+            QUESTION_TYPE_YN = 2;
+            QUESTION_TYPE_NUMBER = 3;
+            QUESTION_TYPE_TEXT = 4;
+            QUESTION_TYPE_PRODUCT = 5;
 
             switch(type){
-                case app.const.type_choice:
+                case QUESTION_TYPE_CHOICE:
 
                 break;
-                case app.const.type_yn:
+                case QUESTION_TYPE_YN:
                 break;
-                case app.const.type_number:
+                case QUESTION_TYPE_NUMBER:
                     var min_value = question.hasOwnProperty('min_value') ? question.min_value : undefined;
                     var max_value = question.hasOwnProperty('max_value') ? question.max_value : undefined;
 
@@ -585,7 +643,7 @@ var app = {
                     }
 
                 break;
-                case app.const.type_text:
+                case QUESTION_TYPE_TEXT:
                     // validate text
                     var min_value = question.hasOwnProperty('min_value') ? question.min_value : undefined;
                     var max_value = question.hasOwnProperty('max_value') ? question.max_value : undefined;
@@ -597,8 +655,15 @@ var app = {
                         question.errors.push( "Antwoord moet korter zijn dan " + max_value);
                     }
                 break;
-                case app.const.type_product:
+                case QUESTION_TYPE_PRODUCT:
+                    console.log('validating product...');
+                    var productId = parseFloat( answer[0] );
+                    var productAmount = isNaN( parseFloat( answer[1] ) ) ? 0 : parseFloat( answer[1] );
+                    if(productAmount > 0){
 
+                    } else {
+                        question.errors.push( "Product hoeveelheid mag niet leeg zijn.");
+                    }
                 break;
             };
             return (question.errors.length == 0) ? true : false;
@@ -612,25 +677,32 @@ var app = {
             str += "<h4>" + question.question + "</h4>";
 
             switch(type){
-                case app.const.type_choice:
+                case QUESTION_TYPE_CHOICE:
 
                     var subId = 0;
 
                     for(var c in question.choices){
                         var checked = '';
                         if(question.answer != undefined && question.answer != 'undefined'){
-                            checked = (question.answer.includes(c) ? 'checked' : '');
+                            if(Array.isArray( question.answer )){
+                                for(var i in question.answer){
+                                    if( question.answer[i] == c ){
+                                        checked = 'checked';
+                                    }
+                                }
+                            }
+                            // checked = (question.answer.includes(c) ? 'checked' : '');
                         }
 
                         str += "<div style='margin: 10px 0'>";
-                        str += "<input id='question_"+subId+"' type='checkbox' value='" + c + "' name='question_" + questionIndex + "' "+checked+">";
-                        str += "<label for='question_"+subId+"'>"+question.choices[c]+"</label>";
+                        str += "<input id='question_"+subId+"_"+questionIndex+"' type='checkbox' value='" + c + "' name='question_" + questionIndex + "' "+checked+">";
+                        str += "<label for='question_"+subId+"_"+questionIndex+"'>"+question.choices[c]+"</label>";
                         str += "</div>";
 
                         subId++;
                     }
                 break;
-                case app.const.type_yn:
+                case QUESTION_TYPE_YN:
 
                 isTrue = (question.answer == 1 ? 'checked' : '');
                 str += "<div style='margin: 10px 0'>";
@@ -644,33 +716,64 @@ var app = {
                 str += "</div>";
 
                 break;
-                case app.const.type_number:
+                case QUESTION_TYPE_NUMBER:
 
                 str += "<input class='input' type='number' name='question_" + questionIndex + "' value='"+question.answer+"'>";
 
                 break;
-                case app.const.type_text:
+                case QUESTION_TYPE_TEXT:
 
                 var val = (question.answer == undefined || question.answer == 'undefined') ? "" : question.answer;
                 str += "<input class='input' type='text' name='question_" + questionIndex + "' value='"+val+"'>";
 
                 break;
-                case app.const.type_product:
+                case QUESTION_TYPE_PRODUCT:
 
                 str += "<select name='question_" + questionIndex + "' class='select'>";
-                for(var i in question.products){
-                    var name = "question_" + questionIndex;
-                    var product = app.products[i];
-                    var selected = (question.answer == i) ? 'selected' : '';
-                    str += "<option value='" + i + "' "+selected+">" + product.name + "</option>";
 
 
+                if(question.products.length > 0){
+                    for(var aC in app.categories){
+                        var category = app.categories[aC];
+                        str += "<optgroup label='"+category.name+"'>";
+                        for(var i in question.products){
+                            var id = question.products[i];
+                            var product = app.products[id];
+
+                            if(product.product_category_id == aC){
+                                var name = "question_" + questionIndex;
+                                var selected = "";
+                                if(Array.isArray( question.answer )){
+                                    var selected = (question.answer[0] == id) ? 'selected' : '';
+                                }
+                                str += "<option value='" + id + "' "+selected+">" + product.name + "</option>";
+                            }
+                        }
+                        str += "</optgroup>";
+                    }
+                } else {
+                    str += "<option value='null'>Geen producten beschikbaar</option>";
                 }
+
+
                 str += "</select>";
+                var value = 1;
+                if(Array.isArray( question.answer )){
+                    value = question.answer[1];
+                }
+                if(question.products.length > 0){
+                    str += "<input name='question_" + questionIndex + "' type='number' min='1' max='999' value='"+value+"' class='input input-default' />";
+                } else {
+                    str += "<input name='question_" + questionIndex + "' type='hidden' value='1'/>";
+                }
 
                 break;
             }
-            str += "<button type='submit' class='btn btn-default wide action' mdot noselect>Beantwoorden</button>";
+
+            if(app.appointment.sync == true || app.appointment.complete == false){
+                str += "<button type='submit' class='btn btn-default wide action' mdot noselect>Beantwoorden</button>";
+            }
+
             str += "<label class='label label-default exception hidden'></label>"
             str += "</div>";
             str += "</form>";
@@ -679,6 +782,62 @@ var app = {
         }
     },
     actions: {
+        checkpointDelete: function(e){
+            new Modal( $('#dialog-checkpoint-delete')[0] ).show();
+        },
+        remarkAddImage: function(e){
+            var remarkIndex = this.getAttribute('remark');
+            var remark = app.checkpoint.remarks[remarkIndex];
+
+            e.preventDefault();
+            var input = this;
+
+            navigator.camera.getPicture(successCallback, errorCallback)
+            function successCallback(data){
+                new Modal( $('#dialog-image-uploading')[0] ).show();
+                fileURL = data;
+                var win = function (r) {
+                    var json = JSON.parse(r.response);
+                    if(!remark.hasOwnProperty('images')){
+                        remark.images = [];
+                    }
+                    remark.images.push("/job/get-debtor-remark-image?item=" + json.data);
+                    app.day.update(function(e){
+                        new Modal( $('#dialog-image-uploading')[0] ).hide();
+                        new Modal( $('#dialog-image-uploaded')[0] ).show();
+                    });
+                }
+
+                var fail = function (error) {
+                    alert("Kan afbeelding op dit moment niet uploaden.");
+                }
+
+                var options = new FileUploadOptions();
+                options.fileKey = "file";
+                options.fileName = fileURL.substr(fileURL.lastIndexOf('/') + 1);
+                options.mimeType = "text/plain";
+
+                var params = {};
+                params.temp_id = remark.temp_id;
+                params.id = remark.id;
+
+                options.params = params;
+
+                var ft = new FileTransfer();
+                ft.upload(fileURL, encodeURI(app.restClient.remarkAddImage), win, fail, options);
+            }
+            function errorCallback(){
+                alert("error");
+            }
+
+        },
+        remarkViewImages: function(e){
+            app.remarkIndex = this.getAttribute('remark');
+            app.remark = app.checkpoint.remarks[ app.remarkIndex ];
+            app.navigate.to('views/remarks/images.html', function(e){
+
+            });
+        },
         toggleRemark: function(e){
             $(this).html( ( $(this.parentNode.parentNode.parentNode).attr('toggled') == 'true' ) ? 'Verbergen' : 'Weergeven' );
             $(this.parentNode.parentNode.parentNode).attr('toggled', (  $(this.parentNode.parentNode.parentNode).attr('toggled') == 'true' ) ? 'false' : 'true' );
@@ -690,6 +849,39 @@ var app = {
 
             });
         },
+        checkpointAdd: function(e){
+            new Modal( $('#dialog-checkpoint-add')[0] ).show();
+        },
+        checkpointCreate: function(e){
+            var checkpointTypeId = $('#checkpoint-create-service_type_id').val();
+            var debtor_service_type_id = $('#checkpoint-create-debtor_service_type_id').val();
+            var checkpointType = app.checkpointTypes[checkpointTypeId];
+            var cp = {
+                id: null,
+                barcode: '',
+                location_description: '',
+                debtor_service_type_id: debtor_service_type_id,
+                checkpoint_type_id: checkpointTypeId,
+                floorplan: {
+                    x: "0%",
+                    y: "0%",
+                    path: ""
+                },
+                is_opened: 0,
+                unreachable: 0,
+                is_editable: 1,
+                is_required: 1,
+                is_temporary: 1,
+                is_deleted: 0,
+                questions: checkpointType.questions
+            };
+            app.appointment.checkpoints.push(cp);
+            app.day.update(function(e){
+                app.navigate.to('views/checkpoints/index.html', function(e){
+
+                });
+            });
+        },
         navigateBack: function(e){
             app.navigate.back();
         },
@@ -698,29 +890,45 @@ var app = {
 
             });
         },
-        viewHome: function(e){
-            $('app').removeClass('sync');
-            app.navigate.to('views/index.html', function(e){
+        viewProducts: function(e){
+            app.navigate.to('views/product/index.html', function(e){
 
             });
         },
         sync: function(e){
-            $('item[action="sync"] > .icon').addClass('syncing');
-            $('.planning-list').html('');
-            $('app').addClass('sync');
-            setTimeout(function(e){
-                app.sync.start(function(e){
-                    console.log('setting categories...');
-                    app.setCategories(function(e){
-                        console.log('setting products...');
-                        app.setProducts(function(e){
-                            $('.sync-container').removeClass('collapsed');
-                            $('[action="sync"] > .icon').removeClass('syncing');
-                            $('.sync-container').html( "<button class='btn btn-default success wide' action='viewHome'>opnieuw laden</button>" );
-                        })
+            new Modal( $('#dialog-sync-start')[0] ).show();
+            $('#dialog-sync-start').on('ok', function(e){
+                e.preventDefault();
+                new Modal( $('#dialog-sync-start')[0] ).hide();
+                new Modal( $("#dialog-sync-progress")[0] ).show();
+                setTimeout(function(e){
+                    app.sync.start(function(e){
+                        setTimeout(function(e){
+                            app.setCategories(function(e){
+                                setTimeout(function(e){
+                                    app.setProducts(function(e){
+                                        setTimeout(function(e){
+                                            app.setCheckpointTypes(function(e){
+                                                new Modal( $("#dialog-sync-progress")[0] ).hide();
+                                                new Modal( $("#dialog-sync-complete")[0] ).show();
+                                                $("#dialog-sync-complete").on('ok', function(e){
+                                                    app.navigate.to('views/index.html', function(e){
+
+                                                    });
+                                                });
+                                            });
+                                        }, 500);
+                                    })
+                                }, 500);
+                            });
+                        }, 500);
                     });
-                });
-            }, 500);
+                }, 500);
+            });
+
+
+
+
         },
         viewAppointment: function(e){
             var day = $(this).attr('day');
@@ -735,45 +943,30 @@ var app = {
                 app.navigate.to('views/appointment/index.html');
             });
         },
-        completeAppointment: function(e){
-            var appointment = app.appointment;
-            var join = [];
-            var finished = true;
-            for(var i in appointment.checkpoints){
-                var sp = appointment.checkpoints[i];
-                if(sp.unreachable == true){
-                } else {
-                    for(var q in sp.questions){
-                        var spq = sp.questions[q];
-                        if(spq.is_required === true && spq.answered !== true){
-                            join.push(spq.question);
-                            finished = false;
-                        }
-                    }
-                }
-            }
-            if(finished){
-                app.navigate.to('views/installations/index.html');
-            } else {
-                join = join.join('\n');
-                alert('Er zijn nog openstaande vragen: \n' + join)
-            }
-        },
+
         viewCheckpoints: function(e){
             app.navigate.to('views/checkpoints/index.html');
         },
         viewCheckpoint: function(e){
             var checkpoint = $(this).attr('checkpoint');
-            app.checkpoint = app.appointment.checkpoints[checkpoint];
-            app.checkpointIndex = checkpoint;
-            if(app.checkpoint){
-                app.navigate.to('views/checkpoints/view.html');
+            if(checkpoint){
+                app.checkpoint = app.appointment.checkpoints[checkpoint];
+                app.checkpointIndex = checkpoint;
+                if(!app.checkpoint.is_opened){
+                    app.checkpoint.is_opened = true;
+                    app.day.update(function(e){
+                        app.navigate.to('views/checkpoints/view.html');
+                    });
+                } else {
+                    app.navigate.to('views/checkpoints/view.html');
+                }
+
             }
         },
         viewRemarks: function(e){
             app.navigate.to('views/remarks/index.html');
         },
-        addRemark: function(e){
+        remarkAdd: function(e){
             app.navigate.to('views/remarks/create.html');
         },
         checkpointMarkUnreachable: function(e){
@@ -809,7 +1002,6 @@ var app = {
 
             var newname = prompt(title);
             if(newname){
-                console.log(newname);
                 cp.location_description = newname;
                 app.day.update(function(e){
                     app.navigate.to('views/checkpoints/view.html', function(e){
@@ -818,64 +1010,136 @@ var app = {
                 });
             }
         },
+        completeAppointment: function(e){
+            var finish = true;
+            var join = [];
+
+            var openCheckpoints = 0;
+            var checkpointName = "";
+
+            for(var i in app.appointment.checkpoints){
+                var cp = app.appointment.checkpoints[i];
+                if(cp.is_deleted == false && cp.unreachable == false && cp.is_required == true && cp.is_opened == false){
+                    // join.push("Openstaand meetpunt: " + cp.location_description);
+                    openCheckpoints++;
+                    checkpointName = cp.location_description;
+                    finish = false;
+                }
+            }
+            if(finish){
+                for(var i in app.appointment.checkpoints){
+                    var cp = app.appointment.checkpoints[i];
+                    if( cp.is_required ){
+                        var count = 0;
+                        for(var cpqi in cp.questions){
+                            var cpq = cp.questions[cpqi];
+                            if(cpq.is_required == true && cpq.answered != true){
+                                count++;
+                            }
+                        }
+                        if(count > 0){
+                            finish = false;
+                            var qtag = (count == 1) ? 'vraag' : 'vragen';
+                            join.push(count + " openstaande " + qtag + " bij meetpunt " + cp.location_description);
+                        }
+                    }
+                }
+            }
+
+            if(finish == false){
+
+                if(openCheckpoints == 1){
+                    alert("Meetpunt " + checkpointName + " staat nog open.");
+                } else {
+                    alert("Meetpunt " + checkpointName + " en " + (openCheckpoints-1) + " andere staan nog open.");
+                }
+
+
+            } else {
+                app.navigate.to('views/installations/index.html');
+            }
+        },
         signAppointment: function(e){
-            var appointment = app.appointment;
 
-            var errors = [];
+            var finish = true;
+            var join = [];
+            var join = [];
 
-            for(var serviceTypeIndex in appointment.service_types){
-                var st = appointment.service_types[serviceTypeIndex];
-
+            for(var sti in app.appointment.service_types){
+                var st = app.appointment.service_types[sti];
                 if(st.state == null){
-                    errors.push("Installatie " + st.name + " heeft geen status!");
-                } else if(st.state == st.additional_questions.on){
-                    for(var serviceTypeQuestionIndex in st.additional_questions.questions){
-                        var additionalQuestion = st.additional_questions.questions[serviceTypeQuestionIndex];
-                        if(additionalQuestion.is_required == true && additionalQuestion.answered == true){
-
-                        } else {
-                            errors.push("1 Openstaande vraag: " + additionalQuestion.question);
-                        }
-                    }
+                    join.push("Installatie " + st.name + " heeft geen status!");
+                    console.log('geen status');
+                    finish = false;
                 }
             }
 
-            for(var checkpointIndex in appointment.checkpoints){
-                var cp = appointment.checkpoints[checkpointIndex];
 
-                if(cp.is_required == true && cp.unreachable == false){
-                    for(var questionindex in cp.questions){
-                        var question = cp.questions[questionindex];
-                        console.log(question.answered);
-                        if(question.is_required == true && question.answered != true){
-                            errors.push("2 Openstaande vraag: " + question.question);
+            if(finish == true){
+                for(var sti in app.appointment.service_types){
+                    count = 0;
+                    var st = app.appointment.service_types[sti];
+                    var state = st.state;
+                    var aq = st.additional_questions[state];
+                    for(var i in aq){
+                        var q = aq[i];
+                        if(q.is_required == true && q.answered != true){
+                            count++;
                         }
+                    }
+                    var aq = st.additional_questions['*'];
+                    for(var i in aq){
+                        var q = aq[i];
+                        if(q.is_required == true && q.answered != true){
+                            count++;
+                        }
+                    }
+                    if(count > 0){
+                        finish = false;
+                        var qtag = (count == 1) ? 'vraag' : 'vragen';
+                        join.push(count + " openstaande " + qtag + " bij installatie " + st.name);
+                        console.log('openstaande intallatie');
+                        finish = false;
                     }
                 }
             }
-
-            if(errors.length == 0){
+            if(finish == true){
                 app.navigate.to('views/signature/index.html', function(e){
 
                 });
             } else {
-                alert(errors.join("\n"));
+                alert(join.join("\n"));
             }
         },
         moreShow: function(e){
+
+            e.preventDefault();
+            e.stopPropagation();
+
             var list = $(this).find('.more-list');
+
+
+            $('[action="moreShow"] .more-list:not(.hidden)').each(function(e){
+                if(this !== list){
+                    $(this).addClass('hidden');
+                }
+            });
+
+
 
             if(list.hasClass('hidden')){
                 list.removeClass('hidden');
             } else {
                 list.addClass('hidden');
             }
+
+
         },
-        markRemarkComplete: function(e){
+        remarkMarkComplete: function(e){
             var index = $(this).attr('remark');
-            if(app.appointment.remarks[index]){
-                var remark = app.appointment.remarks[index];
-                remark.is_completed = true;
+            if(app.checkpoint.remarks[index]){
+                var remark = app.checkpoint.remarks[index];
+                remark.is_completed = 1;
                 app.day.update(function(e){
                     app.navigate.to('views/remarks/index.html', function(e){
 
@@ -883,11 +1147,11 @@ var app = {
                 });
             }
         },
-        markRemarkIncomplete: function(e){
+        remarkMarkIncomplete: function(e){
             var index = $(this).attr('remark');
-            if(app.appointment.remarks[index]){
-                var remark = app.appointment.remarks[index];
-                remark.is_completed = false;
+            if(app.checkpoint.remarks[index]){
+                var remark = app.checkpoint.remarks[index];
+                remark.is_completed = 0;
                 app.day.update(function(e){
                     app.navigate.to('views/remarks/index.html', function(e){
 
@@ -906,41 +1170,152 @@ var app = {
         },
         signatureSubmit: function(e){
             var cancel = false;
+
             if(signaturePadCustomer && signaturePadInspector){
+                var join = [];
 
                 if(signaturePadCustomer.isEmpty()){
                     cancel = true;
-                    alert("Klant handtekening mag niet leeg zijn!");
+                    join.push("Klant handtekening mag niet leeg zijn!");
+                } else {
+                    app.appointment.signatures.customer = signaturePadCustomer.toDataURL();
                 }
 
                 if(signaturePadInspector.isEmpty()){
                     cancel = true;
-                    alert("Bestrijder handtekening mag niet leeg zijn");
+                    join.push("Bestrijder handtekening mag niet leeg zijn");
+                } else {
+                    app.appointment.signatures.inspector = signaturePadInspector.toDataURL();
                 }
 
                 var customerFirstName = $('#customer-first-name').val();
                 if(customerFirstName == ""){
                     cancel = true;
-                    alert("Klant voornaam mag niet leeg zijn");
+                    join.push("Klant voornaam mag niet leeg zijn");
+                } else {
+                    app.appointment.signatures.customer_first_name = customerFirstName;
                 }
 
                 var customerLastName = $('#customer-last-name').val();
                 if(customerLastName == ""){
                     cancel = true;
-                    alert("Klant achternaam mag niet leeg zijn");
+                    join.push("Klant achternaam mag niet leeg zijn");
+                } else {
+                    app.appointment.signatures.customer_last_name = customerLastName;
                 }
 
                 if(!cancel){
-                    app.appointment.signatures.customer_first_name = customerFirstName;
-                    app.appointment.signatures.customer_last_name = customerLastName;
-                    app.appointment.signatures.customer = signaturePadCustomer.toData();
-                    app.appointment.signatures.inspector = signaturePadInspector.toData();
-                    app.appointment.completed = true;
                     app.day.update(function(e){
-                        app.navigate.to('views/index.html', function(e){
+                        var totalIn = 0;
+                        var totalEx = 0;
 
+                        for(var i in app.appointment.checkpoints){
+                            var cp = app.appointment.checkpoints[i];
+                            if(cp.is_deleted == false && cp.unreachable == false && cp.is_required == true && cp.is_opened == true){
+                                for(var i in cp.questions){
+                                    var q = cp.questions[i];
+                                    if(q.type == QUESTION_TYPE_PRODUCT){
+                                        var answer = q.answer;
+                                        var productId = answer[0];
+                                        var productAmount = answer[1];
+
+                                        var product = app.products[productId];
+                                        if(product){
+                                            totalIn += product.price_in * productAmount;
+                                            totalEx += product.price_ex * productAmount;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        for(var i in app.appointment.service_types){
+                            var st = app.appointment.service_types[i];
+                            var state = st.state;
+                            for(var i in st.additional_questions['*']){
+                                var q = st.additional_questions['*'][i];
+                                if(q.type == QUESTION_TYPE_PRODUCT){
+                                    var answer = q.answer;
+                                    var productId = answer[0];
+                                    var productAmount = answer[1];
+
+                                    var product = app.products[productId];
+                                    if(product){
+                                        totalIn += product.price_in * productAmount;
+                                        totalEx += product.price_ex * productAmount;
+                                    }
+                                }
+                            }
+                            for(var i in st.additional_questions[state]){
+                                var q = st.additional_questions[state][i];
+                                if(q.type == QUESTION_TYPE_PRODUCT){
+                                    var answer = q.answer;
+                                    var productId = answer[0];
+                                    var productAmount = answer[1];
+
+                                    var product = app.products[productId];
+                                    if(product){
+                                        totalIn += product.price_in * productAmount;
+                                        totalEx += product.price_ex * productAmount;
+                                    }
+                                }
+                            }
+                        }
+                        app.appointment.payment.additional_in = totalIn;
+                        app.appointment.payment.additional_ex = totalEx;
+
+
+                        app.appointment.payment.total_in = app.appointment.payment.default_in + app.appointment.payment.additional_in;
+                        app.appointment.payment.total_ex = app.appointment.payment.default_ex + app.appointment.payment.additional_ex;
+
+                        if(app.appointment.payment.payment_method !== 'contract'){
+
+                            $('#dialog-payment [name="payment_paid"]').removeClass('error');
+
+                            if(app.appointment.payment.paid <= app.appointment.payment.total_in  - 0.03){
+                                $('#dialog-payment #to-pay').html( "€ " + app.appointment.payment.total_in.toFixed(2) );
+                                $('#dialog-payment [name="payment_paid"]').val( app.appointment.payment.paid.toFixed(2) );
+                                $('#dialog-payment [name="payment_paid"]').addClass('error');
+
+                                $('.label-payment-method').removeClass('error');
+                                if(!app.appointment.payment.payment_method){
+                                    $('.label-payment-method').addClass('error');
+                                } else {
+                                    $('[name="payment_method"][value="'+app.appointment.payment.payment_method+'"]')[0].checked = true
+                                }
+
+                                new Modal( $('#dialog-payment')[0] ).show();
+                                return;
+                            } else if(app.appointment.payment.paid > app.appointment.payment.total_in + 0.03){
+                                $('#dialog-payment #to-pay').html( "€ " + app.appointment.payment.total_in.toFixed(2) );
+                                $('#dialog-payment [name="payment_paid"]').val( app.appointment.payment.paid.toFixed(2) );
+                                $('#dialog-payment [name="payment_paid"]').addClass('error');
+
+                                $('.label-payment-method').removeClass('error');
+                                if(!app.appointment.payment.payment_method){
+                                    $('.label-payment-method').addClass('error');
+                                } else {
+                                    $('[name="payment_method"][value="'+app.appointment.payment.payment_method+'"]')[0].checked = true
+                                }
+
+                                new Modal( $('#dialog-payment')[0] ).show();
+                                return;
+                            }
+
+                        }
+
+                        app.appointment.completed = 1;
+                        app.day.update(function(e){
+                            app.navigate.to('views/index.html', function(e){
+
+                            });
                         });
                     });
+                }
+
+
+                if(cancel){
+                    alert(join.join('\n'));
                 }
             }
         }
@@ -948,53 +1323,162 @@ var app = {
     exceptions: {
         serverError: "Er ging iets mis. Probeer het opnieuw later en/of start de applicatie opnieuw",
     },
-};
+    helpers: {
+        generateRandomString: function(length){
+            var range = app.helpers.range('a', 'z');
+            range = range.concat( app.helpers.range('A', 'Z') );
+            range = range.concat( app.helpers.range('0', '9') );
 
-app.initialize();
+            var str = "";
 
-$(document).on('submit', '.form-create-remark', function(e){
+            while(str.length < length){
+                str += range[Math.floor(Math.random() * range.length)];
+            }
+            return str;
+        },
+        range: function(start, stop){
+            var result=[];
+            for (var idx=start.charCodeAt(0),end=stop.charCodeAt(0); idx <=end; ++idx){
+              result.push(String.fromCharCode(idx));
+            }
+            return result;
+        }
+    }
+    };
+
+    var Modal = function( element ){
+    this.element = element;
+
+    var dialogCancel = this.element.getAttribute('dialog-cancel');
+    var dialogOk = this.element.getAttribute('dialog-ok');
+
+    if(dialogCancel || dialogOk){
+
+        var btnRow = this.element.querySelector('.row.btn-row');
+
+        if(btnRow){
+            btnRow.remove();
+        }
+
+        var btnRow = document.createElement('div');
+        btnRow.className = 'row btn-row'
+
+        if(this.element.getAttribute('dialog-cancel')){
+            var btnCancel = document.createElement('btn');
+            btnCancel.className = 'btn btn-dialog cancel';
+            btnCancel.innerHTML = dialogCancel;
+            btnRow.appendChild( btnCancel );
+        }
+
+        if(this.element.getAttribute('dialog-ok')){
+            var btnOk = document.createElement('btn');
+            btnOk.className = 'btn btn-dialog ok';
+            btnOk.innerHTML = dialogOk;
+            btnRow.appendChild( btnOk );
+        }
+
+        this.element.appendChild( btnRow );
+    }
+
+
+    parent = this;
+
+    }
+
+    $(document).on('click', '.modal .btn.ok', function(e){
+
+    e.stopPropagation();
+    e.preventDefault();
+
+    var okEvent = $.Event("ok");
+
+    $(this.parentNode.parentNode).trigger(okEvent);
+
+    if(!okEvent.isDefaultPrevented()){
+        new Modal( this.parentNode.parentNode ).hide();
+    }
+    });
+    $(document).on('click', '.modal .btn.cancel', function(e){
+
+    e.stopPropagation();
+    e.preventDefault();
+
+    var cancelEvent = $.Event("cancel");
+
+    $(this.parentNode.parentNode).trigger(cancelEvent);
+
+    if(!cancelEvent.isDefaultPrevented()){
+        new Modal( this.parentNode.parentNode ).hide();
+    }
+    });
+
+    Modal.prototype.hide = function(){
+    $(this.element).trigger('beforeClose');
+    this.element.removeAttribute('open');
+    $(this.element).trigger('afterClose');
+    }
+    Modal.prototype.show = function(){
+    $(this.element).trigger('beforeOpen');
+    this.element.setAttribute('open', '');
+    $(this.element).trigger('afteropen');
+    }
+    Modal.prototype.content = function( content ){
+    this.element.innerHTML = content;
+    }
+
+    app.initialize();
+
+    $(document).on('submit', '.form-create-remark', function(e){
 
     e.preventDefault();
     e.stopPropagation();
 
     var obj = {
         id: null,
+        created_at: null,
+        updated_at: null,
         name: $('.form-create-remark textarea[name="name"]').val(),
         actionee_id: $('.form-create-remark select[name="actionee_id"]').val(),
         group_id: $('.form-create-remark select[name="group_id"]').val(),
         type_id: $('.form-create-remark select[name="type_id"]').val(),
-        is_private: $('.form-create-remark input[name="is_private"]').val() == "on" ? true : false,
+        is_private: $('.form-create-remark input[name="is_private"]')[0].checked,
+        temp_id: app.helpers.generateRandomString(24),
+        debtor_service_type_checkpoint_id: app.checkpoint.id,
+        images: [],
+        is_completed: false
     };
-    app.appointment.remarks.push(obj);
+    app.checkpoint.remarks.push(obj);
     app.day.update(function(){
         app.navigate.to('views/remarks/index.html', function(e){
 
         });
     });
 
-});
+    });
 
 
 
 $(document).on('submit', '.installation-list .question-list .question-form', function(e){
-
     e.preventDefault();
     e.stopPropagation();
 
     var questionIndex = this.getAttribute('question');
+    var serviceType = this.parentNode.parentNode.getAttribute('servicetype');
 
     var p = $($(this.parentNode.parentNode).prev());
     var on = $(this.parentNode.parentNode).attr('on');
 
-    var serviceTypeIndex = $(this.parentNode.parentNode).attr('servicetype');
+    // var serviceTypeIndex = $(this.parentNode.parentNode).attr('servicetype');
+    var serviceTypeIndex = $(this.parentNode.parentNode).attr('serviceTypeIndex');
 
 
 
-    var fd = new FormData( $('.question-list[servicetype="'+serviceTypeIndex+'"] form[question="'+questionIndex+'"]')[0] );
+    var fd = new FormData( $('.question-list[servicetype="'+serviceType+'"] form[question="'+questionIndex+'"]')[0] );
     var entries = fd.getAll('question_' + questionIndex);
 
 
-    var question = app.appointment.service_types[serviceTypeIndex].additional_questions[questionIndex];
+
+    var question = app.appointment.service_types[serviceTypeIndex].additional_questions[serviceType][questionIndex];
 
     app.question.answer(questionIndex, entries, question, function(){
         app.day.update(function(){
@@ -1006,7 +1490,6 @@ $(document).on('submit', '.installation-list .question-list .question-form', fun
     });
 });
 $(document).on('submit', 'content > .question-list .question-form', function(e){
-
     e.preventDefault();
     e.stopPropagation();
 
@@ -1047,7 +1530,7 @@ $(document).on('submit', '#form-search-code', function(e){
     } else {
         $('.checkpoint-list .no-results').addClass('hidden');
     }
-})
+});
 $(document).on('click', '.installation-list > li > label', function(e){
     var input = $($(this.parentNode).find('input:checked'));
     var value = input.val();
@@ -1060,11 +1543,7 @@ $(document).on('click', '.installation-list > li > label', function(e){
         });
     });
 });
-
-
-
 $(document).on('submit', '#form-login-form', function(e){
-
     e.preventDefault();
 
     $('#login-exception').addClass('hidden');
@@ -1095,23 +1574,20 @@ $(document).on('submit', '#form-login-form', function(e){
 });
 $(document).on('click', '[action]', function(e){
     var action = $(this).attr('action');
-
     if(!$(this).attr('disabled')){
         if(app.actions[action]){
             return app.actions[action].call(this, e);
         }
-
     }
-    alert("Actie niet toegestaan.");
-
+    alert("Actie niet mogelijk.");
 });
 
 $(document).on('click', '#sync-toggler', function(e){
     $(this.parentNode).toggleClass('collapsed');
 })
-var baseUrl = "http://thom.at01.app.yii2.dev03.netzozeker.info";
-// var baseUrl = "https://at01.app.yii2.projecten03.netzozeker.info";
-// var baseUrl = "https://at01-acc.app.yii2.projecten03.netzozeker.info/";
+    var baseUrl = "http://thom.at01.app.yii2.dev03.netzozeker.info";
+    // var baseUrl = "https://at01.app.yii2.projecten03.netzozeker.info";
+    // var baseUrl = "https://at01-acc.app.yii2.projecten03.netzozeker.info";
 
 app.restClient = {
     ping: baseUrl + '/ping',
@@ -1122,16 +1598,17 @@ app.restClient = {
     getComments: baseUrl + '/job/get-comments',
     getRemarks: baseUrl + '/job/get-remarks',
     getDays: baseUrl + '/job/get-jobs',
+    putDays: baseUrl + '/job/put-jobs',
     getProducts: baseUrl + '/job/get-products',
-    getCategories: baseUrl + '/job/get-categories'
+    getCategories: baseUrl + '/job/get-categories',
+    getCheckpointTypes: baseUrl + '/job/get-checkpoint-types',
+    remarkAddImage: baseUrl + '/job/remark-add-image',
+    remarkRemoveImage: baseUrl + '/job/remark-remove-image'
 };
-
 
 $(document).on('change', '#default-remarks', function(e){
     // get opt
     var option = $(this).find(':selected');
-
-    console.log(option);
 
     var actionee_id = $(option).attr('actionee_id');
 
@@ -1155,12 +1632,32 @@ $(document).on('change', '#default-remarks', function(e){
         $('[name="name"]').attr('disabled', false);
     }
 });
-// $(document).on('click', '.remark-list > li[toggled]:not(item)', function(e){
-//     var remark = $(this).attr('remark');
-//     var state = $('[remark="'+remark+'"]').attr('toggled');
-//     if(state == 'true'){
-//         $(this).attr('toggled', 'false');
-//     } else {
-//         $(this).attr('toggled', 'true');
-//     }
-// });
+$(document).on('click', 'body', function(e){
+    $('.more-list:not(.hidden)').each(function(i){
+        $(this).addClass('hidden');
+    });
+})
+
+$(document).on('ok', '#dialog-image-uploaded', function(e){
+    app.navigate.to('views/remarks/index.html', function(e){
+
+    });
+});
+
+$(document).on('click', '.toggle-additional-questions', function(e){
+    var parent = this.parentNode;
+    var serviceType = parent.getAttribute('servicetype');
+    var show = parent.getAttribute('show');
+
+    if(typeof show == 'string'){
+        localStorage.setItem('additional_question_list_' + String(serviceType), 'hide');
+        parent.removeAttribute('show');
+        parent.setAttribute('hide', '');
+        this.innerHTML = 'Vragenlijst(en) weergeven';
+    } else {
+        localStorage.setItem('additional_question_list_' + String(serviceType), 'show');
+        this.innerHTML = 'Vragenlijst(en) verbergen';
+        parent.removeAttribute('hide');
+        parent.setAttribute('show', '');
+    }
+})

@@ -1,6 +1,6 @@
 <menu class='has-2 scheme checkpoints'>
     <item action="navigateBack" mdot noselect>
-        <i class="material-icons">&#xE5C4;</i>
+        <i class="material-icons icon">&#xE5C4;</i>
     </item>
     <search>
         <form id='form-search-code' class='form form-search-code'>
@@ -10,13 +10,34 @@
     </search>
 </menu>
 <content>
+
+    <div id='dialog-checkpoint-add' class='modal' dialog-ok='Ok' dialog-cancel='Annuleer' backdrop>
+        <div class='inner'>
+            <strong><p>Selecteer servicepunttype</p></strong>
+            <!-- <p>Het uploaden is voltooid.</p> -->
+            <select id='checkpoint-create-service_type_id'>
+
+            </select>
+            <select id='checkpoint-create-debtor_service_type_id'>
+
+            </select>
+        </div>
+    </div>
+    <div class='modal-backdrop'></div>
+
     <ul class='checkpoint-list'>
         <li class='label label-default no-results warning hidden'>Geen resultaten</li>
     </ul>
+    <i id='create-checkpoint' action='checkpointAdd' class="material-icons">add</i>
 </content>
 
 
 <script>
+    $('#dialog-checkpoint-add').on('ok', function(e){
+        e.preventDefault();
+        new Modal( $('#dialog-checkpoint-add')[0] ).hide();
+        app.actions.checkpointCreate();
+    });
     app.navigate.back = function(){
         app.scanner.canScan = false;
         app.navigate.to('views/appointment/index.html', function(e){
@@ -27,24 +48,69 @@
     app.checkpointIndex = null;
     var appointment = app.appointment;
 
+    for(var checkpointTypeId in app.checkpointTypes){
+        var checkpointType = app.checkpointTypes[checkpointTypeId];
+        var str = "<option value='"+checkpointTypeId+"'>" + checkpointType.name + "</option>";
+        $('#checkpoint-create-service_type_id').append( $(str) );
+    }
+    for(var debtorServiceTypeId in app.appointment.service_types){
+        var debtorServiceType = app.appointment.service_types[debtorServiceTypeId];
+        var str = "<option value='"+debtorServiceTypeId+"'>" + debtorServiceType.name + "</option>";
+        $('#checkpoint-create-debtor_service_type_id').append( $(str) );
+    }
+
     for(var i in appointment.checkpoints){
         var sp = appointment.checkpoints[i];
+
+        if(sp.is_deleted == true){
+            continue;
+        }
 
         var isFinished = "finished";
 
         for(var qI in sp.questions){
             var q = sp.questions[qI];
             if(q.answered == false && q.is_required == true){
-                isFinished = '';
+                isFinished = false;
                 break;
             }
         }
 
         var unreachable = (sp.unreachable == true) ? 'unreachable' : '';
 
-        var str = "<li class='item "+isFinished+" "+unreachable+"' data-code='"+sp.code+"' action='viewCheckpoint' checkpoint='"+i+"' mdot noselect>";
+        var className = "item";
+
+        if(isFinished){
+            className += " finished";
+        }
+        if(sp.unreachable){
+            className += " unreachable";
+        }
+        if(sp.is_required){
+            className += " required";
+        }
+
+        var str = "<li class='"+className+"' data-code='"+sp.barcode+"' action='viewCheckpoint' checkpoint='"+i+"' mdot noselect>";
         str += "<h4>" + sp.location_description + "</h4>";
-        str += "<div class='view'><i class='material-icons'>&#xE8B6;</i></div>";
+
+        var count = 0;
+
+        for(var i in sp.remarks){
+            var remark = sp.remarks[i];
+            if(remark.is_completed == false){
+                count++;
+            }
+        }
+        var className = (count > 0) ? "comments active" : "comments";
+        // str += "<div class='"+className+"' count='"+count+"'></div>";
+        str += "<div class='"+className+"' count='"+count+"'><i class='material-icons'>&#xE0C9;</i></div>";
+
+        var usedTox =sp.flags.historic.used_tox;
+        var className = (usedTox == true) ? "used-tox active" : "used-tox";
+        // str += "<div class='"+className+"'></div>";
+        str += "<div class='"+className+"' count='"+count+"'><i class='material-icons'>&#xE002;</i></div>";
+
+        // str += "<div class='view'><i class='material-icons'>&#xE8B6;</i></div>";
         str += "<div class='code'>" + sp.barcode + "</div>";
         str += "</li>";
         $('.checkpoint-list').append( $(str) );

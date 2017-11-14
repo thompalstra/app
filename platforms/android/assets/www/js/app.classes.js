@@ -686,6 +686,57 @@ var Day = function() {
         });
         return result;
     }
+    this.send = function(data, success, error){
+        var jobs = [];
+        for(var i in data){
+            var day = data[i];
+            for(var iJ in day.data){
+                var job = day.data[iJ];
+                if(job.sync == true && job.completed == true){
+                    job.id = iJ;
+                    job.ts = day.id;
+                    jobs.push(job);
+                }
+            }
+        }
+        i = 0;
+        if(jobs.length == 0){
+            success.call(this, {success: true, data:[]});
+        } else {
+            sendJob(i);
+        }
+
+
+        function sendJob(i){
+            console.log(i + "/" + jobs.length);
+            $.ajax({
+                url: app.restClient.putDays,
+                method: 'POST',
+                dataType: 'json',
+                data: {
+                    "AppUserValidateForm[imei]": app.user.imei,
+                    "AppUserValidateForm[token]": app.user.token,
+                    "AppUserValidateForm[inspector_id]": app.user.inspector_id,
+                    data:  JSON.stringify( jobs[i] ),
+                },
+                success: function(resp){
+                    if(resp.result == true){
+                        if(i < jobs.length -1){
+                            sendJob(++i);
+                        } else {
+                            success.call(this, resp);
+                        }
+                    } else if(resp.result == false){
+                        alert('Er ging iets mis! (100)');
+                        error.call(this, resp);
+                    } else {
+                        alert(app.exceptions.serverError);
+                    }
+                },
+                async: false
+            });
+        }
+    };
 }
 
 Day.prototype.all = DataStoreHelper.all;
@@ -850,6 +901,44 @@ Category.prototype.find = DataStoreHelper.find;
 Category.prototype.put = DataStoreHelper.put;
 window['Category'] = Category;
 
+var CheckpointType = function() {
+    this.className = 'CheckpointType';
+    this.storeName = function(){
+        return "checkpointtype";
+    }
+    this.sync = function(){
+        var result = [];
+        $.ajax({
+            url: app.restClient.getCheckpointTypes,
+            method: 'POST',
+            dataType: 'json',
+            data: {
+                "AppUserValidateForm[imei]": app.user.imei,
+                "AppUserValidateForm[token]": app.user.token,
+                "AppUserValidateForm[inspector_id]": app.user.inspector_id,
+            },
+            success: function(resp){
+                if(resp.result == true){
+                    result = resp.data;
+                } else if(resp.result == false){
+                    alert('Er ging iets mis! (110)');
+                } else {
+                    alert(app.exceptions.serverError);
+                }
+            },
+            async: false
+        });
+        return result;
+    }
+}
+
+CheckpointType.prototype.all = DataStoreHelper.all;
+CheckpointType.prototype.findById = DataStoreHelper.findById;
+CheckpointType.prototype.update = DataStoreHelper.update;
+CheckpointType.prototype.find = DataStoreHelper.find;
+CheckpointType.prototype.put = DataStoreHelper.put;
+window['CheckpointType'] = CheckpointType;
+
 
 
 var User = function(args){
@@ -878,9 +967,13 @@ User.prototype.login = function(username, password, success, error){
 
             if(resp.result === true){
                 localStorage.setItem('imei', app.imei);
+                app.user.imei = app.imei;
                 localStorage.setItem('token', resp.data.token);
+                app.user.token =  resp.data.token;
                 localStorage.setItem('inspector_id', resp.data.inspector_id);
+                app.user.inspector_id =  resp.data.inspector_id;
                 localStorage.setItem('name', resp.data.name);
+                app.user.name =  resp.data.name;
 
                 success.call(this, resp);
             } else if(resp.result === false) {
@@ -923,3 +1016,36 @@ User.prototype.auth = function(success, error){
     })
 }
 window['User'] = User;
+
+
+
+function intersect() {
+    var intersectResult = [];
+    var argumentLists = [];
+
+    if(arguments.length === 1) {
+        argumentLists = arguments[0];
+    } else {
+        argumentLists = arguments;
+    }
+
+    for(var i = 0; i < argumentLists.length; i++) {
+        var currentList = argumentLists[i];
+        for(var y = 0; y < currentList.length; y++) {
+            var currentValue = currentList[y];
+            if(intersectResult.indexOf(currentValue) === -1) {
+                var existsInAll = true;
+                for(var x = 0; x < argumentLists.length; x++) {
+                    if(argumentLists[x].indexOf(currentValue) === -1) {
+                        existsInAll = false;
+                        break;
+                    }
+                }
+                if(existsInAll) {
+                    intersectResult.push(currentValue);
+                }
+            }
+        }
+    }
+    return intersectResult;
+}

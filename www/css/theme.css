@@ -1,3 +1,16 @@
+@font-face {
+    font-family: Droid Sans Mono;
+    src: url(DroidSansMono-Regular.ttf);
+}
+@font-face {
+    font-family:Roboto Regular;
+    src: url(Roboto-Regular.ttf);
+}
+
+html, body{
+    font-family: "Roboto Regular", "Droid Sans Mono";
+}
+
 app,
 app > view {
     position: fixed;
@@ -10,13 +23,13 @@ app > view {
 app > view > menu{
     margin: 0;
     padding: 0;
-    height: 50px;
+    height: 60px;
 }
 
 app > view > menu > item {
-    height: 50px;
-    line-height: 50px;
-    min-width: 50px;
+    height: 60px;
+    line-height: 60px;
+    min-width: 60px;
     text-align: center;
 
     display: inline-block;
@@ -24,18 +37,27 @@ app > view > menu > item {
     font-size: 32px;
 }
 
-app > view > menu > title{
-    height: 50px;
+.view > i{
+    position: absolute;
+    top: 0;
+    right: 0;
     line-height: 50px;
+    width: 50px;
+    text-align: center;
+}
+
+app > view > menu > title{
+    height: 60px;
+    line-height: 60px;
     display: inline-block;
     float: left;
     font-size: 18px;
 }
 
 app > view > menu > search{
-    width: calc(100% - 50px);
+    width: calc(100% - 60px);
     float: left;
-    height: 50px;
+    height: 60px;
     padding: 10px 0;
     display: inline-block;
     box-sizing: border-box;
@@ -50,8 +72,9 @@ app > view > menu > search form.form input.input::-webkit-input-placeholder { /*
 }
 
 app > view > menu > search form.form input.input{
-    height: 30px;
-    width: calc(100% - 50px);
+    height: 40px;
+    line-height: 40px;
+    width: calc(100% - 60px);
     border-bottom: 1px solid rgba(255,255,255,.4);
     background-color: transparent;
     color: white;
@@ -63,8 +86,8 @@ app > view > menu > search form.form input.input:focus{
 }
 
 app > view > menu > search form.form button.btn-icon{
-    width: 30px;
-    height: 30px;
+    width: 60px;
+    height: 60px;
     background-color: transparent;
     position: absolute;
     top: 0;
@@ -75,9 +98,9 @@ app > view > menu > search form.form button.btn .btn-icon .material-icons{
 }
 
 app > view > menu > item .icon{
-    height: 50px;
-    width: 50px;
-    line-height: 50px;
+    height: 60px;
+    width: 60px;
+    line-height: 60px;
 }
 
 app > view > content{
@@ -85,7 +108,7 @@ app > view > content{
     left: 0;
     right: 0;
     bottom: 0;
-    top: 50px;
+    top: 60px;
     overflow-x: hidden;
     overflow-y: auto;
 }
@@ -96,13 +119,16 @@ app > view > content > .inner{
     margin: 10px;
     padding: 10px;
     box-sizing: border-box;
+    position: relative;
 }
 
 h2.title{
     margin: 0;
     padding: 0;
-    min-height: 50px;
-    line-height: 50px;
+    /*min-height: 50px;*/
+    /*line-height: 50px;*/
+    min-height: 60px;
+    line-height: 60px;
 }
 
 
@@ -158,6 +184,38 @@ h2.title{
     outline: 0;
 }
 
+.btn.btn-dialog{
+    min-height: 40px;
+    /*min-width: 40px;*/
+    line-height: 40px;
+    border: 0;
+    display: inline-block;
+    padding: 0 10px;
+
+    text-align: center;
+
+    font-weight: bold;
+
+    transition: all 150ms ease-in-out;
+}
+.row.row-remove{
+    margin: 10px -10px -10px -10px;
+    text-align: right;
+}
+.btn.btn-dialog.remove{
+    text-transform: uppercase;
+    color: red;
+}
+.btn.btn-dialog.ok,
+.btn.btn-dialog.cancel{
+    color: #008473;
+    text-transform: uppercase;
+}
+.btn.btn-dialog.remove:focus, .btn.btn-dialog.remove:active,
+.btn.btn-dialog.ok:focus, .btn.btn-dialog.ok:active,
+.btn.btn-dialog.cancel:focus, .btn.btn-dialog.cancel:active{
+    background-color: #ddd;
+}
 .wide{
     width: 100%;
 }
@@ -178,23 +236,17 @@ h2.title{
 
 .btn-default,
 .btn-icon{
-    min-width: 50px;
-    height: 50px;
-    line-height: 50px;
+    min-width: 60px;
+    height: 60px;
+    line-height: 60px;
     margin: 0;
     padding: 0;
     text-align: center;
 }
 .btn-icon .material-icons{
-    width: 50px;
-    height: 50px;
-    line-height: 50px;
-}
-
-[mdot]{
-    position: relative;
-    overflow: hidden;
-    z-index: 1;
+    width: 60px;
+    height: 60px;
+    line-height: 60px;
 }
 [noselect]{
     -webkit-user-select: none;  /* Chrome all / Safari all */
@@ -250,12 +302,12 @@ h2.title{
 
 
 menu.has-3 item{
-    width: 50px;
-    height: 50px;
+    width: 60px;
+    height: 60px;
 }
 menu.has-2 title{
-    width: calc( 100% - 50px );
+    width: calc( 100% - 60px );
 }
 menu.has-3 title{
-    width: calc( 100% - 100px );
+    width: calc( 100% - 120px );
 }

@@ -1,6 +1,6 @@
 <menu class='has-2 scheme'>
     <item action="navigateBack" mdot noselect>
-        <i class="material-icons">&#xE5C4;</i>
+        <i class="material-icons icon">&#xE5C4;</i>
     </item>
     <title>Afspraak</title>
 </menu>
@@ -17,8 +17,8 @@
     <section class='inner appointment view-debtor scheme' action="viewDebtor" mdot noselect>
         <h2 class='title'>Detail</h2>
     </section>
-    <section class='inner appointment view-remarks' action="viewRemarks" mdot noselect>
-        <h2 class='title'>Opmerkingen</h2>
+    <section class='inner appointment view-products' action='viewProducts' mdot noselect>
+        <h2 class='title'>Producten</h2>
     </section>
     <section class='inner'>
         <ul id='floorplan-list' class='floorplan-list'></ul>
@@ -31,14 +31,18 @@
 
 <script>
     $('view title').html( app.appointment.debtor.name );
+    if(app.appointment.sync == false || app.appointment.complete == true){
+        $('[action="completeAppointment"]').addClass('hidden');
+    }
 
+    if(app.appointment.hasOwnProperty('information')){
+        $('#appointment-information').html( app.appointment.information );
+    } else {
+        $('#appointment-information').addClass('hidden');
+    }
 
     if(app.appointment.red_card == true){
         $('#red-card').removeClass('hidden');
-    }
-
-    for(var i in app.appointment.checkpoints){
-        var sp =  app.appointment.checkpoints[i];
     }
 
     for(var i in app.appointment.floorplan){
@@ -48,13 +52,6 @@
         str += "</li>";
 
         $('#floorplan-list').append( $(str) );
-    }
-
-
-    if(app.appointment.hasOwnProperty('information')){
-        $('#appointment-information').html( app.appointment.information );
-    } else {
-        $('#appointment-information').addClass('hidden');
     }
 
 

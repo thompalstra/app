@@ -1,6 +1,6 @@
 <menu class='has-2'>
     <item action="navigateBack" mdot noselect>
-        <i class="material-icons">&#xE5C4;</i>
+        <i class="material-icons icon">&#xE5C4;</i>
     </item>
     <title>Installaties</title>
 </menu>
@@ -32,32 +32,103 @@ for(var i in app.appointment.service_types){
         var isAnswered = (isAnswered == true) ? 'completed' : '';
         var on = (st.state != null) ? st.state : '';
         str = "<li servicetype='"+i+"' on='"+on+"' class='"+isAnswered+"'>";
+        str += "<label class='prio_job'>" + app.const.prio_job[st.priotity] + "</label>";
+        if(st.state != null && st.red_card_on_state == true && st.state != 3){
+            str += "<label class='red-card-on-state'>Let op: rode kaart wordt uitgedeeld</label>";
+        }
+
         str += "<h2>" + st.name + "</h2>";
         str += "<p>" + st.remarks + "</p>";
         var width = (100 / st.states.length) + "%";
-        for(var iS in st.states){
-            var state = st.states[iS];
+
+        var data = [];
+
+        var output = [];
+
+        for(var cpi in app.appointment.checkpoints){
+        	var checkpoint = app.appointment.checkpoints[cpi];
+        	for(var cpqi in checkpoint.questions){
+        		var question = checkpoint.questions[cpqi];
+        		if(question.type == QUESTION_TYPE_PRODUCT && question.answered == true){
+        			var answer = question.answer;
+        			var product = app.products[answer[0]];
+                    if(product){
+                        var category = app.categories[product.product_category_id];
+                        if(category){
+                            var states = category.states;
+                            if(states.length != 0){
+                                output.push(states);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        function intersection() {
+          var result = [];
+          var lists;
+
+          if(arguments.length === 1) {
+            lists = arguments[0];
+          } else {
+            lists = arguments;
+          }
+
+          for(var i = 0; i < lists.length; i++) {
+            var currentList = lists[i];
+            for(var y = 0; y < currentList.length; y++) {
+                var currentValue = currentList[y];
+              if(result.indexOf(currentValue) === -1) {
+                var existsInAll = true;
+                for(var x = 0; x < lists.length; x++) {
+                  if(lists[x].indexOf(currentValue) === -1) {
+                    existsInAll = false;
+                    break;
+                  }
+                }
+                if(existsInAll) {
+                  result.push(currentValue);
+                }
+              }
+            }
+          }
+          return result;
+        }
+
+        output = intersection(output);
+
+        if(output.length > 0){
+            width = ( 100 / output.length ) + "%";
+        } else {
+            console.log('set states to default');
+            width = "33.333334%";
+            output = [1,2,3];
+        }
+
+
+        for(var iS in output){
+            var id = output[iS];
+            var state = st.states[id];
             str += "<label for='service_type_"+i+"_"+state.state_id+"'>";
             str += "<input id='service_type_"+i+"_"+state.state_id+"'' type='radio' name='service_type_"+i+"' value='"+state.state_id+"'>";
-            str += "<div class='service-type status-"+state.state_id+"' content='Overlast' style='background-color: "+state.colour+"; width: "+width+"'></div>";
+            str += "<div class='service-type status-"+state.state_id+"' content='"+state.state_name+"' style='background-color: "+state.colour+"; width: "+width+"'></div>";
             str += "</label>";
         }
 
         str += "</li>";
 
-        str += "<ul class='question-list "+isAnswered+"' >";
-        console.log(st);
-        for(var questionIndex in st.additional_questions){
-
-            var question = st.additional_questions[questionIndex];
-            console.log(question);
-            var answered = (question.answered) ? 'answered' : '';
-            str += "<li class='"+answered+"'>";
-            str +=  app.question.createHTML(questionIndex, question);
-            str += "</li>";
+        for(var stai in st.additional_questions){
+            var aq = st.additional_questions[stai];
+            str += "<ul class='question-list "+isAnswered+"' serviceTypeIndex='"+i+"' servicetype='"+stai+"' >";
+            for(var questionIndex in aq){
+                var question = aq[questionIndex];
+                var answered = (question.answered) ? 'answered' : '';
+                str += "<li class='"+answered+"'>";
+                str +=  app.question.createHTML(questionIndex, question);
+                str += "</li>";
+            }
+            str += "</ul>";
         }
-        str += "</ul>";
-
 
         $('.installation-list').append( $(str) );
     // } else {

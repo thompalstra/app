@@ -1,17 +1,33 @@
-<menu class='has-2'>
+<menu class='has-3'>
     <item action="navigateBack" mdot noselect>
-        <i class="material-icons">&#xE5C4;</i>
+        <i class="material-icons icon">&#xE5C4;</i>
     </item>
     <title>Tekenen</title>
+    <item action="signatureSubmit" mdot noselect>
+        <i class="material-icons icon">&#xE5C8;</i>
+    </item>
 </menu>
 <content>
+    <div id='dialog-payment' class='modal' dialog-ok='Ok' dialog-cancel='Annuleer' backdrop>
+        <div class='inner'>
+            <strong><p>Betaling</p></strong>
+            <p>Totaal te voldoen: <strong id='to-pay'></strong></p>
+            <p>Kies een betaalmethode:</p>
+            <div>
+                <label class='label label-payment-method'><input type='radio' name='payment_method' value='pin'>Pin</label>
+                <label class='label label-payment-method'><input type='radio' name='payment_method' value='cash'>Contant</label>
+            </div>
+            <div>
+                <input type='input input-dialog' type='text' name='payment_paid' class='modal-input'/>
+            </div>
+        </div>
+    </div>
+    <div class='modal-backdrop'></div>
     <div class='inner inner-signature'>
         <span class='signature-text'>klant</span>
         <div class='form'>
             <div class='row'>
                 <input id='customer-first-name' class='input' placeholder="Voornaam"/>
-            </div>
-            <div class='row'>
                 <input id='customer-last-name' class='input' placeholder="Achternaam"/>
             </div>
         </div>
@@ -28,14 +44,40 @@
         </canvas>
         </img>
         <i class="material-icons signature reset" action="signatureReset" target="inspector">&#xE23B;</i>
-
-        <i class="material-icons signature return" action='navigateBack' mdot noselect>&#xE5C4;</i>
-        <i class="material-icons signature sign" action="signatureSubmit" mdot noselect>&#xE5CA;</i>
     </div>
 
 
 </content>
 <script>
+
+if(app.appointment.completed == true || app.appointment.sync == false){
+    $('item[action="signatureSubmit"]').remove();
+}
+
+    $('#dialog-payment').on('ok', function(e){
+        e.preventDefault();
+        console.log('ok');
+        var amount = parseFloat( $('input[name="payment_paid"]').val() );
+
+        if(isNaN(amount)){
+            amount = 0;
+        }
+
+        app.appointment.payment.paid = amount;
+        app.appointment.payment.payment_method = $('input[name="payment_method"]:checked').val();
+
+        if(app.appointment.payment.payment_method){
+            $('.label-payment-method').removeClass('error');
+            var element = this;
+            app.day.update(function(e){
+                new Modal( element ).hide();
+                $('[action="signatureSubmit"]').trigger('click');
+            });
+        } else {
+            $('.label-payment-method').addClass('error');
+        }
+    });
+
     app.navigate.back = function(){
         app.navigate.to('views/installations/index.html', function(e){
 
@@ -44,14 +86,8 @@
     var ratio =  Math.max(window.devicePixelRatio || 1, 1);
 
     var canvasCustomer = document.querySelector('.signature-canvas[target="customer"]');
-    // canvasCustomer.width = canvasCustomer.offsetWidth * ratio;
-    // canvasCustomer.height = canvasCustomer.offsetHeight * ratio;
-    // canvasCustomer.getContext("2d").scale(ratio, ratio);
 
     var canvasInspector = document.querySelector('.signature-canvas[target="inspector"]');
-    // canvasInspector.width = canvasInspector.offsetWidth * ratio;
-    // canvasInspector.height = canvasInspector.offsetHeight * ratio;
-    // canvasInspector.getContext("2d").scale(ratio, ratio);
 
     var signaturePadCustomer = new SignaturePad(canvasCustomer);
     signaturePadCustomer.clear();
@@ -60,11 +96,11 @@
     signaturePadInspector.clear();
 
     if(app.appointment.signatures && app.appointment.signatures.customer){
-        signaturePadCustomer.fromData(app.appointment.signatures.customer);
+        signaturePadCustomer.fromDataURL(app.appointment.signatures.customer);
     }
 
     if(app.appointment.signatures && app.appointment.signatures.inspector){
-        signaturePadInspector.fromData(app.appointment.signatures.inspector);
+        signaturePadInspector.fromDataURL(app.appointment.signatures.inspector);
     }
 
     if(app.appointment.signatures && app.appointment.signatures.customer_first_name){

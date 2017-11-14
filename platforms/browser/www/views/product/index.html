@@ -1,0 +1,133 @@
+<menu class='has-2 scheme debtor-detail'>
+    <item action="navigateBack" mdot noselect>
+        <i class="material-icons icon">&#xE5C4;</i>
+    </item>
+    <title>Producten</title>
+</menu>
+<content>
+
+    <div id='dialog-product-amount' class='modal' dialog-ok='Ok' dialog-cancel='Annuleer' backdrop>
+        <div class='inner'>
+            <strong><p>Hoeveelheid</p></strong>
+            <p>Geef de hoeveelheid op</p>
+            <input id='product-amount' type="text" class='modal-input' placeholder='Aantal'></input>
+        </div>
+    </div>
+
+    <div id='dialog-product-edit' class='modal' dialog-ok='Ok' dialog-cancel='Annuleer' backdrop>
+        <div class='inner'>
+            <strong><p>Hoeveelheid</p></strong>
+            <p>Geef de hoeveelheid op</p>
+            <input id='product-edit-amount' type="text" class='modal-input' placeholder='Aantal'></input>
+            <div class='row row-remove'>
+                <btn class="btn btn-dialog remove">Verwijder</btn>
+            </div>
+        </div>
+    </div>
+
+    <div id='dialog-product-exists' class='modal' dialog-ok='Ok' backdrop>
+        <div class='inner'>
+            <strong><p>Product bestaat</p></strong>
+            <p>Product is al reeds toegevoegd. Wijzig de hoeveelheid bij het product.</p>
+        </div>
+    </div>
+    <div class='modal-backdrop'></div>
+
+    <div class='inner'>
+        <form id='form-add-product' class='form'>
+            <div class='row'>
+                <select id='select-product' class='input input-default pull-left'>
+
+                </select>
+                <button class='btn btn-default success pull-left'><i class="material-icons icon">add</i></button>
+            </div>
+        </form>
+    </div>
+    <div class='product-list'>
+
+    </div>
+</content>
+
+
+<script>
+    app.navigate.back = function(){
+        app.navigate.to('views/appointment/index.html', function(e){
+
+        });
+    }
+    for(var i in app.products){
+        var str = "<option value='"+i+"'>" + app.products[i].name + "</option>";
+        $('#select-product').append( $(str) );
+    }
+
+    for(var i in app.appointment.products){
+        var str = "<div class='inner product-row' data-key='"+i+"'>";
+        str += "<div class='product-count'>" + app.appointment.products[i] + "x</div>";
+        str += "<div class='product-name'>" + app.products[i].name + "</div>";
+        str += "</div>";
+        $('.product-list').append( $(str) );
+    }
+
+    $('#dialog-product-edit .remove').on('click', function(e){
+        var dataKey = $('#dialog-product-edit').attr('data-key');
+        delete app.appointment.products[dataKey];
+        app.day.update(function(e){
+            app.navigate.to('views/product/index.html', function(e){
+
+            });
+        });
+    });
+
+    $('.inner.product-row').on('click', function(e){
+        var dataKey = this.getAttribute('data-key');
+        var amount = app.appointment.products[dataKey];
+        $('#product-edit-amount').val(amount);
+        $('#dialog-product-edit').attr('data-key', dataKey);
+        new Modal( $('#dialog-product-edit')[0] ).show();
+    });
+
+    $('#dialog-product-edit').on('ok', function(e){
+        e.preventDefault();
+
+        var amount = $('#product-edit-amount').val();
+        var productId = this.getAttribute('data-key');
+
+        if(parseFloat(amount) > 0){
+            app.appointment.products[productId] = amount;
+            app.day.update(function(e){
+                app.navigate.to('views/product/index.html', function(e){
+
+                });
+            });
+        }
+    });
+
+
+    $('#dialog-product-amount').on('ok', function(e){
+        e.preventDefault();
+
+        var amount = $('#product-amount').val();
+        var productId = $('#select-product').val();
+
+        if(parseFloat(amount) > 0){
+            app.appointment.products[productId] = amount;
+            app.day.update(function(e){
+                app.navigate.to('views/product/index.html', function(e){
+
+                });
+            });
+        }
+    });
+
+    $('#form-add-product').on('submit', function(e){
+        e.preventDefault();
+
+        productId = $('#select-product').val();
+
+        if(app.appointment.products.hasOwnProperty(productId)){
+            new Modal( $('#dialog-product-exists')[0] ).show();
+        } else {
+            new Modal( $('#dialog-product-amount')[0] ).show();
+        }
+    });
+</script>

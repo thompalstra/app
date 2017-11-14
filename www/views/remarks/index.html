@@ -1,29 +1,62 @@
 <menu class='has-2 scheme remarks'>
     <item action="navigateBack" mdot noselect>
-        <i class="material-icons">&#xE5C4;</i>
+        <i class="material-icons icon">&#xE5C4;</i>
     </item>
     <title>Opmerkingen</title>
 </menu>
 <content>
+    <!-- <div id='dialog-upload-start' class='modal' dialog-ok='Ok' dialog-cancel='Annuleer' backdrop>
+        <div class='inner'>
+            <strong><p>Afbeeldingen toevoegen</p></strong>
+            <p>Wilt u de geselecteerde afbeelding uploaden?</p>
+        </div>
+    </div>
+    <div id='dialog-upload-progress' class='modal' backdrop>
+        <div class='inner'>
+            <strong><p>Bestand uploaden...</p></strong>
+            <progress id='remark-upload-progress'></progress>
+        </div>
+    </div>
+    <div id='dialog-upload-complete' class='modal' dialog-ok='Ok' backdrop>
+        <div class='inner'>
+            <strong><p>Bestandsupload voltooid</p></strong>
+            <p>Het uploaden is voltooid.</p>
+        </div>
+    </div> -->
+    <div id='dialog-image-uploading' class='modal' backdrop>
+        <div class='inner'>
+            <strong><p>Bestand uploaden...</p></strong>
+        </div>
+    </div>
+    <div id='dialog-image-uploaded' class='modal' dialog-ok='Ok' dialog-cancel='Annuleer' backdrop>
+        <div class='inner'>
+            <strong><p>Bestand geüpload!</p></strong>
+        </div>
+    </div>
+    <div class='modal-backdrop'></div>
+    <form id='remark-add-image-form' enctype='multipart/form-data'>
+        <input type='file' name='remarkAddImage' class='hidden'/>
+    </form>
     <ul class='remark-list'>
 
     </ul>
-    <i id='create-remark' action='addRemark' class="material-icons">add</i>
+    <i id='create-remark' action='remarkAdd' class="material-icons">add</i>
 </content>
 <script>
 app.navigate.back = function(){
-    app.navigate.to('views/appointment/index.html', function(e){
+    app.navigate.to('views/checkpoints/view.html', function(e){
 
     });
 }
 var r = new Remarks();
 r.find().findById(1, function(result){
     var remarks = result.data;
-
-    for(var i in app.appointment.remarks){
-        var remark = app.appointment.remarks[i];
-        var complete = (remark.hasOwnProperty('is_completed') && remark.is_completed == true) ? 'is_completed' : '';
-        var action = (remark.hasOwnProperty('is_completed') && remark.is_completed == true) ? 'markRemarkIncomplete' : 'markRemarkComplete';
+    for(var i in app.checkpoint.remarks){
+    // for(var i in app.appointment.remarks){
+        // var remark = app.appointment.remarks[i];
+        var remark = app.checkpoint.remarks[i];
+        var complete = (remark.hasOwnProperty('is_completed') && remark.is_completed == true) ? 'completed' : '';
+        var action = (remark.hasOwnProperty('is_completed') && remark.is_completed == true) ? 'remarkMarkIncomplete' : 'remarkMarkComplete';
         var actionText = (remark.hasOwnProperty('is_completed') && remark.is_completed == true) ? 'Aanmelden' : 'Afmelden';
         var toggled = (remark.hasOwnProperty('is_private') && remark.is_private == true) ? "toggled='true'" : '';
 
@@ -32,9 +65,15 @@ r.find().findById(1, function(result){
             str += "<i class='material-icons'>&#xE5D4;</i>";
             str += "<ul class='more-list hidden'>";
                 str += "<li action='"+action+"' remark='"+i+"' mdot noselect>"+actionText+"</li>";
+                str += "<li action='remarkAddImage' remark='"+i+"' mdot noselect>Foto toevoegen</li>";
 
                 if( (remark.hasOwnProperty('is_private') && remark.is_private == true) ){
                     str +=  "<li action='toggleRemark' remark='"+i+"'>Weergeven</li>";
+                }
+                if( (remark.hasOwnProperty('images') && remark.images.length > 0)){
+                    str +=  "<li action='remarkViewImages' remark='"+i+"'>Afbeeldingen</li>";
+                } else {
+                    str +=  "<li action='remarkViewImages' remark='"+i+"' disabled>Afbeeldingen</li>";
                 }
 
             str += "</ul>";
@@ -42,18 +81,19 @@ r.find().findById(1, function(result){
         if(remark.id == null){
             // is new
             str += "<h4>"+remark.name+"</h4>";
-            str += "<p>actiehouder: "+remarks.actionees[remark.actionee_id]+"<br/>";
-            str += "groep: "+remarks.groups[remark.group_id]+"<br/>";
-            str += "type: "+remarks.types[remark.type_id]+"</p>";
+            str += "<p>Actiehouder: "+remarks.actionees[remark.actionee_id]+"<br/>";
+            str += "Groep: "+remarks.groups[remark.group_id]+"<br/>";
+            str += "Type: "+remarks.types[remark.type_id]+"</p>";
         } else {
             str += "<h4>"+remark.name+"</h4>";
-            str += "<p>actiehouder: "+remark.actionee+"<br/>";
-            str += "groep: "+remark.group+"<br/>";
-            str += "type: "+remark.type+"</p>";
+            str += "<p>Gemaakt op: "+remark.created_at+"<br/>";
+            str += "Gewijzigd op: "+remark.updated_at+"</p>";
+            str += "<p>Actiehouder: "+remark.actionee+"<br/>";
+            str += "Groep: "+remark.group+"<br/>";
+            str += "Type: "+remark.type+"</p>";
         }
         $('.remark-list').append( $(str) );
     }
 });
-
 
 </script>

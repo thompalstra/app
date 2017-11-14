@@ -1,0 +1,93 @@
+<menu class='has-2 scheme remarks'>
+    <item action="navigateBack" mdot noselect>
+        <i class="material-icons icon">&#xE5C4;</i>
+    </item>
+    <title>Afbeeldingen</title>
+</menu>
+<content>
+    <div id='dialog-image-remove' class='modal' dialog-ok='Ok' dialog-cancel='Annuleer' backdrop>
+        <div class='inner'>
+            <strong><p>Bestand verwijderen.</p></strong>
+            <p>Weet u zeker dat u dit bestand wilt verwijderen?</p>
+        </div>
+    </div>
+    <div id='dialog-image-removed' class='modal' dialog-ok='Ok'backdrop>
+        <div class='inner'>
+            <strong><p>Bestand verwijderd!</p></strong>
+        </div>
+    </div>
+    <div class='modal-backdrop'></div>
+    <ul class='image-list'>
+
+    </ul>
+</content>
+<script>
+$(document).on('ok', '#dialog-image-removed', function(e){
+    for(var i in app.remark.images){
+        var image = app.remark.images[i];
+        if(image == file){
+            // delete  app.remark.images[i];
+            app.remark.images.splice(i, 1);
+            app.day.update(function(e){
+                app.navigate.to('views/remarks/images.html', function(e){
+
+                });
+            });
+        }
+    }
+});
+app.navigate.back = function(){
+    if($('.modal[open]').length == 0){
+        app.navigate.to('views/remarks/index.html', function(e){
+
+        });
+    }
+}
+
+var debtorRemarkId;
+var tempId;
+var file;
+
+for(var i in app.remark.images){
+    var str = "<li class='remark-image' debtor-remark-id='"+app.remark.id+"' temp-id='"+app.remark.temp_id+"' file='"+app.remark.images[i]+"'>";
+    var url = baseUrl + app.remark.images[i];
+    str += "<img src='"+url+"'>";
+    str += "</li>";
+
+    $('.image-list').append( $(str) );
+}
+$(document).on('click', '.remark-image', function(e){
+    debtorRemarkId = this.getAttribute('debtor-remark-id');
+    tempId = this.getAttribute('temp-id');
+    file = this.getAttribute('file');
+    new Modal( $('#dialog-image-remove')[0] ).show();
+});
+$('#dialog-image-remove').on('ok', function(e){
+
+    var data = {
+        "AppUserValidateForm[imei]": app.user.imei,
+        "AppUserValidateForm[token]": app.user.token,
+        "AppUserValidateForm[inspector_id]": app.user.inspector_id,
+        "debtor_remark_id": debtorRemarkId,
+        "temp_id": tempId,
+        "file": file
+    };
+
+
+    $.ajax({
+        url: app.restClient.remarkRemoveImage,
+        dataType: 'json',
+        method: 'POST',
+        data: data,
+        success: function(resp){
+            if(resp.result === true){
+                new Modal( $('#dialog-image-removed')[0] ).show();
+            }
+        },
+        error: function(err){
+            result = false;
+        },
+        async: false
+    });
+});
+</script>

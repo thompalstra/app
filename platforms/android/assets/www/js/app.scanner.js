@@ -3,6 +3,12 @@ var scanner = {
     onsuccess: function(data){
         if(app.scanner.canScan == false){
             alert("Selecteer eerst een afspraak, voordat u een meetpunt scant. succ");
+        } else if(app.scanner.canScan == 'insertCode'){
+            app.checkpoint.barcode = data;
+            app.day.update(function(e){
+                alert("Barcode bijgewerkt.");
+                app.navigate.to('views/checkpoints/view.html');
+            });
         } else {
             $('.form-search-code input[name="value"]').val(data);
             $('.form-search-code').submit();
@@ -18,9 +24,7 @@ var scanner = {
                 if(app.checkpoint){
                     app.navigate.to('views/checkpoints/view.html');
                 }
-
             }
-
         }
     },
     onerror: function(data){

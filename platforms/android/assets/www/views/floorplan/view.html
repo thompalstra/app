@@ -1,6 +1,6 @@
 <menu class='has-2 scheme floorplan'>
     <item action="navigateBack" mdot noselect>
-        <i class="material-icons">&#xE5C4;</i>
+        <i class="material-icons icon">&#xE5C4;</i>
     </item>
     <title>Vloerplan</title>
 </menu>
@@ -21,14 +21,16 @@ app.navigate.back = function(){
 
     });
 }
-var path = cordova.file.dataDirectory + 'img/' + app.floorplan.path;
+// var path = cordova.file.dataDirectory + 'img/' + app.floorplan.path;
+var path = baseUrl + '/job/get-floorplan?item=' + app.floorplan.path;
 $('view title').html( "Vloerplan: " + app.floorplan.name );
 $('#floorplan-container #floorplan').attr( 'src', path );
 
 for(var i in app.appointment.checkpoints){
     var cp = app.appointment.checkpoints[i];
     var fp = cp.floorplan;
-    var path = cordova.file.dataDirectory + 'img/' + fp.path;
+    // var path = cordova.file.dataDirectory + 'img/' + fp.path;
+    var path = baseUrl + '/job/get-icon?item=' + fp.path;
     var str = "<div class='floorplan-icon' style='top: "+fp.y+"; left: "+fp.x+";' action='viewCheckpoint' checkpoint='"+i+"' mdot noselect>";
     str += "<img src='"+path+"'/>";
     str += "</div>";
