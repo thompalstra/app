@@ -368,7 +368,8 @@ module.exports.metadata =
     "cordova-plugin-media-capture": "1.4.3",
     "cordova-plugin-statusbar": "2.2.3",
     "cordova-plugin-whitelist": "1.3.2",
-    "nzzplugin": "0.0.1"
+    "nzzplugin": "0.0.1",
+    "cordova-plugin-filepath": "1.0.2"
 }
 // BOTTOM OF METADATA
 });

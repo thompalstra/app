@@ -120,14 +120,14 @@ app > view > menu > item[action="sync"] .icon.syncing{
 #create-checkpoint,
 #create-remark{
     position: fixed;
-    width: 50px;
-    height: 50px;
+    width: 60px;
+    height: 60px;
     right: 10px;
     bottom: 10px;
     color: white;
     background-color: #71BA51;
     font-size: 25px;
-    line-height: 50px;
+    line-height: 60px;
     text-align: center;
     border-radius: 100%;
 }
@@ -143,6 +143,7 @@ app > view > menu > item[action="sync"] .icon.syncing{
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
+    list-style: none;
 }
 
 .checkpoint-list li.item{
@@ -152,15 +153,15 @@ app > view > menu > item[action="sync"] .icon.syncing{
     padding: 0;
     box-sizing: border-box;
     position: relative;
-    border-bottom-style: solid;
+    /*border-bottom-style: solid;
     border-bottom-width: 5px;
-    border-bottom-color: gray;
+    border-bottom-color: gray;*/
 }
 
 .checkpoint-list li.item.finished{
-    border-bottom-color: #71BA51;
-    order: 5;
+    order: 10;
 }
+
 .checkpoint-list li.item.unreachable{
     opacity: .4;
     order: 9;
@@ -168,9 +169,14 @@ app > view > menu > item[action="sync"] .icon.syncing{
 
 .checkpoint-list li.item h4{
     margin: 0;
-    padding: 0 60px 0 10px;
-    height: 50px;
-    line-height: 50px;
+    padding-right: 150px;
+    padding-left: 10px;
+    box-sizing: border-box;
+    width: 100%;
+    float: left;
+    min-height: 50px;
+    padding-top: 12px;
+    padding-bottom: 12px;
 }
 
 .no-results{
@@ -191,65 +197,105 @@ app > view > menu > item[action="sync"] .icon.syncing{
     color: #333;
 }*/
 
-.checkpoint-list li.item .view{
+/*.checkpoint-list li.item .view,*/
+.checkpoint-list li.item .is-temporary,
+.checkpoint-list li.item .used-tox,
+.checkpoint-list li.item .comments{
     position: absolute;
-    right: 0;
     top: 0;
-    font-family: "Material Icons";
+    text-align: center;
     height: 50px;
-    width: 50px;
-    text-align: center;
-    font-size: 26px;
     line-height: 50px;
-    color: #333;
-    /*border-left: 1px solid #ddd;*/
-}
-.checkpoint-list li.item .count{
-    /* font-family: "Material Icons"; */
-    /*height: 50px;*/
-    /*width: 50px;*/
-    /* font-size: 26px; */
-    /*line-height: 50px;*/
-    /* z-index: 10; */
-    position: absolute;
-    right: 50px;
-    top: 0;
-    text-align: center;
-    color: white;
-    background-color: orange;
-    border-radius: 100%;
-    height: 30px;
-    width: 30px;
-    line-height: 30px;
-    font-size: 12px;
-    margin: 10px 10px;
+    width: 50px;
 
+    color: #ddd;
+    border-left: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+}
+/*.checkpoint-list li.item .view > i,*/
+.checkpoint-list li.item .is-temporary > i,
+.checkpoint-list li.item .used-tox > i,
+.checkpoint-list li.item .comments > i{
+    height: 50px;
+    line-height: 50px;
+    width: 50px;
+}
+
+.checkpoint-list li.item .comments{
+    right: 0;
+}
+.checkpoint-list li.item .comments.active{
+    color: orange;
+}
+.checkpoint-list li.item .comments:after{
+    content: attr(count);
+    width: 20px;
+    height: 20px;
+    border-radius: 100%;
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    color: inherit;
+    background-color: #ddd;
+    color: white;
+    font-size: 12px;
+    line-height: 20px;
+}
+.checkpoint-list li.item .comments.active.active:after{
+    background-color: orange;
+}
+.checkpoint-list li.item .used-tox{
+    right: 50px;
+}
+.checkpoint-list li.item .used-tox.active{
+    color: red;
+}
+
+.checkpoint-list li.item .is-temporary{
+    right: 100px;
+}
+.checkpoint-list li.item .is-temporary.active{
+    color: #205C99;
 }
 
 .checkpoint-list li.item .code{
     width: 100%;
     display: inline-block;
     box-sizing: border-box;
-    background-color: #333;
-    color: white;
+    background-color: white;
+    color: #333;
+    border-top: 1px solid #ddd;
     height: 30px;
     line-height: 30px;
     padding: 0 10px;
     font-size: 12px;
+    float: left;
+}
+.checkpoint-list li.item.required .code{
+    background-color: #333;
+    color: white;
 }
 
-/*.checkpoint-list li.item:after{
-    content: attr(data-code);
-    width: 100%;
-    display: inline-block;
-    box-sizing: border-box;
-    background-color: #333;
+.checkpoint-list li.item.finished .code{
+    background-color: #71BA51;
     color: white;
-    height: 30px;
-    line-height: 30px;
-    padding: 0 10px;
+    order: 5;
+}
+.checkpoint-list li.item .debtor-service-type,
+.checkpoint-list li.item .checkpoint-type{
+    padding: 10px;
+    border-top: 1px solid #ddd;
     font-size: 12px;
-}*/
+    float: left;
+    box-sizing: border-box;
+    display: inline-block;
+    width: 100%;
+}
+
+.checkpoint-list li.item.unreachable .code{
+    background-color: white;
+    color: #333;
+}
 
 .planning-list{
     padding: 0;
@@ -262,7 +308,8 @@ app > view > menu > item[action="sync"] .icon.syncing{
     padding: 10px;
     height: 50px;
     line-height: 30px;
-    margin: 0;
+    /*margin: 0;*/
+    margin: 0 -10px;
     box-sizing: border-box;
     position: relative;
 }
@@ -278,7 +325,8 @@ app > view > menu > item[action="sync"] .icon.syncing{
 }
 
 .planning-list .inner{
-    background-color: white;
+    background-color: #ddd;
+    border: 0 !important;
     width: calc(100% - 20px);
     margin: 10px;
     padding: 0;
@@ -301,8 +349,29 @@ app > view > content > .inner,
 }
 .planning-list > section > li > ul > li{
     text-align: left;
+        padding: 0;
+        position: relative;
+        margin: 10px 0;
+        background-color: white;
+        border: 1px solid #c5c5c5;
+}
+
+.planning-list > section > li > ul > li .data-row{
+    width: 100%;
     padding: 0 10px;
-    position: relative;
+}
+
+.planning-list > section > li > ul > li .data-row.normal{
+    height: 50px;
+    line-height: 50px;
+    font-size: medium;
+}
+
+.planning-list > section > li > ul > li .data-row.small{
+    border-top: 1px solid #ddd;
+    min-height: 25px;
+    line-height: 25px;
+    font-size: smaller;
 }
 
 .planning-list > section > li > ul > li.done{
@@ -333,9 +402,8 @@ app > view > content > .inner,
     padding: 0;
     margin: 10px 0 0 0;
     list-style: none;
-    display: flex;
-    flex-direction: column;
 }
+
 .question-list li{
     width: calc(100% - 20px);
     padding: 0;
@@ -363,6 +431,18 @@ app > view > content > .inner,
     opacity: 1;
 }
 
+.installations{
+
+}
+.installations .installation{
+
+}
+.installations .installation small,
+.installations .installation normal{
+    width: 100%;
+    display: inline-block;
+}
+
 .installation-list{
     width: calc(100% - 20px);
     padding: 0;
@@ -380,7 +460,26 @@ app > view > content > .inner,
     overflow: auto;
     width: 100%;
     padding: 10px;
+    margin: 0 0 10px 0;
     box-sizing: border-box;
+}
+
+
+.toggle-additional-questions{
+    display: inline-block;
+    width: 100%;
+    padding: 10px;
+    margin: 10px -10px -10px -10px;
+    text-align: center;
+    background-color: #333;
+    color: white;
+}
+
+.installation-list > li[servicetype][show] + .service-type-questions{
+    /*margin: 0 0 10px 0;*/
+}
+.installation-list > li[servicetype][hide] + .service-type-questions{
+    display: none;
 }
 
 .installation-list li h2{
@@ -399,6 +498,7 @@ app > view > content > .inner,
     position: relative;
     margin-top: 10px;
     border-top: 10px solid gray;
+    font-size: 11px;
 }
 .installation-list li .service-type:after{
     content: attr(content);
@@ -424,17 +524,28 @@ app > view > content > .inner,
     margin: 0;
 }
 
-.installation-list > li[on="1"] ~ .question-list[servicetype="1"]{
-        margin-top: 10px;
-    display: inherit;
+.question-list{
+    display: flex;
+    flex-direction: column;
 }
-.installation-list > li[on="2"] ~ .question-list[servicetype="2"]{
-        margin-top: 10px;
-    display: inherit;
+
+.installation-list .question-list{
+    width: 100%;
+    float: left;
+    margin: 0 0 10px 0;
 }
-.installation-list > li[on="3"] ~ .question-list[servicetype="3"]{
-        margin-top: 10px;
-    display: inherit;
+
+.installation-list > li[on="1"] + .service-type-questions > .question-list[servicetype="1"]{
+    /*margin-top: 10px;*/
+    display: flex;
+}
+.installation-list > li[on="2"] + .service-type-questions > .question-list[servicetype="2"]{
+    /*margin-top: 10px;*/
+    display: flex;
+}
+.installation-list > li[on="3"] + .service-type-questions > .question-list[servicetype="3"]{
+    /*margin-top: 10px;*/
+    display: flex;
 }
 
 .appointment{
@@ -444,7 +555,8 @@ app > view > content > .inner,
 .appointment.view-checkpoints,
 .appointment.view-debtor,
 .appointment.view-remarks,
-.appointment.view-products{
+.appointment.view-products,
+.appointment.view-summary{
     line-height: 40px;
     padding: 0 10px;
 }
@@ -460,7 +572,8 @@ line-height: normal;
 .appointment.view-checkpoints .title,
 .appointment.view-debtor .title,
 .appointment.view-remarks .title,
-.appointment.view-products .title{
+.appointment.view-products .title,
+.appointment.view-summary .title{
     /*line-height: 80px;*/
     font-size: 16px;
 }
@@ -588,7 +701,7 @@ line-height: normal;
     margin-bottom: 0;
 }
 
-.installation-list li[on="1"] .status-1{
+.installation-list li[on="1"] .status-1.active{
     border-top: 10px solid #CF000F;
 }
 .installation-list li[on="1"] .status-2,
@@ -596,7 +709,7 @@ line-height: normal;
     filter:brightness(90%);
     border-top: 10px solid gray;
 }
-.installation-list li[on="2"] .status-2{
+.installation-list li[on="2"] .status-2.active{
     border-top: 10px solid #cccccc;
 }
 .installation-list li[on="2"] .status-1,
@@ -604,7 +717,7 @@ line-height: normal;
     filter:brightness(90%);
     border-top: 10px solid gray;
 }
-.installation-list li[on="3"] .status-3{
+.installation-list li[on="3"] .status-3.active{
     border-top: 10px solid #4a86e8;
 }
 .installation-list li[on="3"] .status-1,
@@ -700,6 +813,7 @@ line-height: normal;
 }
 .form.question-form{
     position: relative;
+    margin-bottom: 0;
 }
 .form.question-form h4{
     margin: 0; padding: 10px 0;
@@ -748,7 +862,7 @@ line-height: normal;
 }
 
 [action="moreShow"] .more-list li{
-    width: 200px;
+    width: 270px;
     text-align: left;
     padding: 0 10px;
     box-sizing: border-box;
@@ -923,7 +1037,7 @@ progress{
 .modal{
     position: fixed;
     /*top: 0;*/
-    transform: translate(0, -50%);
+    /*transform: translate(0, -50%);*/
     top: 50%;
     left: 0;
     right: 0;
@@ -939,12 +1053,14 @@ progress{
     -webkit-box-shadow: 2px 2px 14px 2px rgba(0,0,0,0.3);
     -moz-box-shadow: 2px 2px 14px 2px rgba(0,0,0,0.3);
     box-shadow: 2px 2px 14px 2px rgba(0,0,0,0.3);
-
+    /*height: 100%;*/
+    overflow-y: auto;
     z-index: 10000;
     display: none;
 }
 .modal[open]{
     display: inherit;
+    max-height: calc( 100% - 40px);
 }
 
 .modal .row.btn-row{
@@ -975,6 +1091,12 @@ progress{
 }
 .modal .inner{
     padding: 10px;
+    max-height: calc( 100% - 40px);
+    position: relative;
+    display: inline-block;
+    width: 100%;
+    box-sizing: border-box;
+    overflow-y: auto;
 }
 
 .modal .modal-input{
@@ -1028,5 +1150,70 @@ progress{
     padding: 10px;
     margin: -10px -10px 10px -10px;
     background-color: #CF000F;
+    color: white;
+}
+
+
+.service-type-questions{
+    order: 5;
+}
+
+
+.remark-list .image-container{
+    float: left;
+    display: inline-block;
+    position: relative;
+    background-color: black;
+}
+.remark-list .image-container > img{
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: auto;
+    max-width: 100%;
+max-height: 100%;
+}
+.job-summary .summary-products,
+.job-summary .summary-remarks{
+    margin: 0;
+    padding: 10px;
+    background-color: white;
+    width: 100%;
+    border-left: 0;
+    border-right: 0;
+}
+.job-summary .inner.product-row:first-child{
+    margin: 10px;
+}
+.job-summary .inner.product-row{
+    margin: 0 10px 10px 10px;
+}
+
+.picturesourcetype{
+    width: 50%;
+    height: 80px;
+    line-height: 80px;
+    margin: 20px 0;
+    float: left;
+    font-family: 'Material Icons';
+    font-weight: normal;
+    font-style: normal;
+    font-size: 40px;
+    letter-spacing: normal;
+    text-transform: none;
+    display: inline-block;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    -webkit-font-feature-settings: 'liga';
+    -webkit-font-smoothing: antialiased;
+    text-align: center;
+    color: #008473;
+    transition: all 150ms linear;
+}
+.picturesourcetype:active{
+    background-color: #ddd;
     color: white;
 }

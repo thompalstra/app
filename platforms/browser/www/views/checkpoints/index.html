@@ -10,6 +10,10 @@
     </search>
 </menu>
 <content>
+    <div id='dialog-dialog-remark' class='modal' dialog-ok='Ok' dialog-cancel='Annuleer' backdrop>
+        <div class='inner'>
+        </div>
+    </div>
 
     <div id='dialog-checkpoint-add' class='modal' dialog-ok='Ok' dialog-cancel='Annuleer' backdrop>
         <div class='inner'>
@@ -44,8 +48,7 @@
 
         });
     }
-    app.checkpoint = null;
-    app.checkpointIndex = null;
+
     var appointment = app.appointment;
 
     for(var checkpointTypeId in app.checkpointTypes){
@@ -67,29 +70,34 @@
         }
 
         var isFinished = "finished";
-
-        for(var qI in sp.questions){
-            var q = sp.questions[qI];
-            if(q.answered == false && q.is_required == true){
-                isFinished = false;
-                break;
+        if(sp.is_required == true && sp.is_opened == false){
+            isFinished = false;
+        } else {
+            for(var qI in sp.questions){
+                var q = sp.questions[qI];
+                if( q.answered == false && q.is_required == true  ){
+                    isFinished = false;
+                    break;
+                }
             }
         }
 
-        var unreachable = (sp.unreachable == true) ? 'unreachable' : '';
+
+
 
         var className = "item";
 
         if(isFinished){
             className += " finished";
         }
-        if(sp.unreachable){
+        if(sp.unreachable || sp.exists == false){
             className += " unreachable";
         }
         if(sp.is_required){
             className += " required";
         }
 
+        // var str = "<li class='checkpoint-type' action='viewCheckpoint' checkpoint='"+sp.checkpoint_type.name + "(" + sp.checkpoint_type_sequence_number + ")" + "' mdot noselect>";
         var str = "<li class='"+className+"' data-code='"+sp.barcode+"' action='viewCheckpoint' checkpoint='"+i+"' mdot noselect>";
         str += "<h4>" + sp.location_description + "</h4>";
 
@@ -110,7 +118,17 @@
         // str += "<div class='"+className+"'></div>";
         str += "<div class='"+className+"' count='"+count+"'><i class='material-icons'>&#xE002;</i></div>";
 
-        // str += "<div class='view'><i class='material-icons'>&#xE8B6;</i></div>";
+        var className = (sp.is_temporary == true) ? 'is-temporary active' : 'is-temporary';
+
+        str += "<div class='"+className+"'><i class='material-icons'>&#xE192;</i></div>";
+
+        if( sp.hasOwnProperty('debtor_service_type_id')){
+            str += "<div class='debtor-service-type'>" + app.appointment.service_types[sp.debtor_service_type_id].name + "</div>";
+        }
+
+        if( sp.hasOwnProperty('checkpoint_type') ){
+            str += "<div class='checkpoint-type'>" + sp.checkpoint_type.name + " - " + sp.checkpoint_type_sequence_number + "</div>";
+        }
         str += "<div class='code'>" + sp.barcode + "</div>";
         str += "</li>";
         $('.checkpoint-list').append( $(str) );

@@ -36,8 +36,9 @@
     <div class='inner'>
         <form id='form-add-product' class='form'>
             <div class='row'>
+                <input type="text" name="product-name-filter" class='input input-default pull-left' style='margin-bottom: 10px;'/>
                 <select id='select-product' class='input input-default pull-left'>
-
+                    <option value='' class='empty hidden'>Geen product(en) gevonden</option>
                 </select>
                 <button class='btn btn-default success pull-left'><i class="material-icons icon">add</i></button>
             </div>
@@ -67,7 +68,7 @@
         str += "</div>";
         $('.product-list').append( $(str) );
     }
-
+    $('#select-product').val( $('#select-product option:not(.hidden)')[0].value  );
     $('#dialog-product-edit .remove').on('click', function(e){
         var dataKey = $('#dialog-product-edit').attr('data-key');
         delete app.appointment.products[dataKey];
@@ -124,10 +125,44 @@
 
         productId = $('#select-product').val();
 
-        if(app.appointment.products.hasOwnProperty(productId)){
-            new Modal( $('#dialog-product-exists')[0] ).show();
+        if( productId == '' ){
+            alert('Selecteer een product.');
         } else {
-            new Modal( $('#dialog-product-amount')[0] ).show();
+            if(!app.appointment.hasOwnProperty('products')){ app.appointment.products = {}; }
+            if(app.appointment.products.hasOwnProperty(productId)){
+                new Modal( $('#dialog-product-exists')[0] ).show();
+            } else {
+                new Modal( $('#dialog-product-amount')[0] ).show();
+            }
         }
     });
+    $('[name="product-name-filter"]').on('keyup', function(e){
+        var value = this.value.toLowerCase();
+        var currentValue = $('#select-product').val();
+        var reset = false;
+        $('#select-product option:not(.empty)').each(function(e){
+            if( this.value == '' ){
+                return;
+            }
+            var innerValue = this.innerHTML.toLowerCase();
+            if( innerValue.indexOf(value) !== -1 ){
+                $(this).removeClass('hidden');
+            } else {
+                if(this.value == currentValue){
+                    reset = true;
+                }
+                $(this).addClass('hidden');
+            }
+        });
+
+        if( reset == true || this.value == '' ){
+            if( $('#select-product option:not(.hidden):not(.empty)').length > 0 ){
+                $('#select-product option.empty').addClass('hidden');
+                $('#select-product').val( $('#select-product option:not(.hidden)')[0].value  );
+            } else {
+                $('#select-product option.empty').removeClass('hidden');
+                $('#select-product').val( '' );
+            }
+        }
+    })
 </script>

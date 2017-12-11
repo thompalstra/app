@@ -40,6 +40,20 @@
     <ul class='remark-list'>
 
     </ul>
+    <div id='dialog-select-image-source' class='modal' dialog-ok='Ok' dialog-cancel='Annuleer' backdrop>
+        <div class='inner'>
+            <!-- str += "<li action='remarkAddImage' remark='"+i+"' sourceType='"+Camera.PictureSourceType.CAMERA+"' mdot noselect>Camera</li>";
+            str += "<li action='remarkAddImage' remark='"+i+"' sourceType='"+Camera.PictureSourceType.PHOTOLIBRARY+"' mdot noselect>Galerij</li>"; -->
+            <strong>Afbeelding toevoegen vanuit:</strong>
+            <div class='picturesourcetype icon-gallery' action='remarkAddImage' remark='' sourceType=''>
+                &#xE413;
+            </div>
+            <div class='picturesourcetype icon-camera' action='remarkAddImage' remark='' sourceType=''>
+                &#xE412;
+            </div>
+        </div>
+    </div>
+    <div class='modal-backdrop'></div>
     <i id='create-remark' action='remarkAdd' class="material-icons">add</i>
 </content>
 <script>
@@ -51,6 +65,7 @@ app.navigate.back = function(){
 var r = new Remarks();
 r.find().findById(1, function(result){
     var remarks = result.data;
+
     for(var i in app.checkpoint.remarks){
     // for(var i in app.appointment.remarks){
         // var remark = app.appointment.remarks[i];
@@ -65,7 +80,9 @@ r.find().findById(1, function(result){
             str += "<i class='material-icons'>&#xE5D4;</i>";
             str += "<ul class='more-list hidden'>";
                 str += "<li action='"+action+"' remark='"+i+"' mdot noselect>"+actionText+"</li>";
-                str += "<li action='remarkAddImage' remark='"+i+"' mdot noselect>Foto toevoegen</li>";
+                str += "<li class='add-picture' remark='"+i+"'>Foto toevoegen</li>";
+
+                str += "<li action='editRemark' remark='"+i+"'>Bewerken</li>";
 
                 if( (remark.hasOwnProperty('is_private') && remark.is_private == true) ){
                     str +=  "<li action='toggleRemark' remark='"+i+"'>Weergeven</li>";
@@ -78,22 +95,24 @@ r.find().findById(1, function(result){
 
             str += "</ul>";
         str += "</item>";
-        if(remark.id == null){
-            // is new
-            str += "<h4>"+remark.name+"</h4>";
-            str += "<p>Actiehouder: "+remarks.actionees[remark.actionee_id]+"<br/>";
-            str += "Groep: "+remarks.groups[remark.group_id]+"<br/>";
-            str += "Type: "+remarks.types[remark.type_id]+"</p>";
-        } else {
-            str += "<h4>"+remark.name+"</h4>";
+
+        str += "<p>"+remark.name+"</p>";
+        str += "<p>"+remark.action+"</p>";
+        str += "<p>Actiehouder: "+remarks.actionees[remark.actionee_id]+"<br/>";
+        str += "Type: "+remarks.types[remark.type_id]+"</p>";
+        if(remark.id != null){
             str += "<p>Gemaakt op: "+remark.created_at+"<br/>";
             str += "Gewijzigd op: "+remark.updated_at+"</p>";
-            str += "<p>Actiehouder: "+remark.actionee+"<br/>";
-            str += "Groep: "+remark.group+"<br/>";
-            str += "Type: "+remark.type+"</p>";
         }
         $('.remark-list').append( $(str) );
     }
 });
 
+$(document).on('click', '.add-picture', function(e){
+    document.querySelector('.icon-gallery').setAttribute('remark', this.getAttribute('remark'));
+    document.querySelector('.icon-gallery').setAttribute('sourceType', Camera.PictureSourceType.PHOTOLIBRARY);
+    document.querySelector('.icon-camera').setAttribute('remark', this.getAttribute('remark'));
+    document.querySelector('.icon-camera').setAttribute('sourceType', Camera.PictureSourceType.CAMERA);
+    new Modal( $('#dialog-select-image-source')[0] ).show();
+});
 </script>

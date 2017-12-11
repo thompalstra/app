@@ -36,14 +36,7 @@
 
         </canvas>
         </img>
-        <i class="material-icons signature reset" action="signatureReset" target="customer">&#xE23B;</i>
-        <span class='signature-text'>bestrijder</span>
-        <img>
-        <canvas class='signature-canvas' target="inspector">
-
-        </canvas>
-        </img>
-        <i class="material-icons signature reset" action="signatureReset" target="inspector">&#xE23B;</i>
+        <i class="material-icons signature reset" action="signatureReset" target="customer">&#xE23B;</i>        
     </div>
 
 
@@ -79,7 +72,7 @@ if(app.appointment.completed == true || app.appointment.sync == false){
     });
 
     app.navigate.back = function(){
-        app.navigate.to('views/installations/index.html', function(e){
+        app.navigate.to('views/summary/index.html', function(e){
 
         });
     }
@@ -87,20 +80,11 @@ if(app.appointment.completed == true || app.appointment.sync == false){
 
     var canvasCustomer = document.querySelector('.signature-canvas[target="customer"]');
 
-    var canvasInspector = document.querySelector('.signature-canvas[target="inspector"]');
-
     var signaturePadCustomer = new SignaturePad(canvasCustomer);
     signaturePadCustomer.clear();
 
-    var signaturePadInspector = new SignaturePad(canvasInspector)
-    signaturePadInspector.clear();
-
     if(app.appointment.signatures && app.appointment.signatures.customer){
         signaturePadCustomer.fromDataURL(app.appointment.signatures.customer);
-    }
-
-    if(app.appointment.signatures && app.appointment.signatures.inspector){
-        signaturePadInspector.fromDataURL(app.appointment.signatures.inspector);
     }
 
     if(app.appointment.signatures && app.appointment.signatures.customer_first_name){

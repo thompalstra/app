@@ -2,26 +2,53 @@ var scanner = {
     canScan: false,
     onsuccess: function(data){
         if(app.scanner.canScan == false){
-            alert("Selecteer eerst een afspraak, voordat u een meetpunt scant. succ");
+            alert("Selecteer eerst een afspraak, voordat u een controlepunt scant.");
         } else if(app.scanner.canScan == 'insertCode'){
-            app.checkpoint.barcode = data;
-            app.day.update(function(e){
-                alert("Barcode bijgewerkt.");
-                app.navigate.to('views/checkpoints/view.html');
-            });
+            var debtor_service_type_id = app.checkpoint.debtor_service_type_id;
+            var exists = false;
+            for(var i in app.appointment.checkpoints){
+                var cp = app.appointment.checkpoints[i];
+
+                if(cp.debtor_service_type_id == debtor_service_type_id){
+
+                    if( String( cp.barcode ) == String( data ) ){
+                        exists = true;
+                        break;
+                    }
+                }
+            }
+            if( exists == true ){
+                alert("Barcode wordt reeds gebruikt. Gebruik een andere barcode");
+            } else {
+                app.checkpoint.barcode = data;
+                app.checkpoint.is_scanned = true;
+                app.scanner.canScan = false;
+                app.day.update(function(e){
+                    alert("Barcode bijgewerkt.");
+
+                    app.navigate.to('views/checkpoints/view.html');
+                });
+            }
         } else {
             $('.form-search-code input[name="value"]').val(data);
             $('.form-search-code').submit();
 
+            console.log('search for barcode: ' + data);
+
             var items = $('.checkpoint-list .item:not(.hidden');
             if(items.length == 1){
-            	console.log('Going to target...');
-
                 var checkpoint = $(items[0]).attr('checkpoint');
                 app.checkpoint = app.appointment.checkpoints[checkpoint];
                 app.checkpoint.scanned = true;
                 app.checkpointIndex = checkpoint;
                 if(app.checkpoint){
+                    if(!app.checkpoint.is_opened){
+                        app.checkpoint.is_opened = true;
+                        app.day.update(function(e){
+                            app.navigate.to('views/checkpoints/view.html');
+                        });
+                    }
+
                     app.navigate.to('views/checkpoints/view.html');
                 }
             }

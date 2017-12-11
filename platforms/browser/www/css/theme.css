@@ -206,6 +206,18 @@ h2.title{
     text-transform: uppercase;
     color: red;
 }
+
+.btn.btn-dialog.complete{
+    color: #008473;
+    text-transform: uppercase;
+    background-color: transparent;
+    font-weight: bold;
+    font-size: 16px;
+}
+.btn.btn-dialog.complete:active{
+    background-color: #ddd;
+}
+
 .btn.btn-dialog.ok,
 .btn.btn-dialog.cancel{
     color: #008473;

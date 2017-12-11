@@ -2,8 +2,11 @@
     <item action="navigateBack" mdot noselect>
         <i class="material-icons icon">&#xE5C4;</i>
     </item>
-    <title>Installaties</title>
-    <item action='signAppointment' mdot noselect>
+    <title>Servicetypen</title>
+    <!-- <item action='signAppointment' mdot noselect>
+        <i class="material-icons icon">&#xE5C8;</i>
+    </item> -->
+    <item action='viewSummary' mdot noselect>
         <i class="material-icons icon">&#xE5C8;</i>
     </item>
 </menu>
@@ -22,6 +25,7 @@
 
     for (var i in app.appointment.service_types) {
         var st = app.appointment.service_types[i];
+        var serviceTypeIndex = i;
         // if(st.additional_questions.hasOwnProperty('on')){
         var isAnswered = true;
         for (var iq in st.additional_questions.questions) {
@@ -51,20 +55,27 @@
 
         for (var cpi in app.appointment.checkpoints) {
             var checkpoint = app.appointment.checkpoints[cpi];
+            if( checkpoint.debtor_service_type_id != i ){
+                continue;
+            }
             for (var cpqi in checkpoint.questions) {
                 var question = checkpoint.questions[cpqi];
                 if (question.type == QUESTION_TYPE_PRODUCT && question.answered == true) {
                     var answer = question.answer;
-                    var product = app.products[answer[0]];
-                    if (product) {
-                        var category = app.categories[product.product_category_id];
-                        if (category) {
-                            var states = category.states;
-                            if (states.length != 0) {
-                                output.push(states);
+                    // if( parseFloat(answer[1]) > 0 ){
+                        var product = app.products[answer[0]];
+                        if (product) {
+                            var category = app.categories[product.product_category_id];
+                            if (category) {
+                                var states = category.states;
+                                var outputStates = [];
+                                for(var i in states){
+                                    outputStates.push(states[i]);
+                                }
+                                output.push(outputStates);
                             }
                         }
-                    }
+                    // }
                 }
             }
         }
@@ -102,25 +113,45 @@
 
         output = intersection(output);
 
-        if (output.length > 0) {
-            width = (100 / output.length) + "%";
+        var l = 0;
+        for (var aaa in output) {
+            for(var aab in st.states){
+                if(st.states[aab].state_id == output[aaa]){
+                    l++;
+                }
+            }
+        }
+
+        if (l > 0) {
+            width = (100 / l) + "%";
         } else {
-            console.log('set states to default');
-            width = "33.333334%";
+            var c = 0;
+            for(var i in st.states){
+                c++;
+            }
+            width = 100 / c + "%" ;
             output = [1, 2, 3];
         }
 
-
         for (var iS in output) {
-            var id = output[iS];
-            var state = st.states[id];
-            str += "<label for='service_type_" + i + "_" + state.state_id + "'>";
-            str += "<input id='service_type_" + i + "_" + state.state_id + "'' type='radio' name='service_type_" + i + "' value='" + state.state_id + "'>";
-            str += "<div class='service-type status-" + state.state_id + "' content='" + state.state_name + "' style='background-color: " + state.colour + "; width: " + width + "'></div>";
-            str += "</label>";
+            var state_id = output[iS];
+            for(var ist in st.states){
+                if(st.states[ist].state_id == state_id){
+                    var state = st.states[ist];
+                    var active = "";
+                    if(state.replanning_days == st.replanning_days){
+                        active = "active";
+                    }
+                    str += "<label for='service_type_" + serviceTypeIndex + "_" + state.state_id + "_" + state.replanning_days + "'>";
+                    str += "<input id='service_type_" + serviceTypeIndex + "_" + state.state_id + "_" + state.replanning_days + "'' type='radio' name='service_type_" + i + "' value='" + state.state_id + "' replanning-days='"+state.replanning_days+"'>";
+                    str += "<div class='service-type status-" + state.state_id + " " + active + "' content='" + state.state_name + "' style='background-color: " + state.colour + "; width: " + width + "'></div>";
+                    str += "</label>";
+                }
+            }
+
         }
 
-        var text = (displayAdditionalQuestionsList == 'show') ? 'Vragenlijst(en) verbergen' : 'Vragenlijst(en) weergeven';
+        var text = (displayAdditionalQuestionsList == 'show') ? 'Vragen verbergen' : 'Vragen weergeven';
 
         str += "<div class='toggle-additional-questions'>"+text+"</div>";
         str += "</li>";
@@ -130,7 +161,7 @@
         for (var stai in st.additional_questions) {
             var aq = st.additional_questions[stai];
             if(aq.length > 0){
-                str += "<ul class='question-list " + isAnswered + "' serviceTypeIndex='" + i + "' servicetype='" + stai + "' >";
+                str += "<ul class='question-list " + isAnswered + "' serviceTypeIndex='" + serviceTypeIndex + "' servicetype='" + stai + "' >";
                 for (var questionIndex in aq) {
                     var question = aq[questionIndex];
                     var answered = (question.answered) ? 'answered' : '';

@@ -1,0 +1,160 @@
+<menu class='has-3'>
+    <item action="navigateBack" mdot noselect>
+        <i class="material-icons icon">&#xE5C4;</i>
+    </item>
+    <title>Overzicht</title>
+    <item action="signAppointment" mdot noselect>
+        <i class="material-icons icon">&#xE5C8;</i>
+    </item>
+</menu>
+<content>
+    <div class='job-summary'>
+        <section class='inner summary-products'><h2 class='title'>Producten</h2></section>
+        <div class='product-list'>
+
+        </div>
+        <section class='inner summary-remarks'><h2 class='title'>Opmerkingen</h2></section>
+        <ul class='remark-list'>
+
+        </ul>
+    </div>
+</content>
+<script>
+
+    app.navigate.back = function(){
+        app.navigate.to('views/installations/index.html', function(e){
+
+        });
+    }
+
+    function outputProductListRowHtml( item ){
+        var product = app.products[item.id];
+        if(product != null && parseFloat(item.amount) > 0 ){
+            var html = app.templates.productListView;
+            html = html.replace(/{product.name}/g, product.name).replace(/{product.amount}/g, item.amount);
+            html = html.replace(/{service_types}/g, item.service_types.join(", ")).replace(/{checkpoints}/g, item.checkpoints.join(", "));
+            $(".product-list").append( $(html) );
+        }
+    }
+
+    function outputRemarkListRowHtml( item ){
+        // var remark = app.products[item.id];
+        // console.log(item.id);
+        var html = app.templates.remarkListView;
+        var r = new Remarks();
+
+        r.find().findById(1, function(result){
+            var remarks = result.data;
+            remark = item;
+            name = remark.name;
+            action = remark.action;
+
+            console.log( remark );
+
+            actionee = remarks.actionees[remark.actionee_id];
+            type = remarks.types[remark.type_id];
+
+            var images = "";
+
+            if(remark.images.length < 4){
+                var width = 100 / remark.images.length + "%";
+            }
+            var width = "25%";
+
+            for(var i in remark.images){
+                images += "<div class='image-container' style='width: "+width+"; padding-bottom: "+width+"; '>";
+                var url = baseUrl + remark.images[i];
+                images += "<img src='"+url+"' style='width: 100%; max-height: 100%;'>";
+                images += "</div>";
+            }
+
+            html = html.replace(/{actionee}/g, actionee).replace(/{name}/g, name).replace(/{action}/g, action);
+            html = html.replace(/{type}/g, type).replace(/{images}/g, images).replace(/{checkpoint}/g, remark.checkpoint);
+            $(".remark-list").append( $(html) );
+        });
+
+    }
+
+    var productList = {};
+    var remarkList = [];
+
+    function addProduct(id, checkpoint_name, service_type_name, amount ){
+        if(productList.hasOwnProperty(id)){
+            console.log('increment');
+            var item = productList[id];
+            item.amount = parseFloat( item.amount ) + parseFloat( amount );
+            if(checkpoint_name != null){
+                item.checkpoints.push(checkpoint_name);
+            }
+            if(service_type_name != null){
+                item.service_types.push(service_type_name);
+            }
+
+        } else {
+            console.log('add');
+            var item = {
+                id: id,
+                amount: amount,
+                checkpoints: [],
+                service_types: []
+            };
+            if(checkpoint_name != null){
+                item.checkpoints.push(checkpoint_name);
+            }
+            if(service_type_name != null){
+                item.service_types.push(service_type_name);
+            }
+            productList[id] = item;
+        }
+    }
+
+    for(var i in app.appointment.checkpoints){
+
+        var checkpoint = app.appointment.checkpoints[i];
+
+        for(var remarkIndex in checkpoint.remarks){
+            var remark = checkpoint.remarks[remarkIndex];
+            if(remark.is_completed == false && remark.is_private == false){
+                remark.checkpoint = checkpoint.location_description;
+                remarkList.push(remark);
+            }
+        }
+        for(var qIndex in app.appointment.checkpoints[i].questions){
+
+            var q = app.appointment.checkpoints[i].questions[qIndex];
+            if(q.type == 5 && q.answered == true){
+                var productId = q.answer[0];
+                var productAmount = q.answer[1];
+                if(productId != undefined){
+                    addProduct(productId, app.appointment.checkpoints[i].location_description, null, productAmount);
+                }
+            }
+        }
+    }
+    for(var i in app.appointment.service_types){
+        for(var aqIndex in app.appointment.service_types[i].additional_questions){
+            for(var qIndex in app.appointment.service_types[i].additional_questions[aqIndex]){
+                var q = app.appointment.service_types[i].additional_questions[aqIndex][qIndex];
+                if(q.type == 5 && q.answered == true){
+                    var productId = q.answer[0];
+                    var productAmount = q.answer[1];
+                    if(productId != undefined){
+                        addProduct(productId, null, app.appointment.service_types[i].name, productAmount);
+                    }
+                }
+            }
+        }
+    }
+    for(var i in app.appointment.products){
+        addProduct(i, null, null, app.appointment.products[i] );
+    }
+
+    for(var i in productList){
+        outputProductListRowHtml(productList[i]);
+    }
+
+    for(var i in remarkList){
+        outputRemarkListRowHtml(remarkList[i]);
+    }
+
+</script>

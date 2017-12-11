@@ -2,23 +2,34 @@
     <item action="navigateBack" mdot noselect>
         <i class="material-icons icon">&#xE5C4;</i>
     </item>
-    <title>Meetpunten</title>
+    <title>Controlepunten</title>
     <item action="moreShow">
         <i class="material-icons icon">&#xE5D4;</i>
 
         <ul class='more-list hidden'>
             <li action='viewRemarks' mdot noselect>Opmerkingen</li>
             <li action='checkpointMarkUnreachable' mdot noselect>Markeer onbereikbaar</li>
+            <li action='checkpointMarkNonExistent' mdot noselect>Markeer niet bestaand</li>
             <li action='checkpointEditName' mdot noselect disabled>Bewerk naam</li>
+            <li action='checkpointEditBarcode' mdot noselect disabled>Bewerk barcode</li>
             <li action='checkpointDelete' mdot noselect disabled>Verwijderen</li>
         </ul>
     </item>
 </menu>
 <content>
+    <div id='dialog-dialog-remark' class='modal' dialog-ok='Ok' backdrop>
+        <div class='inner'>
+            <normal id='remark-name' style='display: inline-block; width: 100%; padding: 0; box-sizing: border-box;'></normal>
+            <normal id='remark-action' style='display: inline-block; width: 100%; padding: 0; box-sizing: border-box;'></normal>
+            <div class='row' style='text-align: right; display: inline-block; width: calc( 100% + 20px);  margin: 0 -10px -10px -10px;'>
+                <button class='btn btn-dialog complete' id='complete-remark' remark=''>Afmelden</button>
+            </div>
+        </div>
+    </div>
     <div id='dialog-checkpoint-delete' class='modal' dialog-ok='Ok' dialog-cancel='Annuleer' backdrop>
         <div class='inner'>
-            <strong><p>Meetpunt verwijderen</p></strong>
-            <p>Weet u zeker dat u dit meetpunt wilt verwijderen?</p>
+            <strong><p>Controlepunt verwijderen</p></strong>
+            <p>Weet u zeker dat u dit controlepunt wilt verwijderen?</p>
         </div>
     </div>
     <div class='modal-backdrop'></div>
@@ -26,11 +37,70 @@
 </content>
 
 <script>
+
+    var indexes = [];
+    var currentIndex = 0;
+
+
+    for(var remarkIndex in app.checkpoint.remarks){
+        var remark = app.checkpoint.remarks[remarkIndex];
+        if(remark.is_completed == false && remark.id != null){
+            indexes.push(remarkIndex);
+        }
+    }
+
+    function show( currentIndex ){
+        var remark = app.checkpoint.remarks[indexes[currentIndex]];
+        if(remark.is_completed == false){
+            var modal = new Modal( $('#dialog-dialog-remark')[0] );
+
+            $('#remark-name').html("Opmerking: " + remark.name );
+            $('#remark-action').html("Actie: " + remark.action );
+            $('#complete-remark').attr('remark', currentIndex);
+
+            modal.show();
+        }
+    }
+
+    if( indexes.length > 0 && app.checkpoint.is_opened == false ){
+        show( currentIndex );
+    }
+
+    if( app.checkpoint.is_opened == false ){
+        app.checkpoint.is_opened = true;
+        app.day.update(function(){});
+    }
+
+    $(document).on('click', '#complete-remark', function(e){
+        var remark = app.checkpoint.remarks[ this.getAttribute('remark') ];
+        remark.is_completed = 1;
+        app.day.update(function(e){
+            $('#dialog-dialog-remark .btn.ok').trigger('click');
+        });
+    })
+
+    $('#dialog-dialog-remark').on('ok', function(e){
+        e.preventDefault();
+        if( currentIndex < indexes.length - 1 ){
+            currentIndex++;
+            show( currentIndex );
+        } else {
+            new Modal( $('#dialog-dialog-remark')[0] ).hide()
+        }
+    });
+
+    console.log( 'is opened: ' + app.checkpoint.is_opened) ;
+
+    if( indexes.length > 0 && app.checkpoint.is_opened == false ){
+
+        show( currentIndex );
+    }
+
     checkName();
 
     function checkName(){
         if(app.checkpoint.location_description.length == 0){
-            var description = prompt("Meetpunt naam leeg. Geef een nieuwe naam op");
+            var description = prompt("Controlepunt naam leeg. Geef een nieuwe naam op");
             if(description){
                 if(description.length > 0){
                     app.checkpoint.location_description = description;
@@ -48,13 +118,18 @@
     function checkBarcode(){
         if(app.checkpoint.barcode.length == 0){
             app.scanner.canScan = 'insertCode';
-            alert("Barcode leeg. Scan een barcode en klik vervolgens op OK");
-            if(app.checkpoint.barcode.length > 0){
-
-            } else {
+            var c = confirm("Barcode leeg. Scan een barcode en klik vervolgens op OK");
+            if(c == true){
                 app.navigate.to('views/checkpoints/view.html');
+                // if(app.checkpoint.barcode.length > 0){
+                //
+                // } else {
+                //     app.navigate.to('views/checkpoints/view.html');
+                // }
+                // app.scanner.canScan = false;
+            } else {
+                app.navigate.to('views/checkpoints/index.html');
             }
-            app.scanner.canScan = false;
         } else {
             loadCheckpoint();
         }
@@ -74,6 +149,12 @@
             var action = $('[action="checkpointMarkUnreachable"]');
             action.attr('action', 'checkpointMarkReachable');
             action.html("Markeer bereikbaar");
+        }
+
+        if(sp.exists == false){
+            var action = $('[action="checkpointMarkNonExistent"]');
+            action.attr('action', 'checkpointMarkExistent');
+            action.html("Markeer bestaand");
         }
 
         if(sp.is_temporary == true){
@@ -108,8 +189,10 @@
         });
 
         $('title').html(app.checkpoint.location_description);
-        if(app.day['data'][app.appointmentIndex]['checkpoints'][app.checkpointIndex].is_editable){
+        if(app.checkpoint.is_editable){
             $('[action="checkpointEditName"]').attr('disabled', false);
+            $('[action="checkpointEditBarcode"]').attr('disabled', false);
         }
     }
+
 </script>

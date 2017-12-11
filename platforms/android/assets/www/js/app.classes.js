@@ -164,7 +164,7 @@ var data = {
             service_types:{
                 1: {
                     name: 'Hygiëne',
-                    remarks: 'Test installatie begane grond',
+                    remarks: 'Test servicetype begane grond',
                     state: null,
                     additional_questions: {
                         // status
@@ -191,7 +191,7 @@ var data = {
                 },
                 3261: {
                     name: 'Muizen',
-                    remarks: 'Test installatie begane grond',
+                    remarks: 'Test servicetype begane grond',
                     state: null,
                     additional_questions: {
                         // status
@@ -317,13 +317,13 @@ var data = {
             service_types:{
                 501: {
                     name: 'Hygiëne',
-                    remarks: 'Test installatie begane grond',
+                    remarks: 'Test servicetype begane grond',
                     state: null,
                     additional_questions:{},
                 },
                 502: {
                     name: 'Muizen',
-                    remarks: 'Test installatie begane grond',
+                    remarks: 'Test servicetype begane grond',
                     state: null,
                     additional_questions:{},
                 }
@@ -420,13 +420,13 @@ var data = {
             service_types:{
                 340:{
                     name: 'Hygiëne',
-                    remarks: 'Test installatie begane grond',
+                    remarks: 'Test servicetype begane grond',
                     state: null,
                     additional_questions:{},
                 },
                 350: {
                     name: 'Ratten',
-                    remarks: 'Test installatie begane grond',
+                    remarks: 'Test servicetype begane grond',
                     state: null,
                     additional_questions:{},
                 }
@@ -521,13 +521,13 @@ var data = {
             service_types:{
                 98:{
                     name: 'Hygiëne',
-                    remarks: 'Test installatie begane grond',
+                    remarks: 'Test servicetype begane grond',
                     state: null,
                     additional_questions:{},
                 },
                 100: {
                     name: 'Hygiëne',
-                    remarks: 'Test installatie begane grond',
+                    remarks: 'Test servicetype begane grond',
                     state: null,
                     additional_questions:{},
                 }
@@ -633,10 +633,14 @@ DataStoreHelper.prototype.update = DataStoreHelper.update = function(callback){
 
     var request = dataStoreHelper.objectStore.put(data);
     request.onerror = function(event) {
-        callback.call(this, false);
+        if(typeof callback == 'function'){
+            callback.call(this, false);
+        }
     };
     request.onsuccess = function(event) {
-        callback.call(this, true);
+        if(typeof callback == 'function'){
+            callback.call(this, true);
+        }
     };
 }
 DataStoreHelper.prototype.find = DataStoreHelper.find = function(){
@@ -663,8 +667,8 @@ var Day = function() {
         return "day";
     }
     this.sync = function(){
-        var result = [];
-        $.ajax({
+        var result = false;
+        var ajax = $.ajax({
             url: app.restClient.getDays,
             method: 'POST',
             dataType: 'json',
@@ -684,7 +688,13 @@ var Day = function() {
             },
             async: false
         });
-        return result;
+
+        if(ajax.hasOwnProperty('status') && ajax.status != 200){
+            app.handleError(ajax);
+            return false;
+        } else {
+            return result;
+        }
     }
     this.send = function(data, success, error){
         var jobs = [];
@@ -708,8 +718,7 @@ var Day = function() {
 
 
         function sendJob(i){
-            console.log(i + "/" + jobs.length);
-            $.ajax({
+            var ajax = $.ajax({
                 url: app.restClient.putDays,
                 method: 'POST',
                 dataType: 'json',
@@ -735,6 +744,10 @@ var Day = function() {
                 },
                 async: false
             });
+            if(ajax.hasOwnProperty('status') && ajax.status != 200){
+                app.handleError(ajax);
+                return false;
+            }
         }
     };
 }
@@ -752,8 +765,8 @@ var Comments = function() {
         return "comments";
     }
     this.sync = function(){
-        var result = [];
-        $.ajax({
+        var result = false;
+        var ajax = $.ajax({
             url: app.restClient.getComments,
             method: 'POST',
             dataType: 'json',
@@ -772,8 +785,14 @@ var Comments = function() {
                 }
             },
             async: false
-        });
-        return result;
+        })
+
+        if(ajax.hasOwnProperty('status') && ajax.status != 200){
+            app.handleError(ajax);
+            return false;
+        } else {
+            return result;
+        }
     }
 }
 
@@ -790,8 +809,8 @@ var Remarks = function() {
         return "remarks";
     }
     this.sync = function(){
-        var result = [];
-        $.ajax({
+        var result = false;
+        var ajax = $.ajax({
             url: app.restClient.getRemarks,
             method: 'POST',
             dataType: 'json',
@@ -811,7 +830,13 @@ var Remarks = function() {
             },
             async: false
         });
-        return result;
+
+        if(ajax.hasOwnProperty('status') && ajax.status != 200){
+            app.handleError(ajax);
+            return false;
+        } else {
+            return result;
+        }
     }
 }
 
@@ -829,8 +854,8 @@ var Product = function() {
         return "product";
     }
     this.sync = function(){
-        var result = [];
-        $.ajax({
+        var result = false;
+        var ajax = $.ajax({
             url: app.restClient.getProducts,
             method: 'POST',
             dataType: 'json',
@@ -850,7 +875,12 @@ var Product = function() {
             },
             async: false
         });
-        return result;
+        if(ajax.hasOwnProperty('status') && ajax.status != 200){
+            app.handleError(ajax);
+            return false;
+        } else {
+            return result;
+        }
     }
 }
 
@@ -869,8 +899,8 @@ var Category = function() {
         return "category";
     }
     this.sync = function(){
-        var result = [];
-        $.ajax({
+        var result = false;
+        var ajax = $.ajax({
             url: app.restClient.getCategories,
             method: 'POST',
             dataType: 'json',
@@ -890,7 +920,12 @@ var Category = function() {
             },
             async: false
         });
-        return result;
+        if(ajax.hasOwnProperty('status') && ajax.status != 200){
+            app.handleError(ajax);
+            return false;
+        } else {
+            return result;
+        }
     }
 }
 
@@ -907,8 +942,8 @@ var CheckpointType = function() {
         return "checkpointtype";
     }
     this.sync = function(){
-        var result = [];
-        $.ajax({
+        var result = false;
+        var ajax = $.ajax({
             url: app.restClient.getCheckpointTypes,
             method: 'POST',
             dataType: 'json',
@@ -927,8 +962,13 @@ var CheckpointType = function() {
                 }
             },
             async: false
-        });
-        return result;
+        })
+        if(ajax.hasOwnProperty('status') && ajax.status != 200){
+            app.handleError(ajax);
+            return false;
+        } else {
+            return result;
+        }
     }
 }
 

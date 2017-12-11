@@ -1,43 +1,51 @@
-<menu class='has-2'>
+<menu class='has-3'>
     <item action="navigateBack" mdot noselect>
         <i class="material-icons icon">&#xE5C4;</i>
     </item>
-    <title>Installaties</title>
+    <title>Servicetypen</title>
+    <!-- <item action='signAppointment' mdot noselect>
+        <i class="material-icons icon">&#xE5C8;</i>
+    </item> -->
+    <item action='viewSummary' mdot noselect>
+        <i class="material-icons icon">&#xE5C8;</i>
+    </item>
 </menu>
 <content>
     <ul class='installation-list'>
-        <button action='signAppointment' class='btn btn-default success wide' mdot noselect>Ondertekenen</button>
+        <!-- <button action='signAppointment' class='btn btn-default success wide' mdot noselect>Ondertekenen</button> -->
     </ul>
-
 </content>
 <script>
-app.navigate.back = function(){
-    app.navigate.to('views/appointment/index.html', function(e){
+    app.navigate.back = function() {
+        app.navigate.to('views/appointment/index.html', function(e) {
 
-    });
-}
+        });
+    }
 
 
-for(var i in app.appointment.service_types){
-    var st =  app.appointment.service_types[i];
-    // if(st.additional_questions.hasOwnProperty('on')){
+    for (var i in app.appointment.service_types) {
+        var st = app.appointment.service_types[i];
+        var serviceTypeIndex = i;
+        // if(st.additional_questions.hasOwnProperty('on')){
         var isAnswered = true;
-        for(var iq in st.additional_questions.questions){
+        for (var iq in st.additional_questions.questions) {
             var q = st.additional_questions.questions[iq];
-            if(q.required == true && q.answered == false){
+            if (q.required == true && q.answered == false) {
                 isAnswered = false;
                 break;
             }
         }
         var isAnswered = (isAnswered == true) ? 'completed' : '';
         var on = (st.state != null) ? st.state : '';
-        str = "<li servicetype='"+i+"' on='"+on+"' class='"+isAnswered+"'>";
-        str += "<label class='prio_job'>" + app.const.prio_job[st.priotity] + "</label>";
-        if(st.state != null && st.red_card_on_state == true && st.state != 3){
+        var displayAdditionalQuestionsList = localStorage.getItem('additional_question_list_' + String(i)) == 'show' ? 'show' : 'hide';
+        str = "<li servicetype='" + i + "' on='" + on + "' class='" + isAnswered + "' "+displayAdditionalQuestionsList+">";
+
+        if (st.state != null && st.red_card_on_state == true && st.state != 3) {
             str += "<label class='red-card-on-state'>Let op: rode kaart wordt uitgedeeld</label>";
         }
-
         str += "<h2>" + st.name + "</h2>";
+        str += "<p class='prio_job'><strong>Prioriteit</strong>" + app.const.prio_job[st.priority] + "</p>";
+        str += "<p class='previous_state'><strong>Vorige status</strong>" + app.const.states[st.previous_state] + "</p>";
         str += "<p>" + st.remarks + "</p>";
         var width = (100 / st.states.length) + "%";
 
@@ -45,94 +53,129 @@ for(var i in app.appointment.service_types){
 
         var output = [];
 
-        for(var cpi in app.appointment.checkpoints){
-        	var checkpoint = app.appointment.checkpoints[cpi];
-        	for(var cpqi in checkpoint.questions){
-        		var question = checkpoint.questions[cpqi];
-        		if(question.type == QUESTION_TYPE_PRODUCT && question.answered == true){
-        			var answer = question.answer;
-        			var product = app.products[answer[0]];
-                    if(product){
-                        var category = app.categories[product.product_category_id];
-                        if(category){
-                            var states = category.states;
-                            if(states.length != 0){
-                                output.push(states);
+        for (var cpi in app.appointment.checkpoints) {
+            var checkpoint = app.appointment.checkpoints[cpi];
+            if( checkpoint.debtor_service_type_id != i ){
+                continue;
+            }
+            for (var cpqi in checkpoint.questions) {
+                var question = checkpoint.questions[cpqi];
+                if (question.type == QUESTION_TYPE_PRODUCT && question.answered == true) {
+                    var answer = question.answer;
+                    // if( parseFloat(answer[1]) > 0 ){
+                        var product = app.products[answer[0]];
+                        if (product) {
+                            var category = app.categories[product.product_category_id];
+                            if (category) {
+                                var states = category.states;
+                                var outputStates = [];
+                                for(var i in states){
+                                    outputStates.push(states[i]);
+                                }
+                                output.push(outputStates);
                             }
+                        }
+                    // }
+                }
+            }
+        }
+
+        function intersection() {
+            var result = [];
+            var lists;
+
+            if (arguments.length === 1) {
+                lists = arguments[0];
+            } else {
+                lists = arguments;
+            }
+
+            for (var i = 0; i < lists.length; i++) {
+                var currentList = lists[i];
+                for (var y = 0; y < currentList.length; y++) {
+                    var currentValue = currentList[y];
+                    if (result.indexOf(currentValue) === -1) {
+                        var existsInAll = true;
+                        for (var x = 0; x < lists.length; x++) {
+                            if (lists[x].indexOf(currentValue) === -1) {
+                                existsInAll = false;
+                                break;
+                            }
+                        }
+                        if (existsInAll) {
+                            result.push(currentValue);
                         }
                     }
                 }
             }
-        }
-        function intersection() {
-          var result = [];
-          var lists;
-
-          if(arguments.length === 1) {
-            lists = arguments[0];
-          } else {
-            lists = arguments;
-          }
-
-          for(var i = 0; i < lists.length; i++) {
-            var currentList = lists[i];
-            for(var y = 0; y < currentList.length; y++) {
-                var currentValue = currentList[y];
-              if(result.indexOf(currentValue) === -1) {
-                var existsInAll = true;
-                for(var x = 0; x < lists.length; x++) {
-                  if(lists[x].indexOf(currentValue) === -1) {
-                    existsInAll = false;
-                    break;
-                  }
-                }
-                if(existsInAll) {
-                  result.push(currentValue);
-                }
-              }
-            }
-          }
-          return result;
+            return result;
         }
 
         output = intersection(output);
 
-        if(output.length > 0){
-            width = ( 100 / output.length ) + "%";
+        var l = 0;
+        for (var aaa in output) {
+            for(var aab in st.states){
+                if(st.states[aab].state_id == output[aaa]){
+                    l++;
+                }
+            }
+        }
+
+        if (l > 0) {
+            width = (100 / l) + "%";
         } else {
-            console.log('set states to default');
-            width = "33.333334%";
-            output = [1,2,3];
+            var c = 0;
+            for(var i in st.states){
+                c++;
+            }
+            width = 100 / c + "%" ;
+            output = [1, 2, 3];
         }
 
+        for (var iS in output) {
+            var state_id = output[iS];
+            for(var ist in st.states){
+                if(st.states[ist].state_id == state_id){
+                    var state = st.states[ist];
+                    var active = "";
+                    if(state.replanning_days == st.replanning_days){
+                        active = "active";
+                    }
+                    str += "<label for='service_type_" + serviceTypeIndex + "_" + state.state_id + "_" + state.replanning_days + "'>";
+                    str += "<input id='service_type_" + serviceTypeIndex + "_" + state.state_id + "_" + state.replanning_days + "'' type='radio' name='service_type_" + i + "' value='" + state.state_id + "' replanning-days='"+state.replanning_days+"'>";
+                    str += "<div class='service-type status-" + state.state_id + " " + active + "' content='" + state.state_name + "' style='background-color: " + state.colour + "; width: " + width + "'></div>";
+                    str += "</label>";
+                }
+            }
 
-        for(var iS in output){
-            var id = output[iS];
-            var state = st.states[id];
-            str += "<label for='service_type_"+i+"_"+state.state_id+"'>";
-            str += "<input id='service_type_"+i+"_"+state.state_id+"'' type='radio' name='service_type_"+i+"' value='"+state.state_id+"'>";
-            str += "<div class='service-type status-"+state.state_id+"' content='"+state.state_name+"' style='background-color: "+state.colour+"; width: "+width+"'></div>";
-            str += "</label>";
         }
 
+        var text = (displayAdditionalQuestionsList == 'show') ? 'Vragen verbergen' : 'Vragen weergeven';
+
+        str += "<div class='toggle-additional-questions'>"+text+"</div>";
         str += "</li>";
 
-        for(var stai in st.additional_questions){
+        str += "<div class='service-type-questions'>";
+
+        for (var stai in st.additional_questions) {
             var aq = st.additional_questions[stai];
-            str += "<ul class='question-list "+isAnswered+"' serviceTypeIndex='"+i+"' servicetype='"+stai+"' >";
-            for(var questionIndex in aq){
-                var question = aq[questionIndex];
-                var answered = (question.answered) ? 'answered' : '';
-                str += "<li class='"+answered+"'>";
-                str +=  app.question.createHTML(questionIndex, question);
-                str += "</li>";
+            if(aq.length > 0){
+                str += "<ul class='question-list " + isAnswered + "' serviceTypeIndex='" + serviceTypeIndex + "' servicetype='" + stai + "' >";
+                for (var questionIndex in aq) {
+                    var question = aq[questionIndex];
+                    var answered = (question.answered) ? 'answered' : '';
+                    str += "<li class='" + answered + "'>";
+                    str += app.question.createHTML(questionIndex, question);
+                    str += "</li>";
+                }
+                str += "</ul>";
             }
-            str += "</ul>";
         }
 
-        $('.installation-list').append( $(str) );
-    // } else {
+        str += "</div>";
 
-    // }
-}
+        $('.installation-list').append($(str));
+    }
+
 </script>

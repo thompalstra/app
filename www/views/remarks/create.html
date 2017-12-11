@@ -8,28 +8,41 @@
 <content>
     <form id='form-create-remark' class='form form-create-remark inner'>
         <div class='row'>
-            <label>Soort:</label>
-            <select id='default-remarks' class='select'>
-                <option actionee_id="">Eigen opmerking</option>
+            <label>Type:</label>
+            <select name='type_id' class='select' required>
+                <option></option>
             </select>
         </div>
-        <div class='row'>
-            <label>Type:</label>
-            <select name='type_id' class='select'></select>
-        </div>
-        <div class='row'>
+
+        <div class='row hidden'>
             <label>Actiehouder:</label>
-            <select name='actionee_id' class='select'></select>
+            <select name='actionee_id' class='select' required>
+                <option></option>
+            </select>
         </div>
-        <div class='row'>
-            <label>Groep:</label>
-            <select name='group_id' class='select'></select>
+
+        <div class='row hidden'>
+            <label>Standaard opmerking:</label>
+            <select id='default-remarks' name='default_remarks' class='select'>
+                <option></option>
+            </select>
         </div>
-        <div class='row'>
+
+        <div class='row hidden'>
             <label>Omschrijving:</label>
-            <textarea name='name' class='textarea' rows=4></textarea>
+            <textarea name='name' class='textarea' rows=2 min=10 required></textarea>
         </div>
-        <div class='row'>
+        <div class='row hidden'>
+            <label>Standaard actie:</label>
+            <select name='action_type' class='select'>
+                <option></option>
+            </select>
+        </div>
+        <div class='row hidden'>
+            <label>Actie:</label>
+            <textarea name='action' class='textarea' rows=2 min=10 required></textarea>
+        </div>
+        <div class='row hidden'>
             <label>Privé
                 <input type='checkbox' name='is_private'/>
             </label>
@@ -49,9 +62,15 @@ c.find().all(function(result){
     for(var i in result[0].data){
         var item = result[0].data[i];
         var str = "<option ";
-        str += "actionee_id='"+item.actionee_id+"' ";
-        str += "group_id='"+item.group_id+"' ";
-        str += "type_id='"+item.type_id+"' ";
+
+        if(item.actionee_id != null){
+            str += "actionee_id='"+item.actionee_id+"' ";
+        }
+
+        if(item.type_id != null){
+            str += "type_id='"+item.type_id+"' ";
+        }
+
         str += "name='"+item.name+"' >";
         str += item.name;
         str += "</option>";
@@ -61,20 +80,150 @@ c.find().all(function(result){
 });
 
 
-// $('#default-remarks')
+$('#default-remarks').on('change', function(e){
+    var option = $(this).find(':selected');
+    var actionee_id = $(option).attr('actionee_id');
+    var group_id = $(option).attr('group_id');
+    var name = $(option).attr('name');
+
+    if(actionee_id){
+        $('[name="actionee_id"]').val(actionee_id);
+        $('[name="actionee_id"]').attr('disabled', '');
+    } else {
+        $('[name="actionee_id"]').attr('disabled', false);
+    }
+
+    if(group_id){
+        $('[name="group_id"]').val(group_id);
+        $('[name="group_id"]').attr('disabled', '');
+    } else {
+        $('[name="group_id"]').attr('disabled', false);
+    }
+
+    if(name){
+        $('[name="name"]').val(name);
+    }
+});
 
 var r = new Remarks();
 r.find().findById(1, function(result){
-    // console.log(result);
     for(var i in result.data.actionees){
         $('select[name="actionee_id"]').append( $('<option value="' + i + '">'+ result.data.actionees[i]+'</option>') );
-    }
-    for(var i in result.data.groups){
-        $('select[name="group_id"]').append( $('<option value="' + i + '">'+ result.data.groups[i]+'</option>') );
     }
     for(var i in result.data.types){
         $('select[name="type_id"]').append( $('<option value="' + i + '">'+ result.data.types[i]+'</option>') );
     }
+});
+
+$('[name="action_type"]').on('change', function(e){
+    $('[name="action"]').val( $('[name="action_type"]').find(':selected').html() );
+});
+
+$('select[name="type_id"]').on('change', function(e){
+    if( this.value != '' ){
+        $('[name="actionee_id"]').parent().removeClass('hidden');
+        $('[name="actionee_id"]').val(null);
+        $('[name="default_remarks"]').parent().removeClass('hidden');
+        $('[name="default_remarks"]').val(null);
+        $('[name="name"]').parent().removeClass('hidden');
+        $('[name="name"]').val(null);
+        $('[name="action_type"]').parent().removeClass('hidden');
+        $('[name="action_type"]').val(null);
+        $('[name="action"]').parent().removeClass('hidden');
+        $('[name="action"]').val(null);
+        $('[name="is_private"]').parent().parent().removeClass('hidden');
+        $('[name="is_private"]')[0].checked = false;
+        updateDefaultRemarks();
+
+    } else {
+        $('[name="actionee_id"]').parent().addClass('hidden');
+        $('[name="actionee_id"]').val(null);
+        $('[name="default_remarks"]').parent().addClass('hidden');
+        $('[name="default_remarks"]').val(null);
+        $('[name="action_type"]').parent().addClass('hidden');
+        $('[name="action_type"]').val(null);
+        $('[name="name"]').parent().addClass('hidden');
+        $('[name="name"]').val(null);
+        $('[name="action"]').parent().addClass('hidden');
+        $('[name="action"]').val(null);
+        $('[name="is_private"]').parent().parent().addClass('hidden');
+        $('[name="is_private"]')[0].checked = false;
+        updateDefaultRemarks();
+    }
+})
+
+function updateDefaultRemarks(){
+    $('#default-remarks').html('<option value=""></option>');
+    var id = $('[name="type_id"]').val();
+    c.find().all(function(result){
+        for(var i in result[0].data){
+            var item = result[0].data[i];
+
+            if( id != ""  && item.type_id != id){
+                continue;
+            }
+            var str = "<option ";
+            if(item.actionee_id != null){
+                str += "actionee_id='"+item.actionee_id+"' ";
+            }
+
+            if(item.group_id != null){
+                str += "group_id='"+item.group_id+"' ";
+            }
+            if(item.type_id != null){
+                str += "type_id='"+item.type_id+"' ";
+            }
+
+            str += "name='"+item.name+"' >";
+            str += item.name;
+            str += "</option>";
+
+            $('#default-remarks').append( $(str) );
+        }
+    });
+    new Remarks().find().findById(1, function(result){
+        $('[name="action_type"]').html('<option value=""></option>');
+	       for(var i in result.data.actions){
+               if( result.data.actions[i].type_id == $('[name="type_id"]').val()){
+                   $('[name="action_type"]').append( $( "<option value='"+ i +"'>" + result.data.actions[i].name + "</option>" ) )
+               }
+           }
+    });
+}
+
+$('.form-create-remark').on('submit', function(e){
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    if( this.checkValidity() ){
+        var obj = {
+            id: null,
+            created_at: null,
+            updated_at: null,
+            name: $('[name="name"]').val(),
+            action: $('[name="action"]').val(),
+            actionee_id: $('[name="actionee_id"]').val(),
+            type_id: $('[name="type_id"]').val(),
+            is_private: $('[name="is_private"]')[0].checked,
+            temp_id: app.helpers.generateRandomString(24),
+            debtor_service_type_checkpoint_id: app.checkpoint.id,
+            images: [],
+            is_completed: false
+        };
+        app.checkpoint.remarks.push(obj);
+        app.day.update(function(){
+            app.navigate.to('views/remarks/index.html', function(e){
+
+            });
+        });
+    } else {
+
+    }
+
+
+
+
 });
 
 </script>

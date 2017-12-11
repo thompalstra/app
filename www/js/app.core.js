@@ -9,6 +9,16 @@ var QUESTION_TYPE_NUMBER = 3;
 var QUESTION_TYPE_TEXT = 4;
 var QUESTION_TYPE_PRODUCT = 5;
 
+$.fn.sort_select_box = function(){
+    var my_options = $("#" + this.attr('id') + ' option');
+    my_options.sort(function(a,b) {
+        if (a.text > b.text) return 1;
+        else if (a.text < b.text) return -1;
+        else return 0
+    })
+   return my_options;
+}
+
 var app = {
     appointment: null,
     appointmentIndex: null,
@@ -66,6 +76,8 @@ var app = {
         });
     },
     handleError: function(error){
+        console.log(error);
+        console.log('handling error: ' + error.status);
         switch(error.status){
             case 401:
                 alert("U bent niet bevoegd deze actie uit te voeren. U wordt teruggestuurd naar het login scherm.");
@@ -122,11 +134,18 @@ var app = {
     },
     finish: function(){
         app.user = new User();
-        if(app.user.isGuest == true){
-            app.protocol.guest();
-        } else {
-            app.protocol.user();
-        }
+
+        setTimeout( function(e){
+            if( (splash = document.querySelector('splash')) ){
+                splash.remove();
+            }
+
+            if(app.user.isGuest == true){
+                app.protocol.guest();
+            } else {
+                app.protocol.user();
+            }
+        }, 1000 );
     },
     log: function(str){
         console.log(str);
@@ -229,6 +248,9 @@ var app = {
 
             $.ajax({
                 url: app.restClient.ping,
+                // xhrFields: {
+                //     withCredentials: true
+                // },
                 dataType: 'json',
                 success: function(resp){
                     if(resp.result === true){
@@ -319,16 +341,14 @@ var app = {
                 d.find().all(function(request){
 
                     var success = function(result){
-                        console.log('success: get days');
                         //setTimeout(function(e){
                             getDays();
                         //}, 500);
                     }
 
                     var error = function(result){
-                        // console.log('error: get days');
                         // setTimeout(function(e){
-                            getDays();
+                            // getDays();
                         // }, 500);
                     }
                     d.send(request, success, error);
@@ -340,126 +360,147 @@ var app = {
                 app.sync.progressBar.value( 1 );
                 app.sync.progressBar.text( "Jobs ophalen: (" + app.sync.progressBar.value() + "/" + app.sync.progressBar.max() + ")" );
 
-                var transaction = app.database.db.transaction(['day'], "readwrite");
-                var objectStore = transaction.objectStore('day');
+                window.setTimeout(function(e){
+                    var transaction = app.database.db.transaction(['day'], "readwrite");
+                    var objectStore = transaction.objectStore('day');
 
-                objectStore.clear();
+                    objectStore.clear();
 
-                var index = 0;
-                d = new Day();
-                data = d.sync();
+                    var index = 0;
+                    d = new Day();
+                    days = d.sync();
 
-                for(var i in data){
-                    if(i == 'length'){ continue; }
-                    var d = new Day();
-                    index++;
-                    d.put({id: i, data: data[i]});
-                }
-                //setTimeout(function(e){
-                    getRemarks();
-                //}, 500);
+                    if(days !== false){
+                        for(var i in days){
+                            if(i == 'length'){ continue; }
+                            var d = new Day();
+                            index++;
+                            d.put({id: i, data: days[i]});
+                        }
+                        //setTimeout(function(e){
+                            getRemarks();
+                        //}, 500);
+                    }
+                }, 10);
+
+
             }
             // 3
             function getRemarks(){
                 app.sync.progressBar.value( 3 );
                 app.sync.progressBar.text( "Opmerkingen ophalen: (" + app.sync.progressBar.value() + "/" + app.sync.progressBar.max() + ")" );
 
-                var transaction = app.database.db.transaction(['comments'], "readwrite");
-                var objectStore = transaction.objectStore('comments');
+                window.setTimeout(function(e){
+                    var transaction = app.database.db.transaction(['comments'], "readwrite");
+                    var objectStore = transaction.objectStore('comments');
 
-                objectStore.clear();
+                    objectStore.clear();
 
-                var c = new Comments();
-                c.put({
-                    id: 1,
-                    data: c.sync()
-                });
+                    var c = new Comments();
+                    c.put({
+                        id: 1,
+                        data: c.sync()
+                    });
 
-                var transaction = app.database.db.transaction(['remarks'], "readwrite");
-                var objectStore = transaction.objectStore('remarks');
+                    var transaction = app.database.db.transaction(['remarks'], "readwrite");
+                    var objectStore = transaction.objectStore('remarks');
 
-                objectStore.clear();
+                    objectStore.clear();
 
-                var r = new Remarks();
-                r.put({
-                    id: 1,
-                    data: r.sync()
-                });
-                // setTimeout(function(e){
-                    getServiceTypes();
-                // }, 500);
+                    var r = new Remarks();
+                    r.put({
+                        id: 1,
+                        data: r.sync()
+                    });
+                    // setTimeout(function(e){
+                        getServiceTypes();
+                    // }, 500);
+                }, 10);
             }
             // 4
             function getServiceTypes(){
                 app.sync.progressBar.value( 4 );
-                app.sync.progressBar.text( "Meetpunttypes ophalen: (" + app.sync.progressBar.value() + "/" + app.sync.progressBar.max() + ")" );
+                app.sync.progressBar.text( "Controlepunttypes ophalen: (" + app.sync.progressBar.value() + "/" + app.sync.progressBar.max() + ")" );
 
-                var transaction = app.database.db.transaction(['checkpointtype'], "readwrite");
-                var objectStore = transaction.objectStore('checkpointtype');
+                window.setTimeout(function(e){
+                    var transaction = app.database.db.transaction(['checkpointtype'], "readwrite");
+                    var objectStore = transaction.objectStore('checkpointtype');
 
-                objectStore.clear();
+                    objectStore.clear();
 
-                var ct = new window['CheckpointType']();
-                var CheckpointTypes = ct.sync();
+                    var ct = new window['CheckpointType']();
+                    var CheckpointTypes = ct.sync();
 
-                for(var i in CheckpointTypes){
-                    var CheckpointType = CheckpointTypes[i];
-                    ct.put({
-                        id: i,
-                        data: CheckpointType
-                    });
-                }
-                // setTimeout(function(e){
-                    getProductCategories();
-                // }, 500);
+                    if(CheckpointTypes !== false){
+                        for(var i in CheckpointTypes){
+                            var CheckpointType = CheckpointTypes[i];
+                            ct.put({
+                                id: i,
+                                data: CheckpointType
+                            });
+                        }
+                        // setTimeout(function(e){
+                            getProductCategories();
+                        // }, 500);
+                    }
+                }, 10);
+
             }
             // 5
             function getProductCategories(){
                 app.sync.progressBar.value( 5 );
                 app.sync.progressBar.text( "Product categorieën ophalen: (" + app.sync.progressBar.value() + "/" + app.sync.progressBar.max() + ")" );
 
-                var transaction = app.database.db.transaction(['category'], "readwrite");
-                var objectStore = transaction.objectStore('category');
+                window.setTimeout(function(e){
+                    var transaction = app.database.db.transaction(['category'], "readwrite");
+                    var objectStore = transaction.objectStore('category');
 
-                objectStore.clear();
+                    objectStore.clear();
 
-                var c = new Category();
-                var categories = c.sync();
+                    var c = new Category();
+                    var categories = c.sync();
 
-                for(var i in categories){
-                    var category = categories[i];
-                    c.put({
-                        id: i,
-                        data: category
-                    });
-                }
-                // setTimeout(function(e){
-                    getProducts();
-                // }, 500);
+                    if(categories !== false){
+                        for(var i in categories){
+                            var category = categories[i];
+                            c.put({
+                                id: i,
+                                data: category
+                            });
+                        }
+                        // setTimeout(function(e){
+                            getProducts();
+                        // }, 500);
+                    }
+                }, 10);
             }
             // 6
             function getProducts(){
                 app.sync.progressBar.value( 6 );
                 app.sync.progressBar.text( "Producten ophalen: (" + app.sync.progressBar.value() + "/" + app.sync.progressBar.max() + ")" );
 
-                var transaction = app.database.db.transaction(['product'], "readwrite");
-                var objectStore = transaction.objectStore('product');
+                window.setTimeout(function(e){
+                    var transaction = app.database.db.transaction(['product'], "readwrite");
+                    var objectStore = transaction.objectStore('product');
 
-                objectStore.clear();
+                    objectStore.clear();
 
-                var p = new Product();
-                var products = p.sync();
+                    var p = new Product();
+                    var products = p.sync();
 
-                for(var i in products){
-                    var product = products[i];
-                    p.put({
-                        id: i,
-                        data: product
-                    });
-                }
-                // setTimeout(function(e){
-                    end();
-                // }, 500);
+                    if(products !== false){
+                        for(var i in products){
+                            var product = products[i];
+                            p.put({
+                                id: i,
+                                data: product
+                            });
+                        }
+                        // setTimeout(function(e){
+                            end();
+                        // }, 500);
+                    }
+                }, 10);
             }
             // complete
             function end(){
@@ -528,18 +569,18 @@ var app = {
     const: {},
     timestamp: {
         months: {
-            0: {'NL': 'January'},
+            0: {'NL': 'Januari'},
             1: {'NL': 'Februari'},
-            2: {'NL': 'Februari'},
-            3: {'NL': 'Februari'},
-            4: {'NL': 'Februari'},
-            5: {'NL': 'Februari'},
-            6: {'NL': 'Februari'},
-            7: {'NL': 'Februari'},
-            8: {'NL': 'Februari'},
-            9: {'NL': 'Februari'},
-            10: {'NL': 'Februari'},
-            11: {'NL': 'Februari'}
+            2: {'NL': 'Maart'},
+            3: {'NL': 'April'},
+            4: {'NL': 'Mei'},
+            5: {'NL': 'Juni'},
+            6: {'NL': 'Juli'},
+            7: {'NL': 'Augustus'},
+            8: {'NL': 'September'},
+            9: {'NL': 'Oktober'},
+            10: {'NL': 'November'},
+            11: {'NL': 'December'}
         },
         days: {
             0: {'NL': 'Zondag'},
@@ -638,8 +679,9 @@ var app = {
                         question.errors.push("Antwoord moet gelijk of meer zijn dan " + min_value);
                     }
 
-                    if( typeof max_value !== 'undefined' && answer > max_value ){
-                        question.errors.push("Antwoord moet gelijk of minder zijn dan " + max_value);
+                    if( typeof max_value !== 'undefined' && ( max_value > 0 ) && ( answer > max_value ) ){
+                        alert( question.max_value_warning );
+                        // question.errors.push("Antwoord moet gelijk of minder zijn dan " + max_value);
                     }
 
                 break;
@@ -658,12 +700,14 @@ var app = {
                 case QUESTION_TYPE_PRODUCT:
                     console.log('validating product...');
                     var productId = parseFloat( answer[0] );
-                    var productAmount = isNaN( parseFloat( answer[1] ) ) ? 0 : parseFloat( answer[1] );
-                    if(productAmount > 0){
+                    // var productAmount = isNaN( parseFloat( answer[1] ) ) ? 0 : parseFloat( answer[1] );
+                    var productAmount = ( answer[1] == "" || isNaN(answer[1]) ) ? 0 : parseFloat( answer[1] );
 
-                    } else {
-                        question.errors.push( "Product hoeveelheid mag niet leeg zijn.");
-                    }
+                    // if(productAmount > 0){
+                    //
+                    // } else {
+                    //     question.errors.push( "Product hoeveelheid mag niet leeg zijn.");
+                    // }
                 break;
             };
             return (question.errors.length == 0) ? true : false;
@@ -695,7 +739,8 @@ var app = {
                         }
 
                         str += "<div style='margin: 10px 0'>";
-                        str += "<input id='question_"+subId+"_"+questionIndex+"' type='checkbox' value='" + c + "' name='question_" + questionIndex + "' "+checked+">";
+                        // str += "<input id='question_"+subId+"_"+questionIndex+"' type='checkbox' value='" + c + "' name='question_" + questionIndex + "' "+checked+">";
+                        str += "<input id='question_"+subId+"_"+questionIndex+"' type='radio' value='" + c + "' name='question_" + questionIndex + "' "+checked+">";
                         str += "<label for='question_"+subId+"_"+questionIndex+"'>"+question.choices[c]+"</label>";
                         str += "</div>";
 
@@ -703,17 +748,24 @@ var app = {
                     }
                 break;
                 case QUESTION_TYPE_YN:
-
-                isTrue = (question.answer == 1 ? 'checked' : '');
-                str += "<div style='margin: 10px 0'>";
-                str += "<input id='question_"+questionIndex+"_1' type='radio' value='1' name='question_" + questionIndex + "' "+isTrue+" >"
-                str += "<label for='question_"+questionIndex+"_1'>Ja</label>";
-                str += "</div>";
-                isFalse = (question.answer == 0 ? 'checked' : '');
-                str += "<div style='margin: 10px 0'>";
-                str += "<input id='question_"+questionIndex+"_0' type='radio' value='0' name='question_" + questionIndex + "' "+isFalse+">"
-                str += "<label for='question_"+questionIndex+"_0'>Nee</label>";
-                str += "</div>";
+                for(var i in question.choices){
+                    // isFalse = (question.answer == 0 ? 'checked' : '');
+                    isChecked = question.answer == i ? 'checked' : '';
+                    str += "<div style='margin: 10px 0'>";
+                    str += "<input id='question_"+questionIndex+"_"+i+"' type='radio' value='"+i+"' name='question_" + questionIndex + "' "+isChecked+">"
+                    str += "<label for='question_"+questionIndex+"_"+i+"'>"+question.choices[i]+"</label>";
+                    str += "</div>";
+                }
+                // isTrue = (question.answer == 1 ? 'checked' : '');
+                // str += "<div style='margin: 10px 0'>";
+                // str += "<input id='question_"+questionIndex+"_1' type='radio' value='1' name='question_" + questionIndex + "' "+isTrue+" >"
+                // str += "<label for='question_"+questionIndex+"_1'>Ja</label>";
+                // str += "</div>";
+                // isFalse = (question.answer == 0 ? 'checked' : '');
+                // str += "<div style='margin: 10px 0'>";
+                // str += "<input id='question_"+questionIndex+"_0' type='radio' value='0' name='question_" + questionIndex + "' "+isFalse+">"
+                // str += "<label for='question_"+questionIndex+"_0'>Nee</label>";
+                // str += "</div>";
 
                 break;
                 case QUESTION_TYPE_NUMBER:
@@ -731,38 +783,45 @@ var app = {
 
                 str += "<select name='question_" + questionIndex + "' class='select'>";
 
+                // question.products = [1,2,3]
 
                 if(question.products.length > 0){
-                    for(var aC in app.categories){
-                        var category = app.categories[aC];
-                        str += "<optgroup label='"+category.name+"'>";
-                        for(var i in question.products){
-                            var id = question.products[i];
-                            var product = app.products[id];
 
-                            if(product.product_category_id == aC){
-                                var name = "question_" + questionIndex;
-                                var selected = "";
-                                if(Array.isArray( question.answer )){
-                                    var selected = (question.answer[0] == id) ? 'selected' : '';
-                                }
-                                str += "<option value='" + id + "' "+selected+">" + product.name + "</option>";
-                            }
+
+                    var productNames = {};
+
+                    for(var i in question.products){
+                        var id = question.products[i];
+
+                        var product = app.products[ id ];
+                        productNames[product.name] = question.products[i];
+                    }
+
+                    for(var i in productNames){
+                        var id = productNames[i];
+                        var product = app.products[id];
+
+                        var name = "question_" + questionIndex;
+                        var selected = "";
+                        if(Array.isArray( question.answer )){
+                            var selected = (question.answer[0] == id) ? 'selected' : '';
                         }
-                        str += "</optgroup>";
+
+                        str += "<option value='" + id + "' "+selected+">" + product.name + "</option>";
                     }
                 } else {
                     str += "<option value='null'>Geen producten beschikbaar</option>";
                 }
 
 
+
                 str += "</select>";
-                var value = 1;
+                var value = 0;
                 if(Array.isArray( question.answer )){
                     value = question.answer[1];
                 }
                 if(question.products.length > 0){
-                    str += "<input name='question_" + questionIndex + "' type='number' min='1' max='999' value='"+value+"' class='input input-default' />";
+                    str += "<input name='question_" + questionIndex + "' type='number' min='0' max='999' value='"+value+"' class='input input-default' />";
                 } else {
                     str += "<input name='question_" + questionIndex + "' type='hidden' value='1'/>";
                 }
@@ -783,48 +842,82 @@ var app = {
     },
     actions: {
         checkpointDelete: function(e){
+
+            e.preventDefault();
+            e.stopPropagation();
+
+            $('[action="moreShow"] .more-list:not(.hidden)').each(function(e){
+                $(this).addClass('hidden');
+            });
+
             new Modal( $('#dialog-checkpoint-delete')[0] ).show();
         },
         remarkAddImage: function(e){
+            var sourceType = this.getAttribute('sourceType');
             var remarkIndex = this.getAttribute('remark');
             var remark = app.checkpoint.remarks[remarkIndex];
 
             e.preventDefault();
             var input = this;
 
-            navigator.camera.getPicture(successCallback, errorCallback)
+            navigator.camera.getPicture(successCallback, errorCallback, {
+                sourceType: sourceType,
+                destinationType: Camera.DestinationType.FILE_URI,
+            })
             function successCallback(data){
+
+                new Modal( $('#dialog-select-image-source')[0] ).hide();
                 new Modal( $('#dialog-image-uploading')[0] ).show();
-                fileURL = data;
-                var win = function (r) {
-                    var json = JSON.parse(r.response);
-                    if(!remark.hasOwnProperty('images')){
-                        remark.images = [];
-                    }
-                    remark.images.push("/job/get-debtor-remark-image?item=" + json.data);
-                    app.day.update(function(e){
-                        new Modal( $('#dialog-image-uploading')[0] ).hide();
-                        new Modal( $('#dialog-image-uploaded')[0] ).show();
+
+                if (data.indexOf("content://") !== -1) {
+                    window.FilePath.resolveNativePath(data, function(localFileUri) {
+                        up( localFileUri, data );
                     });
+                } else {
+                    up( data, data )
                 }
 
-                var fail = function (error) {
-                    alert("Kan afbeelding op dit moment niet uploaden.");
+                function up( fileName, data ){
+
+                    var options = new FileUploadOptions();
+                    options.fileKey = "file";
+
+                    var parts = fileName.split('/');
+
+                    options.fileName = parts[parts.length-1];
+                    options.mimeType="image/jpeg";  // your extension
+
+                    var params = {};
+                    params.temp_id = remark.temp_id;
+                    params.id = remark.id;
+
+                    params["AppUserValidateForm[imei]"] =app.user.imei;
+                    params["AppUserValidateForm[token]"] = app.user.token;
+                    params["AppUserValidateForm[inspector_id]"] = app.user.inspector_id;
+
+                    options.params = params;
+
+                    var ft = new FileTransfer();
+                    ft.upload(data,
+                        encodeURI(app.restClient.remarkAddImage),
+                        function (r) {
+                            var json = JSON.parse(r.response);
+                            if(!remark.hasOwnProperty('images')){
+                                remark.images = [];
+                            }
+                            remark.images.push("/job/get-debtor-remark-image?item=" + json.data);
+                            app.day.update(function(e){
+                                new Modal( $('#dialog-image-uploading')[0] ).hide();
+                                new Modal( $('#dialog-image-uploaded')[0] ).show();
+                            });
+                        },
+                        function (error) {
+                            alert("Kan afbeelding op dit moment niet uploaden.");
+                        },
+                        options
+                    );
                 }
 
-                var options = new FileUploadOptions();
-                options.fileKey = "file";
-                options.fileName = fileURL.substr(fileURL.lastIndexOf('/') + 1);
-                options.mimeType = "text/plain";
-
-                var params = {};
-                params.temp_id = remark.temp_id;
-                params.id = remark.id;
-
-                options.params = params;
-
-                var ft = new FileTransfer();
-                ft.upload(fileURL, encodeURI(app.restClient.remarkAddImage), win, fail, options);
             }
             function errorCallback(){
                 alert("error");
@@ -835,6 +928,12 @@ var app = {
             app.remarkIndex = this.getAttribute('remark');
             app.remark = app.checkpoint.remarks[ app.remarkIndex ];
             app.navigate.to('views/remarks/images.html', function(e){
+
+            });
+        },
+        editRemark: function(e){
+            app.remark = app.checkpoint.remarks[ this.getAttribute('remark') ];
+            app.navigate.to('views/remarks/edit.html', function(e){
 
             });
         },
@@ -854,7 +953,7 @@ var app = {
         },
         checkpointCreate: function(e){
             var checkpointTypeId = $('#checkpoint-create-service_type_id').val();
-            var debtor_service_type_id = $('#checkpoint-create-debtor_service_type_id').val();
+            var debtor_service_type_id = parseInt( $('#checkpoint-create-debtor_service_type_id').val() );
             var checkpointType = app.checkpointTypes[checkpointTypeId];
             var cp = {
                 id: null,
@@ -867,12 +966,20 @@ var app = {
                     y: "0%",
                     path: ""
                 },
+                flags: {
+                    historic: {
+                        used_tox: false
+                    },
+                },
+                remarks: [],
                 is_opened: 0,
                 unreachable: 0,
+                exists: 1,
                 is_editable: 1,
                 is_required: 1,
                 is_temporary: 1,
                 is_deleted: 0,
+                scanned: 0,
                 questions: checkpointType.questions
             };
             app.appointment.checkpoints.push(cp);
@@ -892,6 +999,11 @@ var app = {
         },
         viewProducts: function(e){
             app.navigate.to('views/product/index.html', function(e){
+
+            });
+        },
+        viewSummary: function(e){
+            app.navigate.to('views/summary/index.html', function(e){
 
             });
         },
@@ -940,26 +1052,93 @@ var app = {
                 app.dayIndex = day;
                 app.appointmentIndex = appointment;
                 app.appointment = result.data[appointment];
-                app.navigate.to('views/appointment/index.html');
+
+                // var str = "";
+                //
+                // var count = 0;
+                // for(var checkpointIndex in app.appointment.checkpoints){
+                // 	var checkpoint = app.appointment.checkpoints[checkpointIndex];
+                // 	for(var remarkIndex in checkpoint.remarks){
+                //         count++;
+                //         str += "\
+                //             <normal style='display: inline-block; width: 100%; padding: 0; box-sizing: border-box;'>\
+                //             Opmerking: " + checkpoint.remarks[remarkIndex].name + "\
+                //             </normal>\
+                //             <normal style='display: inline-block; width: 100%; padding: 0; box-sizing: border-box;'>\
+                //             Actie: " + checkpoint.remarks[remarkIndex].action + "\
+                //             </normal>";
+                //     }
+                // }
+                // if( count > 0 ){
+                //     // alert( count +  " openstaande " + ( ( count == 1 ) ? 'opmerking' : 'opmerkingen' ) + " gevonden." );
+                // }
+
+
+                app.navigate.to('views/appointment/index.html', function(e){
+                    var str = "";
+                    for(var checkpointIndex in app.appointment.checkpoints){
+                    	var checkpoint = app.appointment.checkpoints[checkpointIndex];
+                    	for(var remarkIndex in checkpoint.remarks){
+                            str += "\
+                                <normal style='display: inline-block; width: 100%; padding: 0; box-sizing: border-box;'>\
+                                <strong>O</strong>: " + checkpoint.remarks[remarkIndex].name + "\
+                                </normal>";
+                            str += "\
+                                <normal style='display: inline-block; width: 100%; padding: 0; box-sizing: border-box;'>\
+                                <strong>A</strong>: " + checkpoint.remarks[remarkIndex].action + "\
+                                </normal>";
+                            if( checkpoint.remarks[remarkIndex].debtor_remark != null ){
+                            str += "\
+                                <normal style='display: inline-block; width: 100%; padding: 0; box-sizing: border-box;'>\
+                                <strong>K</strong>: " + checkpoint.remarks[remarkIndex].debtor_remark + "\
+                                </normal>";
+                            }
+                            str += "<br/><br/>";
+                        }
+                    }
+
+                    if( str != "" ){
+                        var modal = new Modal( $('#dialog-dialog-remark-index')[0] );
+
+
+                        var inner = $( modal.element ).find('.inner');
+                        console.log(inner);
+                        inner.html( str );
+                        modal.show();
+                    }
+
+
+                });
             });
         },
 
         viewCheckpoints: function(e){
+
+
             app.navigate.to('views/checkpoints/index.html');
         },
         viewCheckpoint: function(e){
             var checkpoint = $(this).attr('checkpoint');
+
+            console.log( 'viewCheckpointfunction' );
+
             if(checkpoint){
                 app.checkpoint = app.appointment.checkpoints[checkpoint];
                 app.checkpointIndex = checkpoint;
-                if(!app.checkpoint.is_opened){
-                    app.checkpoint.is_opened = true;
-                    app.day.update(function(e){
-                        app.navigate.to('views/checkpoints/view.html');
-                    });
-                } else {
-                    app.navigate.to('views/checkpoints/view.html');
+
+                if( !app.checkpoint.is_scanned && !app.checkpoint.is_opened ){
+                    alert("Probeer, indien mogelijk, altijd de barcodes van een controlepunt te scannen.");
                 }
+
+                // if(!app.checkpoint.is_opened){
+                //     // app.checkpoint.is_opened = true;
+                //
+                //     app.day.update(function(e){
+                //         app.navigate.to('views/checkpoints/view.html');
+                //     });
+                // } else {
+                    app.navigate.to('views/checkpoints/view.html');
+                // }
 
             }
         },
@@ -989,6 +1168,26 @@ var app = {
                 });
             }
         },
+        checkpointMarkNonExistent: function(e){
+            if(confirm("Weet u zeker dat u dit punt wilt markeren als niet bestaand?")){
+                app.appointment.checkpoints[app.checkpointIndex].exists = false;
+                app.day.update(function(e){
+                    app.navigate.to('views/checkpoints/index.html', function(e){
+
+                    });
+                });
+            }
+        },
+        checkpointMarkExistent: function(e){
+            if(confirm("Weet u zeker dat u dit punt wilt markeren als bestaand?")){
+                app.appointment.checkpoints[app.checkpointIndex].exists = true;
+                app.day.update(function(e){
+                    app.navigate.to('views/checkpoints/index.html', function(e){
+
+                    });
+                });
+            }
+        },
         checkpointEditName: function(e){
             var cp = app.appointment.checkpoints[app.checkpointIndex];
 
@@ -1010,6 +1209,19 @@ var app = {
                 });
             }
         },
+        checkpointEditBarcode: function(e){
+            app.scanner.canScan = 'insertCode';
+            var oldBarcode = app.checkpoint.barcode;
+            var c = confirm("Scan een barcode en klik vervolgens op OK");
+            if(c){
+                if(app.checkpoint.barcode.length > 0 && (app.checkpoint.barcode != oldBarcode) ){
+
+                } else {
+                    app.actions.checkpointEditBarcode.call(this, e);
+                }
+                // app.scanner.canScan = false;
+            }
+        },
         completeAppointment: function(e){
             var finish = true;
             var join = [];
@@ -1020,7 +1232,7 @@ var app = {
             for(var i in app.appointment.checkpoints){
                 var cp = app.appointment.checkpoints[i];
                 if(cp.is_deleted == false && cp.unreachable == false && cp.is_required == true && cp.is_opened == false){
-                    // join.push("Openstaand meetpunt: " + cp.location_description);
+                    join.push("Openstaand controlepunt: " + cp.location_description);
                     openCheckpoints++;
                     checkpointName = cp.location_description;
                     finish = false;
@@ -1029,7 +1241,7 @@ var app = {
             if(finish){
                 for(var i in app.appointment.checkpoints){
                     var cp = app.appointment.checkpoints[i];
-                    if( cp.is_required ){
+                    if( cp.is_required && cp.is_deleted == false && cp.unreachable == false && cp.exists == true){
                         var count = 0;
                         for(var cpqi in cp.questions){
                             var cpq = cp.questions[cpqi];
@@ -1040,26 +1252,27 @@ var app = {
                         if(count > 0){
                             finish = false;
                             var qtag = (count == 1) ? 'vraag' : 'vragen';
-                            join.push(count + " openstaande " + qtag + " bij meetpunt " + cp.location_description);
+                            join.push(count + " openstaande " + qtag + " bij controlepunt " + cp.location_description);
                         }
                     }
                 }
             }
 
             if(finish == false){
-
-                if(openCheckpoints == 1){
-                    alert("Meetpunt " + checkpointName + " staat nog open.");
-                } else {
-                    alert("Meetpunt " + checkpointName + " en " + (openCheckpoints-1) + " andere staan nog open.");
+                if(join.length > 5){
+                    var l = join.length;
+                    join = join.splice(0, 5);
+                    join.push('en ' + (l - 5) + ' andere meldingen');
                 }
-
-
+                alert(join.join('\n'));
             } else {
                 app.navigate.to('views/installations/index.html');
             }
         },
         signAppointment: function(e){
+            app.navigate.to('views/signature/index.html');
+        },
+        viewSummary: function(e){
 
             var finish = true;
             var join = [];
@@ -1068,7 +1281,7 @@ var app = {
             for(var sti in app.appointment.service_types){
                 var st = app.appointment.service_types[sti];
                 if(st.state == null){
-                    join.push("Installatie " + st.name + " heeft geen status!");
+                    join.push("Servicetype " + st.name + " heeft geen status!");
                     console.log('geen status');
                     finish = false;
                 }
@@ -1083,30 +1296,40 @@ var app = {
                     var aq = st.additional_questions[state];
                     for(var i in aq){
                         var q = aq[i];
-                        if(q.is_required == true && q.answered != true){
+                        if(q.is_required == true && q.answered == false){
                             count++;
                         }
                     }
                     var aq = st.additional_questions['*'];
                     for(var i in aq){
                         var q = aq[i];
-                        if(q.is_required == true && q.answered != true){
+                        if(q.is_required == true && q.answered == false){
                             count++;
                         }
                     }
+
                     if(count > 0){
                         finish = false;
                         var qtag = (count == 1) ? 'vraag' : 'vragen';
-                        join.push(count + " openstaande " + qtag + " bij installatie " + st.name);
-                        console.log('openstaande intallatie');
+                        localStorage.setItem('additional_question_list_' + sti, 'show');
+                        document.querySelector('[servicetype="'+sti+'"]').setAttribute('show', '');
+                        document.querySelector('[servicetype="'+sti+'"]').removeAttribute('hide');
+                        join.push(count + " openstaande " + qtag + " bij servicetype " + st.name);
                         finish = false;
+                    } else {
+                        localStorage.setItem('additional_question_list_' + sti, 'hide');
+                        document.querySelector('[servicetype="'+sti+'"]').removeAttribute('show');
+                        document.querySelector('[servicetype="'+sti+'"]').setAttribute('hide', '');
                     }
                 }
             }
             if(finish == true){
-                app.navigate.to('views/signature/index.html', function(e){
+                app.navigate.to('views/summary/index.html', function(e){
 
                 });
+                // app.navigate.to('views/signature/index.html', function(e){
+                //
+                // });
             } else {
                 alert(join.join("\n"));
             }
@@ -1162,16 +1385,14 @@ var app = {
         //https://github.com/szimek/signature_pad
         signatureReset: function(e){
             target = this.getAttribute('target');
-            if(target == 'customer' && signaturePadCustomer){
+            if(target == 'customer'){
                 signaturePadCustomer.clear();
-            } else {
-                signaturePadInspector.clear();
             }
         },
         signatureSubmit: function(e){
             var cancel = false;
 
-            if(signaturePadCustomer && signaturePadInspector){
+            if(signaturePadCustomer){
                 var join = [];
 
                 if(signaturePadCustomer.isEmpty()){
@@ -1179,13 +1400,6 @@ var app = {
                     join.push("Klant handtekening mag niet leeg zijn!");
                 } else {
                     app.appointment.signatures.customer = signaturePadCustomer.toDataURL();
-                }
-
-                if(signaturePadInspector.isEmpty()){
-                    cancel = true;
-                    join.push("Bestrijder handtekening mag niet leeg zijn");
-                } else {
-                    app.appointment.signatures.inspector = signaturePadInspector.toDataURL();
                 }
 
                 var customerFirstName = $('#customer-first-name').val();
@@ -1281,7 +1495,12 @@ var app = {
                                 if(!app.appointment.payment.payment_method){
                                     $('.label-payment-method').addClass('error');
                                 } else {
-                                    $('[name="payment_method"][value="'+app.appointment.payment.payment_method+'"]')[0].checked = true
+
+                                    var radio = $('[name="payment_method"][value="'+app.appointment.payment.payment_method+'"]');
+
+                                    if( radio.length > 0 ){
+                                        $('[name="payment_method"][value="'+app.appointment.payment.payment_method+'"]')[0].checked = true
+                                    }
                                 }
 
                                 new Modal( $('#dialog-payment')[0] ).show();
@@ -1346,7 +1565,7 @@ var app = {
     }
     };
 
-    var Modal = function( element ){
+var Modal = function( element ){
     this.element = element;
 
     var dialogCancel = this.element.getAttribute('dialog-cancel');
@@ -1361,6 +1580,7 @@ var app = {
         }
 
         var btnRow = document.createElement('div');
+
         btnRow.className = 'row btn-row'
 
         if(this.element.getAttribute('dialog-cancel')){
@@ -1394,8 +1614,10 @@ var app = {
 
     $(this.parentNode.parentNode).trigger(okEvent);
 
+    var btn = this;
+
     if(!okEvent.isDefaultPrevented()){
-        new Modal( this.parentNode.parentNode ).hide();
+        new Modal( okEvent.target ).hide();
     }
     });
     $(document).on('click', '.modal .btn.cancel', function(e){
@@ -1408,53 +1630,40 @@ var app = {
     $(this.parentNode.parentNode).trigger(cancelEvent);
 
     if(!cancelEvent.isDefaultPrevented()){
+
         new Modal( this.parentNode.parentNode ).hide();
     }
     });
 
-    Modal.prototype.hide = function(){
+Modal.prototype.hide = function(){
     $(this.element).trigger('beforeClose');
     this.element.removeAttribute('open');
     $(this.element).trigger('afterClose');
     }
-    Modal.prototype.show = function(){
+Modal.prototype.show = function(){
     $(this.element).trigger('beforeOpen');
+
     this.element.setAttribute('open', '');
-    $(this.element).trigger('afteropen');
+
+    var element =  $('#dialog-select-image-source')[0];
+    var height = this.element.offsetHeight;
+    this.element.style.top = "calc( 50% - " + height / 2 + "px )";
+
+    var computedTop = parseFloat( window.getComputedStyle( this.element )['top'] );
+
+    if( computedTop < 10 ){
+        this.element.style.top = 10;
     }
+
+    $(this.element).trigger('afteropen');
+}
     Modal.prototype.content = function( content ){
     this.element.innerHTML = content;
-    }
+}
 
     app.initialize();
 
-    $(document).on('submit', '.form-create-remark', function(e){
 
-    e.preventDefault();
-    e.stopPropagation();
-
-    var obj = {
-        id: null,
-        created_at: null,
-        updated_at: null,
-        name: $('.form-create-remark textarea[name="name"]').val(),
-        actionee_id: $('.form-create-remark select[name="actionee_id"]').val(),
-        group_id: $('.form-create-remark select[name="group_id"]').val(),
-        type_id: $('.form-create-remark select[name="type_id"]').val(),
-        is_private: $('.form-create-remark input[name="is_private"]')[0].checked,
-        temp_id: app.helpers.generateRandomString(24),
-        debtor_service_type_checkpoint_id: app.checkpoint.id,
-        images: [],
-        is_completed: false
-    };
-    app.checkpoint.remarks.push(obj);
-    app.day.update(function(){
-        app.navigate.to('views/remarks/index.html', function(e){
-
-        });
-    });
-
-    });
 
 
 
@@ -1476,7 +1685,8 @@ $(document).on('submit', '.installation-list .question-list .question-form', fun
     var fd = new FormData( $('.question-list[servicetype="'+serviceType+'"] form[question="'+questionIndex+'"]')[0] );
     var entries = fd.getAll('question_' + questionIndex);
 
-
+    console.log(serviceType);
+    console.log(questionIndex);
 
     var question = app.appointment.service_types[serviceTypeIndex].additional_questions[serviceType][questionIndex];
 
@@ -1527,16 +1737,40 @@ $(document).on('submit', '#form-search-code', function(e){
 
     if($('.checkpoint-list li.item.hidden').length == $('.checkpoint-list li.item').length){
         $('.checkpoint-list .no-results').removeClass('hidden');
+        app.navigate.back = function( e ){
+            $('#form-search-code [name="value"]').val("");
+            $('.checkpoint-list .no-results').addClass('hidden');
+            $('.checkpoint-list li.item').each(function(i){
+                $(this).removeClass('hidden');
+            });
+            app.navigate.back = function( e ){
+                app.navigate.to('views/appointment/index.html', function(e){
+
+                });
+            }
+        }
     } else {
         $('.checkpoint-list .no-results').addClass('hidden');
+        app.navigate.back = function( e ){
+            app.navigate.to('views/appointment/index.html', function(e){
+
+            });
+        }
     }
 });
 $(document).on('click', '.installation-list > li > label', function(e){
-    var input = $($(this.parentNode).find('input:checked'));
+    e.stopPropagation();
+
+    var input = $(this.querySelector('input:checked'));
+
     var value = input.val();
+
+
+
     var servicetype = $(this.parentNode).attr('servicetype');
 
     app.appointment.service_types[servicetype].state = value;
+    app.appointment.service_types[servicetype].replanning_days = input.attr('replanning-days');
     app.day.update(function(e){
         app.navigate.to('views/installations/index.html', function(e){
 
@@ -1587,7 +1821,8 @@ $(document).on('click', '#sync-toggler', function(e){
 })
     var baseUrl = "http://thom.at01.app.yii2.dev03.netzozeker.info";
     // var baseUrl = "https://at01.app.yii2.projecten03.netzozeker.info";
-    // var baseUrl = "https://at01-acc.app.yii2.projecten03.netzozeker.info";
+    // var baseUrl = "http://at01-acc.app.yii2.projecten03.netzozeker.info";
+    // var baseUrl = "http://app-acc.scantack.eu";
 
 app.restClient = {
     ping: baseUrl + '/ping',
@@ -1606,32 +1841,7 @@ app.restClient = {
     remarkRemoveImage: baseUrl + '/job/remark-remove-image'
 };
 
-$(document).on('change', '#default-remarks', function(e){
-    // get opt
-    var option = $(this).find(':selected');
 
-    var actionee_id = $(option).attr('actionee_id');
-
-    if(actionee_id){
-        var group_id = $(option).attr('group_id');
-        var type_id = $(option).attr('type_id');
-        var name = $(option).attr('name');
-
-        $('[name="actionee_id"]').val(actionee_id);
-        $('[name="actionee_id"]').attr('disabled', '');
-        $('[name="type_id"]').val(type_id);
-        $('[name="type_id"]').attr('disabled', '');
-        $('[name="group_id"]').val(group_id);
-        $('[name="group_id"]').attr('disabled', '');
-        $('[name="name"]').val(name);
-        $('[name="name"]').attr('disabled', '');
-    } else {
-        $('[name="actionee_id"]').attr('disabled', false);
-        $('[name="type_id"]').attr('disabled', false);
-        $('[name="group_id"]').attr('disabled', false);
-        $('[name="name"]').attr('disabled', false);
-    }
-});
 $(document).on('click', 'body', function(e){
     $('.more-list:not(.hidden)').each(function(i){
         $(this).addClass('hidden');
@@ -1653,11 +1863,42 @@ $(document).on('click', '.toggle-additional-questions', function(e){
         localStorage.setItem('additional_question_list_' + String(serviceType), 'hide');
         parent.removeAttribute('show');
         parent.setAttribute('hide', '');
-        this.innerHTML = 'Vragenlijst(en) weergeven';
+        this.innerHTML = 'Vragen weergeven';
     } else {
         localStorage.setItem('additional_question_list_' + String(serviceType), 'show');
-        this.innerHTML = 'Vragenlijst(en) verbergen';
+        this.innerHTML = 'Vragen verbergen';
         parent.removeAttribute('hide');
         parent.setAttribute('show', '');
     }
-})
+});
+
+
+
+var templates = {
+    productListView: "<div class='inner product-row' data-key='1'>\
+        <div class='product-count'>\
+            {product.amount}x\
+        </div>\
+        <div class='product-name'>\
+            {product.name}\
+        </div>\
+        <small><strong>Controlepunten: </strong></small><br/>\
+        <small>{checkpoints}</small><br/>\
+        <small><strong>Servicetypen: </strong></small><br/>\
+        <small>{service_types}</small><br/>\
+    </div>",
+    remarkListView: "\
+    <li class=''>\
+        <p>{checkpoint}: {name}</p>\
+        <p>Actie: {action}</p>\
+        <p>\
+            Actiehouder: {actionee}<br>\
+            Type: {type}\
+        </p>\
+        {images}\
+    </li>",
+};
+
+
+
+app.templates = templates;

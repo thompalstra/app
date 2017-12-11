@@ -322,6 +322,14 @@ module.exports = [
         "clobbers": [
             "window.Media"
         ]
+    },
+    {
+        "id": "cordova-plugin-filepath.FilePath",
+        "file": "plugins/cordova-plugin-filepath/www/FilePath.js",
+        "pluginId": "cordova-plugin-filepath",
+        "clobbers": [
+            "window.FilePath"
+        ]
     }
 ];
 module.exports.metadata = 
@@ -336,7 +344,8 @@ module.exports.metadata =
     "cordova-plugin-compat": "1.1.0",
     "cordova-plugin-camera": "2.4.1",
     "cordova-plugin-media-capture": "1.4.3",
-    "cordova-plugin-media": "3.0.1"
+    "cordova-plugin-media": "3.0.1",
+    "cordova-plugin-filepath": "1.0.2"
 };
 // BOTTOM OF METADATA
 });

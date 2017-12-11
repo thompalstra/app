@@ -164,7 +164,7 @@ var data = {
             service_types:{
                 1: {
                     name: 'Hygiëne',
-                    remarks: 'Test installatie begane grond',
+                    remarks: 'Test servicetype begane grond',
                     state: null,
                     additional_questions: {
                         // status
@@ -191,7 +191,7 @@ var data = {
                 },
                 3261: {
                     name: 'Muizen',
-                    remarks: 'Test installatie begane grond',
+                    remarks: 'Test servicetype begane grond',
                     state: null,
                     additional_questions: {
                         // status

@@ -1,0 +1,78 @@
+<menu class='has-2 scheme remarks'>
+    <item action="navigateBack" mdot noselect>
+        <i class="material-icons icon">&#xE5C4;</i>
+    </item>
+    <title>Nieuwe opmerkingen</title>
+</menu>
+</menu>
+<content>
+    <form id='form-edit-remark' class='form form-create-remark inner'>
+        <div class='row'>
+            <label>Type:</label>
+            <select name='type_id' class='select' disabled>
+                <option></option>
+            </select>
+        </div>
+        <div class='row'>
+            <label>Actiehouder:</label>
+            <select name='actionee_id' class='select' required>
+                <option></option>
+            </select>
+        </div>
+        <div class='row'>
+            <label>Omschrijving:</label>
+            <textarea name='name' class='textarea' rows=2 min=10 required></textarea>
+        </div>
+        <div class='row'>
+            <label>Actie:</label>
+            <textarea name='action' class='textarea' rows=2 min=10 required></textarea>
+        </div>
+        <div class='row'>
+            <label>Privé
+                <input type='checkbox' name='is_private'/>
+            </label>
+        </div>
+        <button type='submit' class='btn btn-default success wide'>opslaan</button>
+    </form>
+</content>
+<script>
+app.navigate.back = function(){
+    app.navigate.to('views/remarks/index.html', function(e){
+
+    });
+}
+
+var r = new Remarks();
+r.find().findById(1, function(result){
+    for(var i in result.data.actionees){
+        $('[name="actionee_id"]').append( $('<option value="' + i + '">'+ result.data.actionees[i]+'</option>') );
+    }
+    for(var i in result.data.types){
+        $('[name="type_id"]').append( $('<option value="' + i + '">'+ result.data.types[i]+'</option>') );
+    }
+    $('[name="actionee_id"]').val( app.remark.actionee_id );
+    $('[name="type_id"]').val( app.remark.type_id );
+    $('[name="name"]').val( app.remark.name );
+    $('[name="action"]').val( app.remark.action );
+    $('[name="is_private"]')[0].checked = app.remark.is_private;
+});
+
+$('#form-edit-remark').on('submit', function(e){
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    if( this.checkValidity() ){
+        app.remark.name = $('[name="name"]').val();
+        app.remark.action = $('[name="action"]').val();
+        app.remark.actionee_id = $('[name="actionee_id"]').val();
+        app.remark.is_private = $('[name="is_private"]')[0].checked;
+        app.day.update(function(){
+            app.navigate.to('views/remarks/index.html', function(e){
+
+            });
+        });
+    }
+});
+
+</script>

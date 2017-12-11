@@ -15,6 +15,9 @@
             <td class='value'>mail@mail.com</td>
         </tr>
     </table>
+    <section class='inner remarks'>
+        <h2 id='remarks'>Opmerkingen</h2>
+    </section>
     <section class='inner'>
         <h2 id='invoice'>Factuurgegevens</h2>
         <p>
@@ -48,6 +51,12 @@
 
         </table>
     </section>
+    <section class='inner'>
+        <h2 id='visit'>Servicetypen</h2>
+        <div class='installations'>
+
+        </div>
+    </section>
 </content>
 
 
@@ -68,6 +77,37 @@
     }
 
 
+
+    var remarks = [];
+
+    if( app.appointment.debtor.remarks != null ){
+        remarks.push( app.appointment.debtor.remarks );
+    }
+
+    if( app.appointment.debtor.branch_remarks != null ){
+        remarks.push( app.appointment.debtor.branch_remarks );
+    }
+
+    if( remarks.length == 0 ){
+        $(".inner.remarks").remove();
+    } else {
+        $(".inner.remarks").html( "<h2>Opmerkingen</h2>" + remarks.join(' ') );
+    }
+
+    var installationList = $('.installations');
+
+    for(var serviceTypeIndex in app.appointment.service_types){
+        installationList.append( $(
+            "<div class='installation'>\
+                <normal>" + app.appointment.service_types[serviceTypeIndex].name + "</normal>\
+                <small>" + ( app.appointment.service_types[serviceTypeIndex].remarks == "" ? "Geen opmerking" :  app.appointment.service_types[serviceTypeIndex].remarks ) + "</small>\
+                <small>Prioriteit: " + app.appointment.service_types[serviceTypeIndex].priority + "</small>\
+                <small>Gemeld door: " + app.appointment.service_types[serviceTypeIndex].name_reporter + "</small>\
+            </div>"
+        ) );
+    };
+
+
     $('#invoice_address').html( app.appointment.debtor.invoice_address );
     $('#invoice_postcode').html( app.appointment.debtor.invoice_postcode );
     $('#invoice_city').html( app.appointment.debtor.invoice_city );
@@ -80,7 +120,7 @@
     $('#visit_house_number').html( app.appointment.debtor.visit_house_number );
     $('#visit_addition').html( app.appointment.debtor.visit_addition );
 
-    $('#payment_method').html( app.appointment.debtor.payment_method );
+    $('#payment_method').html( app.appointment.payment.payment_method );
 
     var t = 0;
     var timeTable = $('#times');

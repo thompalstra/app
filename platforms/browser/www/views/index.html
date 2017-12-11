@@ -8,6 +8,10 @@
     </item>
 </menu>
 <content>
+    <div id='dialog-dialog-remark-index' class='modal' dialog-ok='Ok' backdrop>
+        <div class='inner'>
+        </div>
+    </div>
     <div id='dialog-sync-start' class='modal' dialog-ok='Ok' dialog-cancel='Annuleer' backdrop>
         <div class='inner'>
             <strong><p>Synchronisatie starten</p></strong>
@@ -29,7 +33,7 @@
     <div class='modal-backdrop'></div>
 
     <section class='inner' style='position: relative; margin: 0; width: 100%; border-left: 0; border-right: 0;'>
-        <h2 class='title' style='min-height: 48px; line-height: 48px;'><img src="/img/icon-48-mdpi.png" class='pull-left'/> Scantack</h2>
+        <h2 class='title' style='min-height: 48px; line-height: 48px;'><img src="img/icon-48-mdpi.png" class='pull-left'/> Attack</h2>
         <p id='lastsync'></p>
     </section>
 
@@ -73,8 +77,17 @@
                 var completed = (appointment.completed == true || appointment.sync == false) ? 'done' : '';
                 str += "<li class='"+completed+"' action='viewAppointment' mdot noselect day='"+day.id+"' appointment='"+appointmentIndex+"'>";
                 str += "<div class='view'><i class='material-icons'></i></div>";
-                str += "<small>" + appointment.time + "</small> " + appointment.debtor.name;
-                str == "</li>";
+                // str += "<small>" + appointment.time + "</small> " + appointment.debtor.name;
+                str += "<div class='data-row normal'>" + appointment.debtor.name + "</div>";
+
+                str += "<div class='data-row small' style='line-height: 14px; padding: 10px;'>" + appointment.debtor.visit_address + " " + appointment.debtor.visit_house_number + "<br/>" +
+                appointment.debtor.visit_postcode + " " + appointment.debtor.visit_city + "</div>";
+
+                if( appointment.time != null ){
+                    str += "<div class='data-row small'>Tijd: " + appointment.time + "</div>";
+                }
+
+                str += "</li>";
 
             }
             str += "</ul>";
@@ -87,4 +100,5 @@
 
         }
     });
+
 </script>

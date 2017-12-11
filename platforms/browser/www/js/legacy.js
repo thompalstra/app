@@ -124,7 +124,7 @@
 //         var st = appointment.service_types[serviceTypeIndex];
 //
 //         if(st.state == null){
-//             errors.push("Installatie " + st.name + " heeft geen status!");
+//             errors.push("Servicetype " + st.name + " heeft geen status!");
 //         } else if(st.state == st.additional_questions.on){
 //             for(var serviceTypeQuestionIndex in st.additional_questions.questions){
 //                 var additionalQuestion = st.additional_questions.questions[serviceTypeQuestionIndex];

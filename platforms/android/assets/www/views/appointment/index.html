@@ -5,21 +5,29 @@
     <title>Afspraak</title>
 </menu>
 <content>
+    <div id='dialog-dialog-remark-index' class='modal' dialog-ok='Ok' backdrop>
+        <div class='inner'>
+        </div>
+    </div>
+    <div class='modal-backdrop'></div>
     <section id='red-card' class='inner appointment red-card hidden'>
         Rode kaart actief
     </section>
-    <section id='appointment-information' class='inner appointment information'>
+    <section id='appointment-remarks' class='inner appointment information'>
 
     </section>
     <section class='inner appointment view-checkpoints' action="viewCheckpoints" mdot noselect>
-        <h2 class='title'>Meetpunten</h2>
+        <h2 class='title'>Controlepunten</h2>
     </section>
     <section class='inner appointment view-debtor scheme' action="viewDebtor" mdot noselect>
         <h2 class='title'>Detail</h2>
     </section>
-    <section class='inner appointment view-products' action='viewProducts' mdot noselect>
+    <section class='inner appointment view-products hidden' action='viewProducts' mdot noselect>
         <h2 class='title'>Producten</h2>
     </section>
+    <!-- <section class='inner appointment view-summary' action='viewSummary' mdot noselect>
+        <h2 class='title'>Overzicht</h2>
+    </section> -->
     <section class='inner'>
         <ul id='floorplan-list' class='floorplan-list'></ul>
     </section>
@@ -35,10 +43,14 @@
         $('[action="completeAppointment"]').addClass('hidden');
     }
 
-    if(app.appointment.hasOwnProperty('information')){
-        $('#appointment-information').html( app.appointment.information );
+    if(app.appointment.debtor.is_non_contract_products_allowed == true){
+        document.querySelector('[action="viewProducts"]').classList.remove('hidden');
+    }
+
+    if(app.appointment.hasOwnProperty('remarks')){
+        $('#appointment-remarks').html( app.appointment.remarks );
     } else {
-        $('#appointment-information').addClass('hidden');
+        $('#appointment-remarks').addClass('hidden');
     }
 
     if(app.appointment.red_card == true){

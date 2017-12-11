@@ -9,8 +9,46 @@
         <link rel="stylesheet" type="text/css" href="css/colors.css">
         <link rel="stylesheet" type="text/css" href="css/index.css">
         <title>Hello World</title>
+
+        <style>
+            splash{
+                position: fixed;
+                z-index: 100000000;
+                top: 0;
+                left: 0;
+                right: 0;
+                background-color: #ddd;
+                bottom: 0;
+            }
+            splash .logo{
+                position: absolute;
+                width: 50%;
+                height: 50%;
+                display: inline-block;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                margin: auto;
+            }
+            splash p{
+                position: absolute;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                height: 50px;
+                line-height: 50px;
+                margin: 0;
+                text-align: center;
+                color: #888;
+            }
+        </style>
     </head>
     <body>
+        <splash>
+            <img class='logo' src="img/scantack.svg"/>
+            <p>in samenwerking met netzozeker</p>
+        </splash>
         <app>
             <view>
 
