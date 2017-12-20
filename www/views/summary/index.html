@@ -109,9 +109,9 @@
     }
 
     for(var i in app.appointment.checkpoints){
-
+    //
         var checkpoint = app.appointment.checkpoints[i];
-
+    //
         for(var remarkIndex in checkpoint.remarks){
             var remark = checkpoint.remarks[remarkIndex];
             if(remark.is_completed == false && remark.is_private == false){
@@ -119,32 +119,33 @@
                 remarkList.push(remark);
             }
         }
-        for(var qIndex in app.appointment.checkpoints[i].questions){
+    //     for(var qIndex in app.appointment.checkpoints[i].questions){
+    //
+    //         var q = app.appointment.checkpoints[i].questions[qIndex];
+    //         if(q.type == 5 && q.answered == true){
+    //             var productId = q.answer[0];
+    //             var productAmount = q.answer[1];
+    //             if(productId != undefined){
+    //                 addProduct(productId, app.appointment.checkpoints[i].location_description, null, productAmount);
+    //             }
+    //         }
+    //     }
+    // }
+    // for(var i in app.appointment.service_types){
+    //     for(var aqIndex in app.appointment.service_types[i].additional_questions){
+    //         for(var qIndex in app.appointment.service_types[i].additional_questions[aqIndex]){
+    //             var q = app.appointment.service_types[i].additional_questions[aqIndex][qIndex];
+    //             if(q.type == 5 && q.answered == true){
+    //                 var productId = q.answer[0];
+    //                 var productAmount = q.answer[1];
+    //                 if(productId != undefined){
+    //                     addProduct(productId, null, app.appointment.service_types[i].name, productAmount);
+    //                 }
+    //             }
+    //         }
+    //     }
+    }
 
-            var q = app.appointment.checkpoints[i].questions[qIndex];
-            if(q.type == 5 && q.answered == true){
-                var productId = q.answer[0];
-                var productAmount = q.answer[1];
-                if(productId != undefined){
-                    addProduct(productId, app.appointment.checkpoints[i].location_description, null, productAmount);
-                }
-            }
-        }
-    }
-    for(var i in app.appointment.service_types){
-        for(var aqIndex in app.appointment.service_types[i].additional_questions){
-            for(var qIndex in app.appointment.service_types[i].additional_questions[aqIndex]){
-                var q = app.appointment.service_types[i].additional_questions[aqIndex][qIndex];
-                if(q.type == 5 && q.answered == true){
-                    var productId = q.answer[0];
-                    var productAmount = q.answer[1];
-                    if(productId != undefined){
-                        addProduct(productId, null, app.appointment.service_types[i].name, productAmount);
-                    }
-                }
-            }
-        }
-    }
     for(var i in app.appointment.products){
         addProduct(i, null, null, app.appointment.products[i] );
     }

@@ -756,16 +756,6 @@ var app = {
                     str += "<label for='question_"+questionIndex+"_"+i+"'>"+question.choices[i]+"</label>";
                     str += "</div>";
                 }
-                // isTrue = (question.answer == 1 ? 'checked' : '');
-                // str += "<div style='margin: 10px 0'>";
-                // str += "<input id='question_"+questionIndex+"_1' type='radio' value='1' name='question_" + questionIndex + "' "+isTrue+" >"
-                // str += "<label for='question_"+questionIndex+"_1'>Ja</label>";
-                // str += "</div>";
-                // isFalse = (question.answer == 0 ? 'checked' : '');
-                // str += "<div style='margin: 10px 0'>";
-                // str += "<input id='question_"+questionIndex+"_0' type='radio' value='0' name='question_" + questionIndex + "' "+isFalse+">"
-                // str += "<label for='question_"+questionIndex+"_0'>Nee</label>";
-                // str += "</div>";
 
                 break;
                 case QUESTION_TYPE_NUMBER:
@@ -783,22 +773,29 @@ var app = {
 
                 str += "<select name='question_" + questionIndex + "' class='select'>";
 
-                // question.products = [1,2,3]
-
                 if(question.products.length > 0){
-
-
-                    var productNames = {};
+                    var products = [];
 
                     for(var i in question.products){
                         var id = question.products[i];
-
                         var product = app.products[ id ];
-                        productNames[product.name] = question.products[i];
+                        if( product ){
+                            products.push({
+                                name: product.name,
+                                id: id
+                            });
+                        }
                     }
 
-                    for(var i in productNames){
-                        var id = productNames[i];
+                    products.sort(function(a, b){
+                        if(a.name < b.name) return -1;
+                        if(a.name > b.name) return 1;
+                        return 0;
+                    });
+
+                    for(var i in products){
+
+                        var id = products[i].id;
                         var product = app.products[id];
 
                         var name = "question_" + questionIndex;
@@ -1209,6 +1206,7 @@ var app = {
                 });
             }
         },
+
         checkpointEditBarcode: function(e){
             app.scanner.canScan = 'insertCode';
             var oldBarcode = app.checkpoint.barcode;
@@ -1219,7 +1217,6 @@ var app = {
                 } else {
                     app.actions.checkpointEditBarcode.call(this, e);
                 }
-                // app.scanner.canScan = false;
             }
         },
         completeAppointment: function(e){
@@ -1482,7 +1479,7 @@ var app = {
                         app.appointment.payment.total_in = app.appointment.payment.default_in + app.appointment.payment.additional_in;
                         app.appointment.payment.total_ex = app.appointment.payment.default_ex + app.appointment.payment.additional_ex;
 
-                        if(app.appointment.payment.payment_method !== 'contract'){
+                        if( app.appointment.payment.payment_method !== 'contract' && app.appointment.payment.payment_method !== 'invoice' ){
 
                             $('#dialog-payment [name="payment_paid"]').removeClass('error');
 
@@ -1786,25 +1783,27 @@ $(document).on('submit', '#form-login-form', function(e){
     var username = $('input[name="username"]').val();
     var password = $('input[name="password"]').val();
 
-    app.user.login(
-        username,
-        password,
-        function(resp){
-            if(resp.result === true){
-                app.navigate.to('views/index.html', function(e){
+    setTimeout( function(e){
+        app.user.login(
+            username,
+            password,
+            function(resp){
+                if(resp.result === true){
+                    app.navigate.to('views/index.html', function(e){
 
-                });
-            } else if(resp.result === false){
-                $('.exception').removeClass('hidden');
-                $('.exception').html( resp.message );
-            } else {
-                app.notification.show(app.exceptions.serverError);
+                    });
+                } else if(resp.result === false){
+                    $('.exception').removeClass('hidden');
+                    $('.exception').html( resp.message );
+                } else {
+                    app.notification.show(app.exceptions.serverError);
+                }
+            },
+            function(){
+                alert("Server onbereikbaar");
             }
-        },
-        function(){
-            alert("Server onbereikbaar");
-        }
-    )
+        )
+    }, 50);
 });
 $(document).on('click', '[action]', function(e){
     var action = $(this).attr('action');
@@ -1819,10 +1818,12 @@ $(document).on('click', '[action]', function(e){
 $(document).on('click', '#sync-toggler', function(e){
     $(this.parentNode).toggleClass('collapsed');
 })
-    var baseUrl = "http://thom.at01.app.yii2.dev03.netzozeker.info";
-    // var baseUrl = "https://at01.app.yii2.projecten03.netzozeker.info";
+//AJQaqSV5
+    // var baseUrl = "http://thom.at01.app.yii2.dev03.netzozeker.info";
     // var baseUrl = "http://at01-acc.app.yii2.projecten03.netzozeker.info";
-    // var baseUrl = "http://app-acc.scantack.eu";
+    var baseUrl = "https://app-acc.scantack.eu";
+    // var baseUrl = "https://app.scantack.eu";
+    // var baseUrl = "https://at01.app.yii2.projecten03.netzozeker.info";
 
 app.restClient = {
     ping: baseUrl + '/ping',

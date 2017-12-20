@@ -69,8 +69,8 @@
                             if (category) {
                                 var states = category.states;
                                 var outputStates = [];
-                                for(var i in states){
-                                    outputStates.push(states[i]);
+                                for(var iS in states){
+                                    outputStates.push(states[iS]);
                                 }
                                 output.push(outputStates);
                             }
@@ -110,8 +110,12 @@
             }
             return result;
         }
+        console.log( 'st: ' + i );
+        console.log( output );
 
         output = intersection(output);
+
+        console.log( output );
 
         var l = 0;
         for (var aaa in output) {

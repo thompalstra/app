@@ -37,13 +37,14 @@
 
 
 <script>
+    app.scanner.canScan = true;
     $('#dialog-checkpoint-add').on('ok', function(e){
         e.preventDefault();
         new Modal( $('#dialog-checkpoint-add')[0] ).hide();
         app.actions.checkpointCreate();
     });
     app.navigate.back = function(){
-        app.scanner.canScan = false;
+        // app.scanner.canScan = false;
         app.navigate.to('views/appointment/index.html', function(e){
 
         });
@@ -133,5 +134,4 @@
         str += "</li>";
         $('.checkpoint-list').append( $(str) );
     }
-    app.scanner.canScan = true;
 </script>

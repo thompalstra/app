@@ -38,6 +38,9 @@
 
 <script>
 
+
+    app.scanner.canScan = false;
+
     var indexes = [];
     var currentIndex = 0;
 
@@ -121,12 +124,6 @@
             var c = confirm("Barcode leeg. Scan een barcode en klik vervolgens op OK");
             if(c == true){
                 app.navigate.to('views/checkpoints/view.html');
-                // if(app.checkpoint.barcode.length > 0){
-                //
-                // } else {
-                //     app.navigate.to('views/checkpoints/view.html');
-                // }
-                // app.scanner.canScan = false;
             } else {
                 app.navigate.to('views/checkpoints/index.html');
             }
@@ -136,7 +133,7 @@
     }
 
     function loadCheckpoint(){
-        app.scanner.canScan = false;
+        // app.scanner.canScan = false;
         app.navigate.back = function(){
             app.navigate.to('views/checkpoints/index.html', function(e){
 

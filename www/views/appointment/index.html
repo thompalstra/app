@@ -38,6 +38,9 @@
 
 
 <script>
+
+    app.scanner.canScan = false;
+
     $('view title').html( app.appointment.debtor.name );
     if(app.appointment.sync == false || app.appointment.complete == true){
         $('[action="completeAppointment"]').addClass('hidden');
