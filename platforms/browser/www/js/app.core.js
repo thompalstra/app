@@ -1818,9 +1818,10 @@ $(document).on('click', '[action]', function(e){
 $(document).on('click', '#sync-toggler', function(e){
     $(this.parentNode).toggleClass('collapsed');
 })
-    // var baseUrl = "http://thom.at01.app.yii2.dev03.netzozeker.info";
+//AJQaqSV5
+    var baseUrl = "http://thom.at01.app.yii2.dev03.netzozeker.info";
     // var baseUrl = "http://at01-acc.app.yii2.projecten03.netzozeker.info";
-    var baseUrl = "https://app-acc.scantack.eu";
+    // var baseUrl = "https://app-acc.scantack.eu";
     // var baseUrl = "https://app.scantack.eu";
     // var baseUrl = "https://at01.app.yii2.projecten03.netzozeker.info";
 

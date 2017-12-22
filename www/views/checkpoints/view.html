@@ -104,15 +104,17 @@
     function checkName(){
         if(app.checkpoint.location_description.length == 0){
             var description = prompt("Controlepunt naam leeg. Geef een nieuwe naam op");
-            if(description){
+            if(description != null){
                 if(description.length > 0){
                     app.checkpoint.location_description = description;
                     app.day.update(function(e){
                         checkBarcode();
                     });
+                } else {
+                    checkName();
                 }
             } else {
-                app.navigate.to('views/checkpoints/view.html');
+                app.navigate.to('views/checkpoints/index.html');
             }
         } else {
             checkBarcode();
