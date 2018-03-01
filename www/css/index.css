@@ -367,6 +367,52 @@ app > view > content > .inner,
     font-size: medium;
 }
 
+app > view > content.delivery-list{
+
+}
+
+app > view > content.delivery-list > section{
+    padding: 0;
+}
+
+app > view > content.delivery-list > section .data-row.normal{
+    position: relative;
+    padding: 0 50px 0 10px;
+    border-bottom: 1px solid #c5c5c5;
+}
+
+app > view > content.delivery-list > section .data-row.title{
+    padding: 0 10px;
+}
+
+app > view > content.delivery-list > section .data-row:not(.title):not(.small):before{
+    content: attr(data-amount);
+    width: 50px;
+    height: 50px;
+    line-height: 50px;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    margin: auto 0;
+    border-left: 1px solid #c5c5c5;
+    text-align: center;
+}
+
+app > view > content.delivery-list > section .data-row.normal{
+    /* min-height: 50px;
+    line-height: 50px;
+    font-size: medium; */
+    font-size: medium;
+    padding: 10px;
+}
+app > view > content.delivery-list > section .data-row.small{
+    /* min-height: 25px; */
+    font-size: smaller;
+    line-height: 14px;
+    padding: 10px;
+}
+
 .planning-list > section > li > ul > li .data-row.small{
     border-top: 1px solid #ddd;
     min-height: 25px;
@@ -556,24 +602,29 @@ app > view > content > .inner,
 .appointment.view-debtor,
 .appointment.view-remarks,
 .appointment.view-products,
-.appointment.view-summary{
+.appointment.view-summary,
+.appointment.view-deliveries{
     line-height: 40px;
     padding: 0 10px;
 }
+
 .appointment.information{
-    margin: 10px 0 0 0;
-line-height: normal;
-    width: 100%;
+    line-height: normal;
+    padding: 10px;
+    margin: 0 0 10px 0;
     border: 0;
-    color: #333;
-    background-color: transparent;
+    width: 100%;
+    color: white;
+    background-color: rgba(0, 44, 80, .9);
 }
+
 .appointment.information .title,
 .appointment.view-checkpoints .title,
 .appointment.view-debtor .title,
 .appointment.view-remarks .title,
 .appointment.view-products .title,
-.appointment.view-summary .title{
+.appointment.view-summary .title,
+.appointment.view-deliveries .title{
     /*line-height: 80px;*/
     font-size: 16px;
 }
@@ -627,6 +678,10 @@ line-height: normal;
 
 .appointment.view-products .title:after{
     content: "\E875";
+}
+
+.appointment.view-deliveries .title:after{
+    content: "\E613";
 }
 
 .appointment.information:after,
@@ -1216,4 +1271,42 @@ max-height: 100%;
 .picturesourcetype:active{
     background-color: #ddd;
     color: white;
+}
+
+
+
+
+
+.options-list{
+    list-style: none;
+    margin: 0; padding: 0;
+}
+.options-list .option{
+    height: 50px;
+    line-height: 50px;
+    padding: 0 10px;
+}
+
+.content-message{
+    color: white;
+    background-color: #3D8EB9;
+    position: fixed;
+    display: inline-block;
+    border: 0;
+    top: 75px;
+    right: 10px;
+    max-width: 80%;
+    padding: 10px;
+    border-radius: 10px;
+}
+
+.content-message:after{
+    content: "";
+    width: 15px;
+    height: 15px;
+    position: absolute;
+    top: -7.5px;
+    right: 15px;
+    background-color: inherit;
+    transform: rotate(45deg);
 }

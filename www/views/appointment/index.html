@@ -16,7 +16,7 @@
     <section id='appointment-remarks' class='inner appointment information'>
 
     </section>
-    <section class='inner appointment view-checkpoints' action="viewCheckpoints" mdot noselect>
+    <section class='inner appointment view-checkpoints hidden' action="viewCheckpoints" mdot noselect>
         <h2 class='title'>Controlepunten</h2>
     </section>
     <section class='inner appointment view-debtor scheme' action="viewDebtor" mdot noselect>
@@ -24,6 +24,9 @@
     </section>
     <section class='inner appointment view-products hidden' action='viewProducts' mdot noselect>
         <h2 class='title'>Producten</h2>
+    </section>
+    <section class='inner appointment view-deliveries hidden' action='viewDeliveries' mdot noselect>
+        <h2 class='title'>Leverbonnen</h2>
     </section>
     <!-- <section class='inner appointment view-summary' action='viewSummary' mdot noselect>
         <h2 class='title'>Overzicht</h2>
@@ -46,8 +49,18 @@
         $('[action="completeAppointment"]').addClass('hidden');
     }
 
-    if(app.appointment.debtor.is_non_contract_products_allowed == true){
+    if( app.appointment.hasOwnProperty('checkpoints') && Object.keys( app.appointment.checkpoints ).length > 0 ){
+        document.querySelector('[action="viewCheckpoints"]').classList.remove('hidden');
+    }
+
+    if(app.appointment.debtor.is_non_contract_products_allowed == true && app.appointment.checkpoints.length > 0){
         document.querySelector('[action="viewProducts"]').classList.remove('hidden');
+    }
+
+
+
+    if( app.appointment.hasOwnProperty('deliveries') && Object.keys( app.appointment.deliveries ).length > 0 ){
+        document.querySelector('[action="viewDeliveries"]').classList.remove('hidden');
     }
 
     if(app.appointment.hasOwnProperty('remarks')){

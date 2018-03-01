@@ -32,6 +32,9 @@
         <p>
             <strong>Betaalmethode:</strong> <span id='payment_method'></span>
         </p>
+        <p id='price-in-field' class='hidden'>
+            <strong>Te voldoen:</strong> €<span id='price_in'></span>
+        </p>
     </section>
     <section class='inner'>
         <h2 id='visit'>Adresgegevens</h2>
@@ -100,6 +103,7 @@
         installationList.append( $(
             "<div class='installation'>\
                 <normal>" + app.appointment.service_types[serviceTypeIndex].name + "</normal>\
+                <small>" + app.appointment.service_types[serviceTypeIndex].current_status_name + "<span style='background-color:"+app.appointment.service_types[serviceTypeIndex].current_status_color+"; height: 16px; width: 16px; display: inline-block; float: left; margin-right: 5px; border-radius: 100%;' ></small>\
                 <small>" + ( app.appointment.service_types[serviceTypeIndex].remarks == "" ? "Geen opmerking" :  app.appointment.service_types[serviceTypeIndex].remarks ) + "</small>\
                 <small>Prioriteit: " + app.appointment.service_types[serviceTypeIndex].priority + "</small>\
                 <small>Gemeld door: " + app.appointment.service_types[serviceTypeIndex].name_reporter + "</small>\
@@ -121,6 +125,11 @@
     $('#visit_addition').html( app.appointment.debtor.visit_addition );
 
     $('#payment_method').html( app.appointment.payment.payment_method );
+
+    if( app.appointment.payment.payment_method != 'invoice' ){
+        $('#price-in-field').removeClass('hidden');
+        $('#price_in').html( parseInt( app.appointment.payment.default_in ).toFixed('2') );
+    }
 
     var t = 0;
     var timeTable = $('#times');

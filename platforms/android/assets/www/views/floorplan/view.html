@@ -29,12 +29,14 @@ $('#floorplan-container #floorplan').attr( 'src', path );
 for(var i in app.appointment.checkpoints){
     var cp = app.appointment.checkpoints[i];
     var fp = cp.floorplan;
-    // var path = cordova.file.dataDirectory + 'img/' + fp.path;
-    var path = baseUrl + '/job/get-icon?item=' + fp.path;
-    var str = "<div class='floorplan-icon' style='top: "+fp.y+"; left: "+fp.x+";' action='viewCheckpoint' checkpoint='"+i+"' mdot noselect>";
-    str += "<img src='"+path+"'/>";
-    str += "</div>";
-    $('#floorplan-container .inner').append( $(str) );
+
+    if( fp.debtor_floorplan_id == app.appointment.floorplan[ app.floorplanIndex ].id  ){
+        var path = baseUrl + '/job/get-icon?item=' + fp.path;
+        var str = "<div class='floorplan-icon' style='top: "+fp.y+"; left: "+fp.x+";' action='viewCheckpoint' checkpoint='"+i+"' mdot noselect>";
+        str += "<img src='"+path+"'/>";
+        str += "</div>";
+        $('#floorplan-container .inner').append( $(str) );
+    }
 }
 var naturalHeight = null;
 var naturalWidth = null;

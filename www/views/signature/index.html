@@ -36,16 +36,16 @@
 
         </canvas>
         </img>
-        <i class="material-icons signature reset" action="signatureReset" target="customer">&#xE23B;</i>        
+        <i class="material-icons signature reset" action="signatureReset" target="customer">&#xE23B;</i>
     </div>
 
 
 </content>
 <script>
 
-if(app.appointment.completed == true || app.appointment.sync == false){
-    $('item[action="signatureSubmit"]').remove();
-}
+    if(app.appointment.completed == true || app.appointment.sync == false){
+        $('item[action="signatureSubmit"]').remove();
+    }
 
     $('#dialog-payment').on('ok', function(e){
         e.preventDefault();

@@ -1,3 +1,12 @@
+<style>
+    div#dialog-checkpoint-options.modal{
+        padding: 0;
+    }
+    div#dialog-checkpoint-options.modal .inner{
+        padding: 0;
+    }
+</style>
+
 <menu class='has-2 scheme checkpoints'>
     <item action="navigateBack" mdot noselect>
         <i class="material-icons icon">&#xE5C4;</i>
@@ -10,6 +19,23 @@
     </search>
 </menu>
 <content>
+
+    <div id='dialog-checkpoint-options' class='modal' backdrop>
+        <div class='inner'>
+            <ul class='options-list'>
+                <li class='option' action='checkpointMarkUnreachable'>
+                    Markeer onbereikbaar
+                </li>
+                <li class='option' action='checkpointMarkNonExistent'>
+                    Markeer niet bestaand
+                </li>
+                <li class='option' fn-dismiss>
+                    Annuleer
+                </li>
+            </ul>
+        </div>
+    </div>
+
     <div id='dialog-dialog-remark' class='modal' dialog-ok='Ok' dialog-cancel='Annuleer' backdrop>
         <div class='inner'>
         </div>
@@ -99,7 +125,7 @@
         }
 
         // var str = "<li class='checkpoint-type' action='viewCheckpoint' checkpoint='"+sp.checkpoint_type.name + "(" + sp.checkpoint_type_sequence_number + ")" + "' mdot noselect>";
-        var str = "<li class='"+className+"' data-code='"+sp.barcode+"' action='viewCheckpoint' checkpoint='"+i+"' mdot noselect>";
+        var str = "<li class='"+className+"' data-code='"+sp.barcode+"' action='viewCheckpoint' fn-longpress checkpoint='"+i+"' mdot noselect>";
         str += "<h4>" + sp.location_description + "</h4>";
 
         var count = 0;
@@ -134,4 +160,34 @@
         str += "</li>";
         $('.checkpoint-list').append( $(str) );
     }
+
+    $(document).on('longpress', '[action="viewCheckpoint"][fn-longpress]', function(e){
+        e.preventDefault();
+        e.stopPropagation();
+
+
+        var checkpoint = $(this).attr('checkpoint');
+        if(checkpoint){
+            app.checkpoint = app.appointment.checkpoints[checkpoint];
+            app.checkpointIndex = checkpoint;
+
+            var sp = app.day['data'][app.appointmentIndex]['checkpoints'][app.checkpointIndex];
+            var unreachable = (sp.unreachable == true) ? 'unreachable' : '';
+
+            if(sp.unreachable == true){
+                var action = $('[action="checkpointMarkUnreachable"]');
+                action.attr('action', 'checkpointMarkReachable');
+                action.html("Markeer bereikbaar");
+            }
+
+            if(sp.exists == false){
+                var action = $('[action="checkpointMarkNonExistent"]');
+                action.attr('action', 'checkpointMarkExistent');
+                action.html("Markeer bestaand");
+            }
+
+            new Modal( $('#dialog-checkpoint-options')[0] ).show();
+        }
+
+    })
 </script>

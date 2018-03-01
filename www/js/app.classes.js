@@ -561,7 +561,6 @@ DataStoreHelper.prototype.all = DataStoreHelper.all = function(callback){
         } else {
             callback.call(this, results);
         }
-
     }
 }
 DataStoreHelper.prototype.findByIds = DataStoreHelper.findByIds = function(keys, callback){

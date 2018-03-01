@@ -11,6 +11,9 @@
     </item>
 </menu>
 <content>
+    <section id='content-message' class="content-message hidden">
+        <strong>Geen installaties beschikbaar</strong>
+        <br/> ga door naar de volgende stap. </section>
     <ul class='installation-list'>
         <!-- <button action='signAppointment' class='btn btn-default success wide' mdot noselect>Ondertekenen</button> -->
     </ul>
@@ -20,6 +23,10 @@
         app.navigate.to('views/appointment/index.html', function(e) {
 
         });
+    }
+
+    if( app.appointment.service_types.length == 0 ){
+        $('#content-message').removeClass('hidden');
     }
 
 

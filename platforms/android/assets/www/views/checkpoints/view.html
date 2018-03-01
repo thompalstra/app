@@ -11,7 +11,7 @@
             <li action='checkpointMarkUnreachable' mdot noselect>Markeer onbereikbaar</li>
             <li action='checkpointMarkNonExistent' mdot noselect>Markeer niet bestaand</li>
             <li action='checkpointEditName' mdot noselect disabled>Bewerk naam</li>
-            <li action='checkpointEditBarcode' mdot noselect disabled>Bewerk barcode</li>
+            <li action='checkpointEditBarcode' mdot noselect>Bewerk barcode</li>
             <li action='checkpointDelete' mdot noselect disabled>Verwijderen</li>
         </ul>
     </item>
@@ -41,155 +41,165 @@
 
     app.scanner.canScan = false;
 
-    var indexes = [];
-    var currentIndex = 0;
-
-
-    for(var remarkIndex in app.checkpoint.remarks){
-        var remark = app.checkpoint.remarks[remarkIndex];
-        if(remark.is_completed == false && remark.id != null){
-            indexes.push(remarkIndex);
-        }
-    }
-
-    function show( currentIndex ){
-        var remark = app.checkpoint.remarks[indexes[currentIndex]];
-        if(remark.is_completed == false){
-            var modal = new Modal( $('#dialog-dialog-remark')[0] );
-
-            $('#remark-name').html("Opmerking: " + remark.name );
-            $('#remark-action').html("Actie: " + remark.action );
-            $('#complete-remark').attr('remark', currentIndex);
-
-            modal.show();
-        }
-    }
-
-    if( indexes.length > 0 && app.checkpoint.is_opened == false ){
-        show( currentIndex );
-    }
-
-    if( app.checkpoint.is_opened == false ){
-        app.checkpoint.is_opened = true;
-        app.day.update(function(){});
-    }
-
-    $(document).on('click', '#complete-remark', function(e){
-        var remark = app.checkpoint.remarks[ this.getAttribute('remark') ];
-        remark.is_completed = 1;
+    if( !app.appointment.hasOwnProperty('started_at') || app.appointment.started_at == null ){
+        app.appointment.started_at = parseInt(+ Date.now() / 1000).toFixed(0);
         app.day.update(function(e){
-            $('#dialog-dialog-remark .btn.ok').trigger('click');
+            view();
         });
-    })
-
-    $('#dialog-dialog-remark').on('ok', function(e){
-        e.preventDefault();
-        if( currentIndex < indexes.length - 1 ){
-            currentIndex++;
-            show( currentIndex );
-        } else {
-            new Modal( $('#dialog-dialog-remark')[0] ).hide()
-        }
-    });
-
-    console.log( 'is opened: ' + app.checkpoint.is_opened) ;
-
-    if( indexes.length > 0 && app.checkpoint.is_opened == false ){
-
-        show( currentIndex );
+    } else {
+        view();
     }
 
-    checkName();
+    function view(){
+        var indexes = [];
+        var currentIndex = 0;
 
-    function checkName(){
-        if(app.checkpoint.location_description.length == 0){
-            var description = prompt("Controlepunt naam leeg. Geef een nieuwe naam op");
-            if(description){
-                if(description.length > 0){
-                    app.checkpoint.location_description = description;
-                    app.day.update(function(e){
-                        checkBarcode();
-                    });
+
+        for(var remarkIndex in app.checkpoint.remarks){
+            var remark = app.checkpoint.remarks[remarkIndex];
+            if(remark.is_completed == false && remark.id != null){
+                indexes.push(remarkIndex);
+            }
+        }
+
+        function show( currentIndex ){
+            var remark = app.checkpoint.remarks[indexes[currentIndex]];
+            if(remark.is_completed == false){
+                var modal = new Modal( $('#dialog-dialog-remark')[0] );
+
+                $('#remark-name').html("Opmerking: " + remark.name );
+                $('#remark-action').html("Actie: " + remark.action );
+                $('#complete-remark').attr('remark', currentIndex);
+
+                modal.show();
+            }
+        }
+
+        if( indexes.length > 0 && app.checkpoint.is_opened == false ){
+            show( currentIndex );
+        }
+
+        if( app.checkpoint.is_opened == false ){
+            app.checkpoint.is_opened = true;
+            app.day.update(function(){});
+        }
+
+        $(document).on('click', '#complete-remark', function(e){
+            var remark = app.checkpoint.remarks[ this.getAttribute('remark') ];
+            remark.is_completed = 1;
+            app.day.update(function(e){
+                $('#dialog-dialog-remark .btn.ok').trigger('click');
+            });
+        })
+
+        $('#dialog-dialog-remark').on('ok', function(e){
+            e.preventDefault();
+            if( currentIndex < indexes.length - 1 ){
+                currentIndex++;
+                show( currentIndex );
+            } else {
+                new Modal( $('#dialog-dialog-remark')[0] ).hide()
+            }
+        });
+
+        if( indexes.length > 0 && app.checkpoint.is_opened == false ){
+
+            show( currentIndex );
+        }
+
+        checkName();
+
+        function checkName(){
+            if(app.checkpoint.location_description.length == 0){
+                var description = prompt("Controlepunt naam leeg. Geef een nieuwe naam op");
+                if(description != null){
+                    if(description.length > 0){
+                        app.checkpoint.location_description = description;
+                        app.day.update(function(e){
+                            checkBarcode();
+                        });
+                    } else {
+                        checkName();
+                    }
+                } else {
+                    app.navigate.to('views/checkpoints/index.html');
                 }
             } else {
-                app.navigate.to('views/checkpoints/view.html');
+                checkBarcode();
             }
-        } else {
-            checkBarcode();
         }
-    }
-    function checkBarcode(){
-        if(app.checkpoint.barcode.length == 0){
-            app.scanner.canScan = 'insertCode';
-            var c = confirm("Barcode leeg. Scan een barcode en klik vervolgens op OK");
-            if(c == true){
-                app.navigate.to('views/checkpoints/view.html');
+        function checkBarcode(){
+            if(app.checkpoint.barcode.length == 0){
+                app.scanner.canScan = 'insertCode';
+                var c = confirm("Barcode leeg. Scan een barcode en klik vervolgens op OK");
+                if(c == true){
+                    app.navigate.to('views/checkpoints/view.html');
+                } else {
+                    app.navigate.to('views/checkpoints/index.html');
+                }
             } else {
-                app.navigate.to('views/checkpoints/index.html');
+                loadCheckpoint();
             }
-        } else {
-            loadCheckpoint();
-        }
-    }
-
-    function loadCheckpoint(){
-        // app.scanner.canScan = false;
-        app.navigate.back = function(){
-            app.navigate.to('views/checkpoints/index.html', function(e){
-
-            });
-        }
-        var sp = app.day['data'][app.appointmentIndex]['checkpoints'][app.checkpointIndex];
-        var unreachable = (sp.unreachable == true) ? 'unreachable' : '';
-
-        if(sp.unreachable == true){
-            var action = $('[action="checkpointMarkUnreachable"]');
-            action.attr('action', 'checkpointMarkReachable');
-            action.html("Markeer bereikbaar");
         }
 
-        if(sp.exists == false){
-            var action = $('[action="checkpointMarkNonExistent"]');
-            action.attr('action', 'checkpointMarkExistent');
-            action.html("Markeer bestaand");
-        }
-
-        if(sp.is_temporary == true){
-            var action = $('[action="checkpointDelete"]');
-            action.attr('disabled', false);
-        }
-
-        for(var i in app.day['data'][app.appointmentIndex]['checkpoints'][app.checkpointIndex]['questions']){
-            var questionIndex = i;
-            var question = app.day['data'][app.appointmentIndex]['checkpoints'][app.checkpointIndex]['questions'][i];
-            var answered = '';
-
-            if(question.answered == true || app.appointment.completed == true ){
-                answered = 'answered';
-            }
-
-            str = '<li class="'+answered+'">';
-            str += app.question.createHTML(questionIndex, question);
-            str += '</li>';
-            $('.question-list').append( $(str) );
-        }
-
-        $('#dialog-checkpoint-delete').on('ok', function(e){
-            e.preventDefault();
-            app.checkpoint.is_deleted = 1;
-            app.day.update(function(e){
-                new Modal( $('#dialog-checkpoint-delete')[0] ).hide();
+        function loadCheckpoint(){
+            // app.scanner.canScan = false;
+            app.navigate.back = function(){
                 app.navigate.to('views/checkpoints/index.html', function(e){
 
                 });
-            });
-        });
+            }
+            var sp = app.day['data'][app.appointmentIndex]['checkpoints'][app.checkpointIndex];
+            var unreachable = (sp.unreachable == true) ? 'unreachable' : '';
 
-        $('title').html(app.checkpoint.location_description);
-        if(app.checkpoint.is_editable){
-            $('[action="checkpointEditName"]').attr('disabled', false);
-            $('[action="checkpointEditBarcode"]').attr('disabled', false);
+            if(sp.unreachable == true){
+                var action = $('[action="checkpointMarkUnreachable"]');
+                action.attr('action', 'checkpointMarkReachable');
+                action.html("Markeer bereikbaar");
+            }
+
+            if(sp.exists == false){
+                var action = $('[action="checkpointMarkNonExistent"]');
+                action.attr('action', 'checkpointMarkExistent');
+                action.html("Markeer bestaand");
+            }
+
+            if(sp.is_temporary == true){
+                var action = $('[action="checkpointDelete"]');
+                action.attr('disabled', false);
+            }
+
+            for(var i in app.day['data'][app.appointmentIndex]['checkpoints'][app.checkpointIndex]['questions']){
+                var questionIndex = i;
+                var question = app.day['data'][app.appointmentIndex]['checkpoints'][app.checkpointIndex]['questions'][i];
+                var answered = '';
+
+                if(question.answered == true || app.appointment.completed == true ){
+                    answered = 'answered';
+                }
+
+                str = '<li class="'+answered+'">';
+                str += app.question.createHTML(questionIndex, question);
+                str += '</li>';
+                $('.question-list').append( $(str) );
+            }
+
+            $('#dialog-checkpoint-delete').on('ok', function(e){
+                e.preventDefault();
+                app.checkpoint.is_deleted = 1;
+                app.day.update(function(e){
+                    new Modal( $('#dialog-checkpoint-delete')[0] ).hide();
+                    app.navigate.to('views/checkpoints/index.html', function(e){
+
+                    });
+                });
+            });
+
+            $('title').html(app.checkpoint.location_description);
+            if(app.checkpoint.is_editable){
+                $('[action="checkpointEditName"]').attr('disabled', false);
+                $('[action="checkpointEditBarcode"]').attr('disabled', false);
+            }
         }
     }
-
 </script>

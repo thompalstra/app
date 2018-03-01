@@ -1,0 +1,39 @@
+<menu class='has-2 scheme debtor-detail'>
+    <item action="navigateBack" mdot noselect>
+        <i class="material-icons icon">&#xE5C4;</i>
+    </item>
+    <title>Leverbonnen</title>
+</menu>
+<content id='delivery-list' class='delivery-list'>
+</content>
+<script>
+
+    app.navigate.back = function(){
+        app.navigate.to('views/appointment/index.html', function(e){
+
+        });
+    }
+
+    var productTemplate = "<div class='data-row normal' data-amount='{product.amount}x'>{product.name}<br/><small>{product.description}</small></div>";
+    var deliveryList = document.getElementById('delivery-list');
+
+    for(var i in app.appointment.deliveries){
+        var delivery = app.appointment.deliveries[i];
+
+        out = "<section class='inner'>\
+                <div class='data-row normal title'><strong>" + delivery.job_number + "</strong> " + delivery.remarks + "</div>";
+                for(var i in delivery.products){
+                    var product = delivery.products[i];
+                    out += productTemplate
+                    .replace(/{product.name}/g, product.name)
+                    .replace(/{product.amount}/g, parseInt( product.amount ).toFixed(0) )
+                    .replace(/{product.description}/g, product.description );
+                }
+        out += "<div class='data-row small'>\
+                    Jobnummer: " + delivery.job_number + "<br/>\
+                </div>";
+        out += "</section>";
+
+        deliveryList.innerHTML += out;
+    }
+</script>

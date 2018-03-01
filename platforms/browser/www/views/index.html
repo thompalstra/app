@@ -100,5 +100,14 @@
 
         }
     });
+    $("#dialog-sync-complete").on('ok', function(e){
+        app.navigate.to('views/index.html', function(e){
 
+        });
+    });
+    $("#dialog-sync-complete").on('dismiss', function(e){
+        app.navigate.to('views/index.html', function(e){
+
+        });
+    });
 </script>

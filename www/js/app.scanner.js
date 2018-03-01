@@ -37,17 +37,20 @@ var scanner = {
             if(items.length == 1){
                 var checkpoint = $(items[0]).attr('checkpoint');
                 app.checkpoint = app.appointment.checkpoints[checkpoint];
-                app.checkpoint.scanned = true;
+                app.checkpoint.is_scanned = true;
                 app.checkpointIndex = checkpoint;
                 if(app.checkpoint){
-                    if(!app.checkpoint.is_opened){
-                        app.checkpoint.is_opened = true;
-                        app.day.update(function(e){
-                            app.navigate.to('views/checkpoints/view.html');
-                        });
-                    }
+                    // if(!app.checkpoint.is_opened){
+                    //     app.checkpoint.is_opened = true;
+                    //     app.day.update(function(e){
+                    //         app.navigate.to('views/checkpoints/view.html');
+                    //     });
+                    // }
+                    // app.navigate.to('views/checkpoints/view.html');
 
-                    app.navigate.to('views/checkpoints/view.html');
+                    app.day.update(function(e){
+                        app.navigate.to('views/checkpoints/view.html');
+                    });
                 }
             }
         }

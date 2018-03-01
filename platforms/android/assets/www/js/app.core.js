@@ -76,8 +76,6 @@ var app = {
         });
     },
     handleError: function(error){
-        console.log(error);
-        console.log('handling error: ' + error.status);
         switch(error.status){
             case 401:
                 alert("U bent niet bevoegd deze actie uit te voeren. U wordt teruggestuurd naar het login scherm.");
@@ -675,6 +673,8 @@ var app = {
 
                     answer = parseInt(answer);
 
+
+
                     if( typeof min_value !== 'undefined' && answer < min_value ){
                         question.errors.push("Antwoord moet gelijk of meer zijn dan " + min_value);
                     }
@@ -687,27 +687,20 @@ var app = {
                 break;
                 case QUESTION_TYPE_TEXT:
                     // validate text
-                    var min_value = question.hasOwnProperty('min_value') ? question.min_value : undefined;
-                    var max_value = question.hasOwnProperty('max_value') ? question.max_value : undefined;
-                    if( typeof min_value !== 'undefined' && answer.length < min_value ){
-                        question.errors.push("Antwoord moet langer zijn dan " + min_value);
-                    }
-
-                    if( typeof max_value !== 'undefined' && answer.length > max_value ){
-                        question.errors.push( "Antwoord moet korter zijn dan " + max_value);
-                    }
+                    // var min_value = question.hasOwnProperty('min_value') ? question.min_value : undefined;
+                    // var max_value = question.hasOwnProperty('max_value') ? question.max_value : undefined;
+                    //
+                    // if( typeof min_value !== 'undefined' && answer.length < min_value ){
+                    //     question.errors.push("Antwoord moet langer zijn dan " + min_value);
+                    // }
+                    //
+                    // if( typeof max_value !== 'undefined' && answer.length > max_value ){
+                    //     question.errors.push( "Antwoord moet korter zijn dan " + max_value);
+                    // }
                 break;
                 case QUESTION_TYPE_PRODUCT:
-                    console.log('validating product...');
                     var productId = parseFloat( answer[0] );
-                    // var productAmount = isNaN( parseFloat( answer[1] ) ) ? 0 : parseFloat( answer[1] );
                     var productAmount = ( answer[1] == "" || isNaN(answer[1]) ) ? 0 : parseFloat( answer[1] );
-
-                    // if(productAmount > 0){
-                    //
-                    // } else {
-                    //     question.errors.push( "Product hoeveelheid mag niet leeg zijn.");
-                    // }
                 break;
             };
             return (question.errors.length == 0) ? true : false;
@@ -999,6 +992,11 @@ var app = {
 
             });
         },
+        viewDeliveries: function(e){
+            app.navigate.to('views/deliveries/index.html', function(e){
+
+            });
+        },
         viewSummary: function(e){
             app.navigate.to('views/summary/index.html', function(e){
 
@@ -1020,11 +1018,6 @@ var app = {
                                             app.setCheckpointTypes(function(e){
                                                 new Modal( $("#dialog-sync-progress")[0] ).hide();
                                                 new Modal( $("#dialog-sync-complete")[0] ).show();
-                                                $("#dialog-sync-complete").on('ok', function(e){
-                                                    app.navigate.to('views/index.html', function(e){
-
-                                                    });
-                                                });
                                             });
                                         }, 500);
                                     })
@@ -1034,9 +1027,6 @@ var app = {
                     });
                 }, 500);
             });
-
-
-
 
         },
         viewAppointment: function(e){
@@ -1096,10 +1086,7 @@ var app = {
 
                     if( str != "" ){
                         var modal = new Modal( $('#dialog-dialog-remark-index')[0] );
-
-
                         var inner = $( modal.element ).find('.inner');
-                        console.log(inner);
                         inner.html( str );
                         modal.show();
                     }
@@ -1116,9 +1103,6 @@ var app = {
         },
         viewCheckpoint: function(e){
             var checkpoint = $(this).attr('checkpoint');
-
-            console.log( 'viewCheckpointfunction' );
-
             if(checkpoint){
                 app.checkpoint = app.appointment.checkpoints[checkpoint];
                 app.checkpointIndex = checkpoint;
@@ -1126,17 +1110,7 @@ var app = {
                 if( !app.checkpoint.is_scanned && !app.checkpoint.is_opened ){
                     alert("Probeer, indien mogelijk, altijd de barcodes van een controlepunt te scannen.");
                 }
-
-                // if(!app.checkpoint.is_opened){
-                //     // app.checkpoint.is_opened = true;
-                //
-                //     app.day.update(function(e){
-                //         app.navigate.to('views/checkpoints/view.html');
-                //     });
-                // } else {
-                    app.navigate.to('views/checkpoints/view.html');
-                // }
-
+                app.navigate.to('views/checkpoints/view.html');
             }
         },
         viewRemarks: function(e){
@@ -1228,17 +1202,17 @@ var app = {
 
             for(var i in app.appointment.checkpoints){
                 var cp = app.appointment.checkpoints[i];
-                if(cp.is_deleted == false && cp.unreachable == false && cp.is_required == true && cp.is_opened == false){
+                if( cp.is_deleted == false && cp.unreachable == false && cp.is_required == true && cp.is_opened == false && cp.exists == true ){
                     join.push("Openstaand controlepunt: " + cp.location_description);
                     openCheckpoints++;
                     checkpointName = cp.location_description;
                     finish = false;
                 }
             }
-            if(finish){
+            if( finish ){
                 for(var i in app.appointment.checkpoints){
                     var cp = app.appointment.checkpoints[i];
-                    if( cp.is_required && cp.is_deleted == false && cp.unreachable == false && cp.exists == true){
+                    if( cp.is_required && cp.is_deleted == false && cp.unreachable == false && cp.exists == true ){
                         var count = 0;
                         for(var cpqi in cp.questions){
                             var cpq = cp.questions[cpqi];
@@ -1279,7 +1253,6 @@ var app = {
                 var st = app.appointment.service_types[sti];
                 if(st.state == null){
                     join.push("Servicetype " + st.name + " heeft geen status!");
-                    console.log('geen status');
                     finish = false;
                 }
             }
@@ -1391,6 +1364,8 @@ var app = {
 
             if(signaturePadCustomer){
                 var join = [];
+
+                app.appointment.signatures.created_at = parseInt( + new Date() / 1000 ).toFixed(0);
 
                 if(signaturePadCustomer.isEmpty()){
                     cancel = true;
@@ -1521,6 +1496,11 @@ var app = {
                         }
 
                         app.appointment.completed = 1;
+
+                        if( !app.appointment.hasOwnProperty('completed_at') || app.appointment.completed_at == null ){
+                            app.appointment.completed_at = parseInt(+ Date.now() / 1000).toFixed(0);
+                        }
+
                         app.day.update(function(e){
                             app.navigate.to('views/index.html', function(e){
 
@@ -1597,12 +1577,14 @@ var Modal = function( element ){
         this.element.appendChild( btnRow );
     }
 
-
     parent = this;
 
-    }
+    this.element.addEventListener('dismiss', function(e){
+        new Modal( this ).hide();
+    })
+}
 
-    $(document).on('click', '.modal .btn.ok', function(e){
+$(document).on('click', '.modal .btn.ok', function(e){
 
     e.stopPropagation();
     e.preventDefault();
@@ -1616,9 +1598,9 @@ var Modal = function( element ){
     if(!okEvent.isDefaultPrevented()){
         new Modal( okEvent.target ).hide();
     }
-    });
-    $(document).on('click', '.modal .btn.cancel', function(e){
+});
 
+$(document).on('click', '.modal .btn.cancel', function(e){
     e.stopPropagation();
     e.preventDefault();
 
@@ -1630,13 +1612,22 @@ var Modal = function( element ){
 
         new Modal( this.parentNode.parentNode ).hide();
     }
-    });
+});
+
+$(document).on('click', '.modal[open] ~ .modal-backdrop', function(e){
+    $('.modal[open]').each( function( i ){
+        this.dispatchEvent( new CustomEvent('dismiss', {
+            cancelable: true,
+            bubbles: true
+        }));
+    } )
+})
 
 Modal.prototype.hide = function(){
     $(this.element).trigger('beforeClose');
     this.element.removeAttribute('open');
     $(this.element).trigger('afterClose');
-    }
+}
 Modal.prototype.show = function(){
     $(this.element).trigger('beforeOpen');
 
@@ -1654,11 +1645,11 @@ Modal.prototype.show = function(){
 
     $(this.element).trigger('afteropen');
 }
-    Modal.prototype.content = function( content ){
+Modal.prototype.content = function( content ){
     this.element.innerHTML = content;
 }
 
-    app.initialize();
+app.initialize();
 
 
 
@@ -1674,16 +1665,10 @@ $(document).on('submit', '.installation-list .question-list .question-form', fun
     var p = $($(this.parentNode.parentNode).prev());
     var on = $(this.parentNode.parentNode).attr('on');
 
-    // var serviceTypeIndex = $(this.parentNode.parentNode).attr('servicetype');
     var serviceTypeIndex = $(this.parentNode.parentNode).attr('serviceTypeIndex');
-
-
 
     var fd = new FormData( $('.question-list[servicetype="'+serviceType+'"] form[question="'+questionIndex+'"]')[0] );
     var entries = fd.getAll('question_' + questionIndex);
-
-    console.log(serviceType);
-    console.log(questionIndex);
 
     var question = app.appointment.service_types[serviceTypeIndex].additional_questions[serviceType][questionIndex];
 
@@ -1818,11 +1803,15 @@ $(document).on('click', '[action]', function(e){
 $(document).on('click', '#sync-toggler', function(e){
     $(this.parentNode).toggleClass('collapsed');
 })
-    // var baseUrl = "http://thom.at01.app.yii2.dev03.netzozeker.info";
-    // var baseUrl = "http://at01-acc.app.yii2.projecten03.netzozeker.info";
-    var baseUrl = "https://app-acc.scantack.eu";
-    // var baseUrl = "https://app.scantack.eu";
-    // var baseUrl = "https://at01.app.yii2.projecten03.netzozeker.info";
+
+// frankdj : attack2018
+
+var baseUrl = "http://thom.at01.app.yii2.dev03.netzozeker.info";
+// var baseUrl = "http://sandor.at01.app.yii2.dev03.netzozeker.info";
+// var baseUrl = "http://at01-acc.app.yii2.projecten03.netzozeker.info";
+// var baseUrl = "https://app-acc.scantack.eu";
+// var baseUrl = "https://app.scantack.eu";
+// var baseUrl = "https://at01.app.yii2.projecten03.netzozeker.info";
 
 app.restClient = {
     ping: baseUrl + '/ping',
@@ -1902,3 +1891,33 @@ var templates = {
 
 
 app.templates = templates;
+
+
+
+$(document).on('touchstart', '[fn-longpress]', function(e){
+    this.longpressTimeout = window.setTimeout( function( event ){
+        this.dispatchEvent( new CustomEvent('longpress', {
+            cancelable: true,
+            bubbles: true,
+        }) );
+    }.bind(this), 1500 );
+});
+
+$(document).on('touchmove', '[fn-longpress]', function(e){
+    if( this.longpressTimeout ){
+        window.clearTimeout( this.longpressTimeout );
+    }
+})
+
+$(document).on('touchend', '[fn-longpress]', function(e){
+    if( this.longpressTimeout ){
+        window.clearTimeout( this.longpressTimeout );
+    }
+});
+
+$(document).on('click', '[fn-dismiss]', function(e){
+    this.dispatchEvent( new CustomEvent( 'dismiss', {
+        cancelable: true,
+        bubbles: true
+    }) );
+});
